@@ -15,11 +15,11 @@ import { internalRoutes, publicRoutes } from '@ghostfolio/common/routes/routes';
 import { DateRange } from '@ghostfolio/common/types';
 import { GfAssistantComponent } from '@ghostfolio/ui/assistant/assistant.component';
 import { GfLogoComponent } from '@ghostfolio/ui/logo';
-import { NotificationService } from '@ghostfolio/ui/notifications';
 import {
   GfNavMenuGroupComponent,
   NavMenuItem
 } from '@ghostfolio/ui/nav-menu-group';
+import { NotificationService } from '@ghostfolio/ui/notifications';
 import { GfPremiumIndicatorComponent } from '@ghostfolio/ui/premium-indicator';
 import { DataService } from '@ghostfolio/ui/services';
 
@@ -138,28 +138,32 @@ export class GfHeaderComponent implements OnChanges {
   public routerLinkRegister = publicRoutes.register.routerLink;
   public routerLinkResources = publicRoutes.resources.routerLink;
 
+  // Navigation group labels (localized)
+  public partnershipsLabel = $localize`Partnerships`;
+  public k1CenterLabel = $localize`K-1 Center`;
+
   // Navigation group items per contracts/navigation.md
   public partnershipsMenuItems: NavMenuItem[] = [
-    { label: 'Entities', routerLink: '/entities' },
-    { label: 'Partnerships', routerLink: '/partnerships' },
-    { label: 'Distributions', routerLink: '/distributions' },
-    { label: 'Accounts', routerLink: '/accounts' }
+    { label: $localize`Entities`, routerLink: '/entities' },
+    { label: $localize`Partnerships`, routerLink: '/partnerships' },
+    { label: $localize`Distributions`, routerLink: '/distributions' },
+    { label: $localize`Accounts`, routerLink: '/accounts' }
   ];
 
   public k1CenterMenuItems: NavMenuItem[] = [
-    { label: 'K-1 Import', routerLink: '/k1-import' },
-    { label: 'K-1 Documents', routerLink: '/k-documents' },
-    { label: 'Cell Mapping', routerLink: '/cell-mapping' }
+    { label: $localize`K-1 Import`, routerLink: '/k1-import' },
+    { label: $localize`K-1 Documents`, routerLink: '/k-documents' },
+    { label: $localize`Cell Mapping`, routerLink: '/cell-mapping' }
   ];
 
   public legacyMenuItems: NavMenuItem[] = [
-    { label: 'Overview', routerLink: '/home' },
-    { label: 'Holdings', routerLink: '/home/holdings' },
-    { label: 'Summary', routerLink: '/home/summary' },
-    { label: 'Markets', routerLink: '/home/markets' },
-    { label: 'Watchlist', routerLink: '/home/watchlist' },
-    { label: 'FIRE Calculator', routerLink: '/portfolio/fire' },
-    { label: 'X-Ray', routerLink: '/portfolio/x-ray' }
+    { label: $localize`Overview`, routerLink: '/home' },
+    { label: $localize`Holdings`, routerLink: '/home/holdings' },
+    { label: $localize`Summary`, routerLink: '/home/summary' },
+    { label: $localize`Markets`, routerLink: '/home/markets' },
+    { label: $localize`Watchlist`, routerLink: '/home/watchlist' },
+    { label: $localize`FIRE Calculator`, routerLink: '/portfolio/fire' },
+    { label: $localize`X-Ray`, routerLink: '/portfolio/x-ray' }
   ];
 
   public partnershipsRoutes = [

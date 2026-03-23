@@ -1,9 +1,12 @@
-import type { K1ExtractionResult, K1ExtractedField } from '@ghostfolio/common/interfaces';
+import type {
+  K1ExtractionResult,
+  K1ExtractedField
+} from '@ghostfolio/common/interfaces';
 
 import { Injectable, Logger } from '@nestjs/common';
 
-import { PdfParseExtractor } from './pdf-parse-extractor';
 import type { K1Extractor } from './k1-extractor.interface';
+import { PdfParseExtractor } from './pdf-parse-extractor';
 
 /**
  * Tier 2 fallback extractor using tesseract.js (WASM-based OCR).
@@ -15,9 +18,7 @@ export class TesseractExtractor implements K1Extractor {
   private readonly logger = new Logger(TesseractExtractor.name);
   private worker: any = null;
 
-  public constructor(
-    private readonly pdfParseExtractor: PdfParseExtractor
-  ) {}
+  public constructor(private readonly pdfParseExtractor: PdfParseExtractor) {}
 
   public isAvailable(): boolean {
     return true; // Always available — WASM-based, no dependencies
@@ -27,7 +28,9 @@ export class TesseractExtractor implements K1Extractor {
     buffer: Buffer,
     fileName: string
   ): Promise<K1ExtractionResult> {
-    this.logger.log(`Extracting from scanned PDF via Tesseract.js: ${fileName}`);
+    this.logger.log(
+      `Extracting from scanned PDF via Tesseract.js: ${fileName}`
+    );
 
     const Tesseract = await import('tesseract.js');
 
@@ -64,9 +67,7 @@ export class TesseractExtractor implements K1Extractor {
             ? parsed.numpages
             : 1;
       } catch (parseError) {
-        this.logger.error(
-          `Both Tesseract and pdf-parse failed: ${parseError}`
-        );
+        this.logger.error(`Both Tesseract and pdf-parse failed: ${parseError}`);
         text = '';
       }
     }
@@ -94,45 +95,127 @@ export class TesseractExtractor implements K1Extractor {
     if (!text) return [];
 
     // Reuse the same regex patterns as PdfParseExtractor but with lower confidence
-    const BOX_PATTERNS: Array<{ boxNumber: string; patterns: RegExp[] }> = [
-      { boxNumber: '1', patterns: [/ordinary\s+business\s+income[^$\d-]*([($\d,.\-)]+)/i] },
-      { boxNumber: '2', patterns: [/net\s+rental\s+real\s+estate[^$\d-]*([($\d,.\-)]+)/i] },
-      { boxNumber: '3', patterns: [/other\s+net\s+rental[^$\d-]*([($\d,.\-)]+)/i] },
-      { boxNumber: '4', patterns: [/guaranteed\s+payments?\s+for\s+services[^$\d-]*([($\d,.\-)]+)/i] },
-      { boxNumber: '4a', patterns: [/guaranteed\s+payments?\s+for\s+capital[^$\d-]*([($\d,.\-)]+)/i] },
-      { boxNumber: '4b', patterns: [/total\s+guaranteed\s+payments?[^$\d-]*([($\d,.\-)]+)/i] },
-      { boxNumber: '5', patterns: [/interest\s+income[^$\d-]*([($\d,.\-)]+)/i] },
-      { boxNumber: '6a', patterns: [/ordinary\s+dividends[^$\d-]*([($\d,.\-)]+)/i] },
-      { boxNumber: '6b', patterns: [/qualified\s+dividends[^$\d-]*([($\d,.\-)]+)/i] },
-      { boxNumber: '6c', patterns: [/dividend\s+equivalents[^$\d-]*([($\d,.\-)]+)/i] },
+    const BOX_PATTERNS: { boxNumber: string; patterns: RegExp[] }[] = [
+      {
+        boxNumber: '1',
+        patterns: [/ordinary\s+business\s+income[^$\d-]*([($\d,.\-)]+)/i]
+      },
+      {
+        boxNumber: '2',
+        patterns: [/net\s+rental\s+real\s+estate[^$\d-]*([($\d,.\-)]+)/i]
+      },
+      {
+        boxNumber: '3',
+        patterns: [/other\s+net\s+rental[^$\d-]*([($\d,.\-)]+)/i]
+      },
+      {
+        boxNumber: '4',
+        patterns: [
+          /guaranteed\s+payments?\s+for\s+services[^$\d-]*([($\d,.\-)]+)/i
+        ]
+      },
+      {
+        boxNumber: '4a',
+        patterns: [
+          /guaranteed\s+payments?\s+for\s+capital[^$\d-]*([($\d,.\-)]+)/i
+        ]
+      },
+      {
+        boxNumber: '4b',
+        patterns: [/total\s+guaranteed\s+payments?[^$\d-]*([($\d,.\-)]+)/i]
+      },
+      {
+        boxNumber: '5',
+        patterns: [/interest\s+income[^$\d-]*([($\d,.\-)]+)/i]
+      },
+      {
+        boxNumber: '6a',
+        patterns: [/ordinary\s+dividends[^$\d-]*([($\d,.\-)]+)/i]
+      },
+      {
+        boxNumber: '6b',
+        patterns: [/qualified\s+dividends[^$\d-]*([($\d,.\-)]+)/i]
+      },
+      {
+        boxNumber: '6c',
+        patterns: [/dividend\s+equivalents[^$\d-]*([($\d,.\-)]+)/i]
+      },
       { boxNumber: '7', patterns: [/royalties[^$\d-]*([($\d,.\-)]+)/i] },
-      { boxNumber: '8', patterns: [/net\s+short[- ]term\s+capital[^$\d-]*([($\d,.\-)]+)/i] },
-      { boxNumber: '9a', patterns: [/net\s+long[- ]term\s+capital[^$\d-]*([($\d,.\-)]+)/i] },
-      { boxNumber: '9b', patterns: [/collectibles.*28%[^$\d-]*([($\d,.\-)]+)/i] },
-      { boxNumber: '9c', patterns: [/unrecaptured\s+section\s*1250[^$\d-]*([($\d,.\-)]+)/i] },
-      { boxNumber: '10', patterns: [/net\s+section\s*1231[^$\d-]*([($\d,.\-)]+)/i] },
+      {
+        boxNumber: '8',
+        patterns: [/net\s+short[- ]term\s+capital[^$\d-]*([($\d,.\-)]+)/i]
+      },
+      {
+        boxNumber: '9a',
+        patterns: [/net\s+long[- ]term\s+capital[^$\d-]*([($\d,.\-)]+)/i]
+      },
+      {
+        boxNumber: '9b',
+        patterns: [/collectibles.*28%[^$\d-]*([($\d,.\-)]+)/i]
+      },
+      {
+        boxNumber: '9c',
+        patterns: [/unrecaptured\s+section\s*1250[^$\d-]*([($\d,.\-)]+)/i]
+      },
+      {
+        boxNumber: '10',
+        patterns: [/net\s+section\s*1231[^$\d-]*([($\d,.\-)]+)/i]
+      },
       { boxNumber: '11', patterns: [/other\s+income[^$\d-]*([($\d,.\-)]+)/i] },
-      { boxNumber: '12', patterns: [/section\s*179\s+deduction[^$\d-]*([($\d,.\-)]+)/i] },
-      { boxNumber: '13', patterns: [/other\s+deductions[^$\d-]*([($\d,.\-)]+)/i] },
-      { boxNumber: '14', patterns: [/self[- ]employment\s+earnings[^$\d-]*([($\d,.\-)]+)/i] },
+      {
+        boxNumber: '12',
+        patterns: [/section\s*179\s+deduction[^$\d-]*([($\d,.\-)]+)/i]
+      },
+      {
+        boxNumber: '13',
+        patterns: [/other\s+deductions[^$\d-]*([($\d,.\-)]+)/i]
+      },
+      {
+        boxNumber: '14',
+        patterns: [/self[- ]employment\s+earnings[^$\d-]*([($\d,.\-)]+)/i]
+      },
       { boxNumber: '15', patterns: [/credits[^$\d-]*([($\d,.\-)]+)/i] },
-      { boxNumber: '16', patterns: [/foreign\s+transactions[^$\d-]*([($\d,.\-)]+)/i] },
-      { boxNumber: '17', patterns: [/alternative\s+minimum\s+tax[^$\d-]*([($\d,.\-)]+)/i] },
-      { boxNumber: '18', patterns: [/tax[- ]exempt\s+income[^$\d-]*([($\d,.\-)]+)/i] },
-      { boxNumber: '19a', patterns: [/distributions.*cash\s+and\s+marketable[^$\d-]*([($\d,.\-)]+)/i] },
-      { boxNumber: '19b', patterns: [/distributions.*other\s+property[^$\d-]*([($\d,.\-)]+)/i] },
-      { boxNumber: '20', patterns: [/other\s+information[^$\d-]*([($\d,.\-)]+)/i] },
-      { boxNumber: '21', patterns: [/foreign\s+taxes\s+paid[^$\d-]*([($\d,.\-)]+)/i] }
+      {
+        boxNumber: '16',
+        patterns: [/foreign\s+transactions[^$\d-]*([($\d,.\-)]+)/i]
+      },
+      {
+        boxNumber: '17',
+        patterns: [/alternative\s+minimum\s+tax[^$\d-]*([($\d,.\-)]+)/i]
+      },
+      {
+        boxNumber: '18',
+        patterns: [/tax[- ]exempt\s+income[^$\d-]*([($\d,.\-)]+)/i]
+      },
+      {
+        boxNumber: '19a',
+        patterns: [
+          /distributions.*cash\s+and\s+marketable[^$\d-]*([($\d,.\-)]+)/i
+        ]
+      },
+      {
+        boxNumber: '19b',
+        patterns: [/distributions.*other\s+property[^$\d-]*([($\d,.\-)]+)/i]
+      },
+      {
+        boxNumber: '20',
+        patterns: [/other\s+information[^$\d-]*([($\d,.\-)]+)/i]
+      },
+      {
+        boxNumber: '21',
+        patterns: [/foreign\s+taxes\s+paid[^$\d-]*([($\d,.\-)]+)/i]
+      }
     ];
 
     const fields: K1ExtractedField[] = [];
 
     for (const box of BOX_PATTERNS) {
       for (const pattern of box.patterns) {
-        const match = text.match(pattern);
+        const match = pattern.exec(text);
         if (match) {
           const rawValue = match[1].trim();
-          const numericValue = this.pdfParseExtractor.parseNumericValue(rawValue);
+          const numericValue =
+            this.pdfParseExtractor.parseNumericValue(rawValue);
 
           // Tesseract: lower base confidence of 0.65
           let confidence = 0.65;
@@ -193,12 +276,12 @@ export class TesseractExtractor implements K1Extractor {
   }
 
   private extractPattern(text: string, pattern: RegExp): string | null {
-    const match = text.match(pattern);
+    const match = pattern.exec(text);
     return match ? match[1].trim() : null;
   }
 
   private extractTaxYear(text: string): number | null {
-    const match = text.match(/(?:calendar\s+year|tax\s+year)\s*(\d{4})/i);
+    const match = /(?:calendar\s+year|tax\s+year)\s*(\d{4})/i.exec(text);
     if (match) {
       const year = parseInt(match[1], 10);
       if (year >= 1900 && year <= 2100) return year;

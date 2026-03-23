@@ -17,8 +17,9 @@ export class DevSeedService {
     this.logger.log('Clearing all demo data…');
 
     // ── 1. Family-office tables (children first) ─────────────────
-    const assetValuations =
-      await this.prismaService.assetValuation.deleteMany({});
+    const assetValuations = await this.prismaService.assetValuation.deleteMany(
+      {}
+    );
     const partnershipValuations =
       await this.prismaService.partnershipValuation.deleteMany({});
     const partnershipAssets =
@@ -33,13 +34,15 @@ export class DevSeedService {
     const entities = await this.prismaService.entity.deleteMany({});
 
     // ── 2. Portfolio tables ──────────────────────────────────────
-    const accountBalances =
-      await this.prismaService.accountBalance.deleteMany({});
+    const accountBalances = await this.prismaService.accountBalance.deleteMany(
+      {}
+    );
     const orders = await this.prismaService.order.deleteMany({});
     const accounts = await this.prismaService.account.deleteMany({});
     const marketData = await this.prismaService.marketData.deleteMany({});
-    const symbolProfiles =
-      await this.prismaService.symbolProfile.deleteMany({});
+    const symbolProfiles = await this.prismaService.symbolProfile.deleteMany(
+      {}
+    );
     const platforms = await this.prismaService.platform.deleteMany({});
     const tags = await this.prismaService.tag.deleteMany({});
 
@@ -413,19 +416,19 @@ export class DevSeedService {
         480, 488, 495, 500, 505, 512, 520, 530
       ],
       AMZN: [
-        85, 90, 95, 102, 110, 118, 125, 130, 128, 135, 140, 148, 152, 155,
-        160, 168, 175, 180, 186, 188, 182, 190, 195, 200, 198, 205, 210, 215,
-        218, 225, 230, 228, 235, 240, 245, 250
+        85, 90, 95, 102, 110, 118, 125, 130, 128, 135, 140, 148, 152, 155, 160,
+        168, 175, 180, 186, 188, 182, 190, 195, 200, 198, 205, 210, 215, 218,
+        225, 230, 228, 235, 240, 245, 250
       ],
       NVDA: [
         142, 155, 175, 210, 250, 295, 350, 410, 445, 460, 470, 495, 510, 540,
-        580, 650, 720, 800, 850, 900, 880, 920, 950, 980, 960, 990, 1020,
-        1050, 1080, 1120, 1100, 1150, 1180, 1200, 1230, 1250
+        580, 650, 720, 800, 850, 900, 880, 920, 950, 980, 960, 990, 1020, 1050,
+        1080, 1120, 1100, 1150, 1180, 1200, 1230, 1250
       ],
       GOOGL: [
-        88, 92, 96, 102, 110, 118, 120, 125, 130, 128, 132, 138, 142, 145,
-        150, 155, 160, 165, 170, 175, 172, 178, 182, 188, 185, 190, 195, 200,
-        205, 210, 215, 212, 218, 222, 228, 235
+        88, 92, 96, 102, 110, 118, 120, 125, 130, 128, 132, 138, 142, 145, 150,
+        155, 160, 165, 170, 175, 172, 178, 182, 188, 185, 190, 195, 200, 205,
+        210, 215, 212, 218, 222, 228, 235
       ],
       TSLA: [
         120, 135, 162, 180, 195, 205, 225, 245, 255, 240, 215, 250, 248, 260,
@@ -453,19 +456,18 @@ export class DevSeedService {
         305, 310, 315, 318, 315, 320, 325, 330
       ],
       VXUS: [
-        52, 53, 54, 55, 56, 55, 54, 53, 52, 51, 52, 53, 54, 55, 56, 57, 58,
-        57, 56, 55, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 63, 62, 63,
-        64, 65
+        52, 53, 54, 55, 56, 55, 54, 53, 52, 51, 52, 53, 54, 55, 56, 57, 58, 57,
+        56, 55, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 63, 62, 63, 64, 65
       ],
       AGG: [
-        98, 97, 96, 97, 96, 95, 94, 93, 92, 91, 92, 93, 94, 94, 95, 95, 96,
-        96, 97, 97, 98, 98, 99, 99, 100, 100, 101, 101, 102, 102, 103, 103,
-        104, 104, 105, 105
+        98, 97, 96, 97, 96, 95, 94, 93, 92, 91, 92, 93, 94, 94, 95, 95, 96, 96,
+        97, 97, 98, 98, 99, 99, 100, 100, 101, 101, 102, 102, 103, 103, 104,
+        104, 105, 105
       ],
       VNQ: [
-        82, 80, 78, 77, 75, 78, 80, 82, 80, 78, 76, 80, 82, 84, 86, 88, 90,
-        92, 90, 88, 86, 88, 90, 92, 94, 96, 98, 100, 102, 104, 106, 105, 103,
-        105, 107, 110
+        82, 80, 78, 77, 75, 78, 80, 82, 80, 78, 76, 80, 82, 84, 86, 88, 90, 92,
+        90, 88, 86, 88, 90, 92, 94, 96, 98, 100, 102, 104, 106, 105, 103, 105,
+        107, 110
       ],
       BTC: [
         16500, 19500, 23000, 28000, 27500, 30000, 31000, 29500, 26000, 27500,
@@ -474,10 +476,9 @@ export class DevSeedService {
         105000, 100000, 97000, 103000, 108000, 112000
       ],
       ETH: [
-        1200, 1400, 1600, 1850, 1800, 1900, 1950, 1850, 1650, 1700, 2000,
-        2300, 2400, 2600, 2800, 3100, 3400, 3600, 3500, 3300, 3100, 3200,
-        3500, 3800, 3700, 3900, 4100, 4300, 4500, 4700, 4600, 4400, 4200,
-        4500, 4800, 5000
+        1200, 1400, 1600, 1850, 1800, 1900, 1950, 1850, 1650, 1700, 2000, 2300,
+        2400, 2600, 2800, 3100, 3400, 3600, 3500, 3300, 3100, 3200, 3500, 3800,
+        3700, 3900, 4100, 4300, 4500, 4700, 4600, 4400, 4200, 4500, 4800, 5000
       ],
       GLD: [
         170, 172, 178, 182, 185, 182, 180, 178, 175, 180, 185, 190, 192, 195,
@@ -1132,7 +1133,7 @@ export class DevSeedService {
     add('2024-03-15', 'VOO', 'DIVIDEND', 140, 1.54, fourOhOneK, 0);
     add('2024-03-20', 'JNJ', 'DIVIDEND', 25, 1.24, ira, 0);
     add('2024-03-22', 'JPM', 'DIVIDEND', 55, 1.05, brokerage, 0);
-    add('2024-03-25', 'VNQ', 'DIVIDEND', 100, 0.80, roth, 0);
+    add('2024-03-25', 'VNQ', 'DIVIDEND', 100, 0.8, roth, 0);
 
     // Q2 2024
     add('2024-04-05', 'VOO', 'BUY', 20, 475, fourOhOneK, 0);
@@ -1149,7 +1150,7 @@ export class DevSeedService {
     add('2024-06-20', 'JNJ', 'DIVIDEND', 25, 1.24, ira, 0);
     add('2024-06-22', 'JPM', 'DIVIDEND', 55, 1.15, brokerage, 0);
     add('2024-06-25', 'VNQ', 'DIVIDEND', 100, 0.78, roth, 0);
-    add('2024-06-28', 'VXUS', 'DIVIDEND', 180, 0.50, roth, 0);
+    add('2024-06-28', 'VXUS', 'DIVIDEND', 180, 0.5, roth, 0);
     add('2024-05-10', 'AAPL', 'DIVIDEND', 120, 0.25, brokerage, 0);
     add('2024-05-12', 'MSFT', 'DIVIDEND', 90, 0.75, brokerage, 0);
 
@@ -1203,8 +1204,8 @@ export class DevSeedService {
 
     // Q1 2025 dividends
     add('2025-03-15', 'VOO', 'DIVIDEND', 220, 1.82, fourOhOneK, 0);
-    add('2025-03-20', 'JNJ', 'DIVIDEND', 25, 1.30, ira, 0);
-    add('2025-03-22', 'JPM', 'DIVIDEND', 75, 1.20, brokerage, 0);
+    add('2025-03-20', 'JNJ', 'DIVIDEND', 25, 1.3, ira, 0);
+    add('2025-03-22', 'JPM', 'DIVIDEND', 75, 1.2, brokerage, 0);
     add('2025-03-25', 'VNQ', 'DIVIDEND', 100, 0.88, roth, 0);
 
     // Q2 2025
@@ -1218,9 +1219,9 @@ export class DevSeedService {
 
     // Q2 2025 dividends
     add('2025-06-15', 'VOO', 'DIVIDEND', 238, 1.85, fourOhOneK, 0);
-    add('2025-06-20', 'JNJ', 'DIVIDEND', 25, 1.30, ira, 0);
-    add('2025-06-22', 'JPM', 'DIVIDEND', 75, 1.20, brokerage, 0);
-    add('2025-06-25', 'VNQ', 'DIVIDEND', 100, 0.90, roth, 0);
+    add('2025-06-20', 'JNJ', 'DIVIDEND', 25, 1.3, ira, 0);
+    add('2025-06-22', 'JPM', 'DIVIDEND', 75, 1.2, brokerage, 0);
+    add('2025-06-25', 'VNQ', 'DIVIDEND', 100, 0.9, roth, 0);
     add('2025-06-28', 'VXUS', 'DIVIDEND', 180, 0.55, roth, 0);
     add('2025-05-10', 'AAPL', 'DIVIDEND', 145, 0.26, brokerage, 0);
     add('2025-05-12', 'MSFT', 'DIVIDEND', 112, 0.83, brokerage, 0);
@@ -1235,9 +1236,9 @@ export class DevSeedService {
 
     // Q3 2025 dividends
     add('2025-09-15', 'VOO', 'DIVIDEND', 253, 1.88, fourOhOneK, 0);
-    add('2025-09-20', 'JNJ', 'DIVIDEND', 25, 1.30, ira, 0);
-    add('2025-09-22', 'JPM', 'DIVIDEND', 75, 1.20, brokerage, 0);
-    add('2025-09-25', 'VNQ', 'DIVIDEND', 100, 0.90, roth, 0);
+    add('2025-09-20', 'JNJ', 'DIVIDEND', 25, 1.3, ira, 0);
+    add('2025-09-22', 'JPM', 'DIVIDEND', 75, 1.2, brokerage, 0);
+    add('2025-09-25', 'VNQ', 'DIVIDEND', 100, 0.9, roth, 0);
     add('2025-08-10', 'AAPL', 'DIVIDEND', 165, 0.26, brokerage, 0);
     add('2025-08-12', 'MSFT', 'DIVIDEND', 112, 0.83, brokerage, 0);
 
@@ -1252,13 +1253,13 @@ export class DevSeedService {
 
     // Q4 2025 dividends
     add('2025-12-15', 'VOO', 'DIVIDEND', 265, 1.92, fourOhOneK, 0);
-    add('2025-12-20', 'JNJ', 'DIVIDEND', 25, 1.30, ira, 0);
+    add('2025-12-20', 'JNJ', 'DIVIDEND', 25, 1.3, ira, 0);
     add('2025-12-22', 'JPM', 'DIVIDEND', 85, 1.25, brokerage, 0);
     add('2025-12-25', 'VNQ', 'DIVIDEND', 100, 0.92, roth, 0);
     add('2025-12-28', 'VXUS', 'DIVIDEND', 180, 0.58, roth, 0);
     add('2025-11-10', 'AAPL', 'DIVIDEND', 165, 0.26, brokerage, 0);
     add('2025-11-12', 'MSFT', 'DIVIDEND', 120, 0.83, brokerage, 0);
-    add('2025-12-05', 'AGG', 'DIVIDEND', 380, 0.30, ira, 0);
+    add('2025-12-05', 'AGG', 'DIVIDEND', 380, 0.3, ira, 0);
 
     return orders;
   }
@@ -1664,9 +1665,7 @@ export class DevSeedService {
   /**
    * Build K-1 documents for all partnerships across 3 tax years.
    */
-  private buildK1Documents(
-    partnerships: { id: string; name: string }[]
-  ): {
+  private buildK1Documents(partnerships: { id: string; name: string }[]): {
     data: Record<string, unknown>;
     filingStatus: 'DRAFT' | 'ESTIMATED' | 'FINAL';
     partnershipId: string;

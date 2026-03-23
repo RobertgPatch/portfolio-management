@@ -5,9 +5,7 @@ import { HttpException, Injectable } from '@nestjs/common';
 import { Decimal } from '@prisma/client/runtime/library';
 import { StatusCodes, getReasonPhrase } from 'http-status-codes';
 
-import {
-  DEFAULT_AGGREGATION_RULES
-} from '../k1-box-definition/k1-box-definition.service';
+import { DEFAULT_AGGREGATION_RULES } from '../k1-box-definition/k1-box-definition.service';
 
 /**
  * Service for computing dynamic aggregation totals from K1LineItem data.
@@ -16,9 +14,7 @@ import {
  */
 @Injectable()
 export class K1AggregationService {
-  public constructor(
-    private readonly prismaService: PrismaService
-  ) {}
+  public constructor(private readonly prismaService: PrismaService) {}
 
   /**
    * Compute aggregation results for a set of extracted/verified fields.
@@ -26,8 +22,7 @@ export class K1AggregationService {
    * Works with in-memory field data (not yet persisted to K1LineItem).
    */
   public async computeFromFields(
-    fields: Array<{ boxNumber: string; numericValue: number | null }>,
-    _partnershipId?: string
+    fields: { boxNumber: string; numericValue: number | null }[]
   ): Promise<K1AggregationResult[]> {
     return DEFAULT_AGGREGATION_RULES.map((rule, index) => {
       const sourceCells = [...rule.sourceBoxKeys];
@@ -60,8 +55,7 @@ export class K1AggregationService {
    * Queries the normalized K1LineItem table instead of iterating JSON.
    */
   public async computeForKDocument(
-    kDocumentId: string,
-    _partnershipId?: string
+    kDocumentId: string
   ): Promise<K1AggregationResult[]> {
     const kDocument = await this.prismaService.kDocument.findUnique({
       where: { id: kDocumentId }
@@ -140,9 +134,7 @@ export class K1AggregationService {
         operation: rule.operation,
         sourceCells: [...rule.sourceBoxKeys],
         computedValue: 0,
-        breakdown: Object.fromEntries(
-          rule.sourceBoxKeys.map((k) => [k, 0])
-        )
+        breakdown: Object.fromEntries(rule.sourceBoxKeys.map((k) => [k, 0]))
       }));
     }
 

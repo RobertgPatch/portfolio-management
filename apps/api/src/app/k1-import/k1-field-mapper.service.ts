@@ -1,4 +1,8 @@
-import type { K1ExtractedField, K1ExtractionResult, K1UnmappedItem } from '@ghostfolio/common/interfaces';
+import type {
+  K1ExtractedField,
+  K1ExtractionResult,
+  K1UnmappedItem
+} from '@ghostfolio/common/interfaces';
 
 import { Injectable, Logger } from '@nestjs/common';
 
@@ -27,13 +31,12 @@ export class K1FieldMapperService {
     partnershipId: string
   ): Promise<K1ExtractionResult> {
     // Load resolved box definitions for this partnership (with overrides applied)
-    const definitions = await this.k1BoxDefinitionService.resolve(partnershipId);
+    const definitions =
+      await this.k1BoxDefinitionService.resolve(partnershipId);
     const defMap = new Map(definitions.map((d) => [d.boxKey, d]));
 
     const mappedFields: K1ExtractedField[] = [];
-    const unmappedItems: K1UnmappedItem[] = [
-      ...extractionResult.unmappedItems
-    ];
+    const unmappedItems: K1UnmappedItem[] = [...extractionResult.unmappedItems];
 
     for (const field of extractionResult.fields) {
       const def = defMap.get(field.boxNumber);
@@ -98,7 +101,8 @@ export class K1FieldMapperService {
     result: K1ExtractionResult,
     partnershipId: string
   ): Promise<K1ExtractionResult> {
-    const definitions = await this.k1BoxDefinitionService.resolve(partnershipId);
+    const definitions =
+      await this.k1BoxDefinitionService.resolve(partnershipId);
     const existingBoxes = new Set(result.fields.map((f) => f.boxNumber));
 
     const missingFields: K1ExtractedField[] = [];
@@ -134,7 +138,7 @@ export class K1FieldMapperService {
    */
   private compareBoxNumbers(a: string, b: string): number {
     const parseBox = (box: string) => {
-      const match = box.match(/^(\d+)([a-z]?)$/);
+      const match = /^(\d+)([a-z]?)$/.exec(box);
       if (!match) return { num: 999, sub: box };
       return { num: parseInt(match[1], 10), sub: match[2] || '' };
     };

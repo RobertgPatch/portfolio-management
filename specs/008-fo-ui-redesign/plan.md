@@ -23,27 +23,27 @@ Redesign the UI to surface existing family office data (K1 income, partnership p
 
 _GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
-| # | Constitution Principle | Status | Notes |
-|---|---|---|---|
-| I | Nx Monorepo Structure | **PASS** | All changes in existing 4 projects (api, client, common, ui). No new Nx projects. |
-| II | NestJS Module Pattern | **PASS** | No new backend modules needed. Existing `FamilyOfficeModule` already exposes all required endpoints. Minor additions only if new aggregation endpoints are needed. |
-| III | Prisma Data Layer | **PASS** | No schema changes required. All data models already exist. |
-| IV | TypeScript Strict Conventions | **PASS** | Standard — no dead code, path aliases. |
-| V | Simplicity First / YAGNI | **PASS** | This feature wires existing unused APIs into existing UI pages. No new abstractions. Maximum reuse of `FamilyOfficeDataService` methods already built. |
-| VI | Interface-First Design | **PASS** | All interfaces already defined in `@ghostfolio/common` (`IFamilyOfficeDashboard`, `IPortfolioSummary`, `IAssetClassSummary`, `IActivityDetail`, `IFamilyOfficeReport`). |
+| #   | Constitution Principle        | Status   | Notes                                                                                                                                                                   |
+| --- | ----------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| I   | Nx Monorepo Structure         | **PASS** | All changes in existing 4 projects (api, client, common, ui). No new Nx projects.                                                                                       |
+| II  | NestJS Module Pattern         | **PASS** | No new backend modules needed. Existing `FamilyOfficeModule` already exposes all required endpoints. Minor additions only if new aggregation endpoints are needed.      |
+| III | Prisma Data Layer             | **PASS** | No schema changes required. All data models already exist.                                                                                                              |
+| IV  | TypeScript Strict Conventions | **PASS** | Standard — no dead code, path aliases.                                                                                                                                  |
+| V   | Simplicity First / YAGNI      | **PASS** | This feature wires existing unused APIs into existing UI pages. No new abstractions. Maximum reuse of `FamilyOfficeDataService` methods already built.                  |
+| VI  | Interface-First Design        | **PASS** | All interfaces already defined in `@ghostfolio/common` (`IFamilyOfficeDashboard`, `IPortfolioSummary`, `IAssetClassSummary`, `IActivityDetail`, `IFamilyOfficeReport`). |
 
 **Pre-Phase 0 Gate**: All 6 principles PASS. No violations.
 
 **Post-Phase 1 Re-check**:
 
-| # | Constitution Principle | Status | Notes |
-|---|---|---|---|
-| I | Nx Monorepo Structure | **PASS** | All changes within existing 4 projects. 3 new components in `libs/ui`, modifications to `apps/client` pages and header. No new Nx projects. |
-| II | NestJS Module Pattern | **PASS** | No backend changes required. All API endpoints already exist in `FamilyOfficeModule`. |
-| III | Prisma Data Layer | **PASS** | No schema changes. No new migrations. |
-| IV | TypeScript Strict Conventions | **PASS** | All new code follows strict mode. Path aliases used consistently. |
-| V | Simplicity First / YAGNI | **PASS** | Feature wires 4 existing unused API endpoints to UI components. 3 new small UI components (k1-income-summary, nav-menu-group, performance-metrics-card). No new abstractions or architectural layers. Maximum reuse of existing `FamilyOfficeDataService` and `libs/ui` components. |
-| VI | Interface-First Design | **PASS** | All interfaces already defined in `@ghostfolio/common` (`IFamilyOfficeDashboard`, `IPortfolioSummary`, `IAssetClassSummary`, `IActivityDetail`, `IFamilyOfficeReport`). No new shared interfaces needed. |
+| #   | Constitution Principle        | Status   | Notes                                                                                                                                                                                                                                                                               |
+| --- | ----------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| I   | Nx Monorepo Structure         | **PASS** | All changes within existing 4 projects. 3 new components in `libs/ui`, modifications to `apps/client` pages and header. No new Nx projects.                                                                                                                                         |
+| II  | NestJS Module Pattern         | **PASS** | No backend changes required. All API endpoints already exist in `FamilyOfficeModule`.                                                                                                                                                                                               |
+| III | Prisma Data Layer             | **PASS** | No schema changes. No new migrations.                                                                                                                                                                                                                                               |
+| IV  | TypeScript Strict Conventions | **PASS** | All new code follows strict mode. Path aliases used consistently.                                                                                                                                                                                                                   |
+| V   | Simplicity First / YAGNI      | **PASS** | Feature wires 4 existing unused API endpoints to UI components. 3 new small UI components (k1-income-summary, nav-menu-group, performance-metrics-card). No new abstractions or architectural layers. Maximum reuse of existing `FamilyOfficeDataService` and `libs/ui` components. |
+| VI  | Interface-First Design        | **PASS** | All interfaces already defined in `@ghostfolio/common` (`IFamilyOfficeDashboard`, `IPortfolioSummary`, `IAssetClassSummary`, `IActivityDetail`, `IFamilyOfficeReport`). No new shared interfaces needed.                                                                            |
 
 **Post-Phase 1 Gate**: All 6 principles PASS. Design adds 3 new `libs/ui` components and modifies 6 existing files. No violations.
 

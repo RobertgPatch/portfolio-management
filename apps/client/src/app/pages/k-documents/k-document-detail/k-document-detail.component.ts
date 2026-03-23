@@ -33,18 +33,21 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
   templateUrl: './k-document-detail.html'
 })
 export class KDocumentDetailComponent implements OnInit {
-  public aggregations: Array<{ name: string; value: number }> = [];
+  public aggregations: { name: string; value: number }[] = [];
   public boxColumns = ['boxNumber', 'value'];
-  public boxData: Array<{ boxNumber: string; value: number | string | null }> = [];
+  public boxData: { boxNumber: string; value: number | string | null }[] = [];
   public error: string | null = null;
   public kDocument: any = null;
   public kDocumentId: string;
 
   /** Box numbers that represent percentage values (Section J) */
   private static readonly PERCENTAGE_BOXES = new Set([
-    'J_PROFIT_BEGIN', 'J_PROFIT_END',
-    'J_LOSS_BEGIN', 'J_LOSS_END',
-    'J_CAPITAL_BEGIN', 'J_CAPITAL_END'
+    'J_PROFIT_BEGIN',
+    'J_PROFIT_END',
+    'J_LOSS_BEGIN',
+    'J_LOSS_END',
+    'J_CAPITAL_BEGIN',
+    'J_CAPITAL_END'
   ]);
 
   public isPercentage(boxNumber: string): boolean {

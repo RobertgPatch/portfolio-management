@@ -30,8 +30,8 @@
       <!-- Partnerships Group -->
       <li class="list-inline-item d-none d-sm-block">
         <gf-nav-menu-group
-          label="Partnerships"
           [isActive]="isActiveInGroup(partnershipsRoutes)"
+          [label]="partnershipsLabel"
           [menuItems]="partnershipsMenuItems"
         />
       </li>
@@ -52,8 +52,8 @@
       <!-- K-1 Center Group -->
       <li class="list-inline-item d-none d-sm-block">
         <gf-nav-menu-group
-          label="K-1 Center"
           [isActive]="isActiveInGroup(k1CenterRoutes)"
+          [label]="k1CenterLabel"
           [menuItems]="k1CenterMenuItems"
         />
       </li>
@@ -73,47 +73,40 @@
         >
       </li>
       <!-- Admin Group -->
-      @if (hasPermissionToAccessAdminControl) {
-        <li class="list-inline-item d-none d-sm-block">
-          <button
-            mat-flat-button
-            [matMenuTriggerFor]="adminNavMenu"
-            [ngClass]="{
-              'font-weight-bold': isActiveInGroup(adminGroupRoutes),
-              'text-decoration-underline': isActiveInGroup(adminGroupRoutes)
-            }"
-          >
-            Admin
-          </button>
-          <mat-menu #adminNavMenu="matMenu" xPosition="after">
+      <li class="list-inline-item d-none d-sm-block">
+        <button
+          mat-flat-button
+          [matMenuTriggerFor]="adminNavMenu"
+          [ngClass]="{
+            'font-weight-bold': isActiveInGroup(adminGroupRoutes),
+            'text-decoration-underline': isActiveInGroup(adminGroupRoutes)
+          }"
+        >
+          Admin
+        </button>
+        <mat-menu #adminNavMenu="matMenu" xPosition="after">
+          @if (hasPermissionToAccessAdminControl) {
             <a i18n mat-menu-item [routerLink]="routerLinkAdminControl"
               >Admin Control</a
             >
-            <a i18n mat-menu-item [routerLink]="routerLinkAccounts"
-              >Accounts</a
-            >
-            <a i18n mat-menu-item [routerLink]="routerLinkResources"
-              >Resources</a
-            >
-            @if (
-              hasPermissionForSubscription &&
-              user?.subscription?.type === 'Basic'
-            ) {
-              <a mat-menu-item [routerLink]="routerLinkPricing">
-                <span class="align-items-center d-flex">
-                  <span i18n>Pricing</span>
-                </span>
-              </a>
-            }
-            <hr class="m-0" />
-            @for (item of legacyMenuItems; track item.routerLink) {
-              <a mat-menu-item [routerLink]="item.routerLink">{{
-                item.label
-              }}</a>
-            }
-          </mat-menu>
-        </li>
-      }
+          }
+          <a i18n mat-menu-item [routerLink]="routerLinkAccounts">Accounts</a>
+          <a i18n mat-menu-item [routerLink]="routerLinkResources">Resources</a>
+          @if (
+            hasPermissionForSubscription && user?.subscription?.type === 'Basic'
+          ) {
+            <a mat-menu-item [routerLink]="routerLinkPricing">
+              <span class="align-items-center d-flex">
+                <span i18n>Pricing</span>
+              </span>
+            </a>
+          }
+          <hr class="m-0" />
+          @for (item of legacyMenuItems; track item.routerLink) {
+            <a mat-menu-item [routerLink]="item.routerLink">{{ item.label }}</a>
+          }
+        </mat-menu>
+      </li>
       @if (hasPermissionToAccessAssistant) {
         <li class="list-inline-item">
           <button
@@ -279,7 +272,9 @@
             i18n
             mat-menu-item
             routerLink="/portfolio-views"
-            [ngClass]="{ 'font-weight-bold': currentRoute === 'portfolio-views' }"
+            [ngClass]="{
+              'font-weight-bold': currentRoute === 'portfolio-views'
+            }"
             >Portfolio Views</a
           >
           <hr class="d-flex d-sm-none m-0" />
@@ -335,6 +330,33 @@
             >My Ghostfolio</a
           >
           <!-- Admin -->
+          <hr class="d-flex d-sm-none m-0" />
+          <a
+            class="d-flex d-sm-none"
+            i18n
+            mat-menu-item
+            [ngClass]="{
+              'font-weight-bold': currentRoute === routeResources
+            }"
+            [routerLink]="routerLinkResources"
+            >Resources</a
+          >
+          @if (
+            hasPermissionForSubscription && user?.subscription?.type === 'Basic'
+          ) {
+            <a
+              class="d-flex d-sm-none"
+              mat-menu-item
+              [ngClass]="{
+                'font-weight-bold': currentRoute === routePricing
+              }"
+              [routerLink]="routerLinkPricing"
+            >
+              <span class="align-items-center d-flex">
+                <span i18n>Pricing</span>
+              </span>
+            </a>
+          }
           @if (hasPermissionToAccessAdminControl) {
             <hr class="d-flex d-sm-none m-0" />
             <div class="d-flex d-sm-none px-4 py-1">
@@ -362,33 +384,6 @@
               [routerLink]="routerLinkAccounts"
               >Accounts</a
             >
-            <a
-              class="d-flex d-sm-none"
-              i18n
-              mat-menu-item
-              [ngClass]="{
-                'font-weight-bold': currentRoute === routeResources
-              }"
-              [routerLink]="routerLinkResources"
-              >Resources</a
-            >
-            @if (
-              hasPermissionForSubscription &&
-              user?.subscription?.type === 'Basic'
-            ) {
-              <a
-                class="d-flex d-sm-none"
-                mat-menu-item
-                [ngClass]="{
-                  'font-weight-bold': currentRoute === routePricing
-                }"
-                [routerLink]="routerLinkPricing"
-              >
-                <span class="align-items-center d-flex">
-                  <span i18n>Pricing</span>
-                </span>
-              </a>
-            }
             <hr class="d-flex d-sm-none m-0" />
             <!-- Legacy -->
             <div class="d-flex d-sm-none px-4 py-1">

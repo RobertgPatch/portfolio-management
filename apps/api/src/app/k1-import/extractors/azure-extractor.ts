@@ -1,5 +1,8 @@
 import { ConfigurationService } from '@ghostfolio/api/services/configuration/configuration.service';
-import type { K1ExtractionResult, K1ExtractedField } from '@ghostfolio/common/interfaces';
+import type {
+  K1ExtractionResult,
+  K1ExtractedField
+} from '@ghostfolio/common/interfaces';
 
 import { Injectable, Logger } from '@nestjs/common';
 
@@ -42,15 +45,12 @@ export class AzureExtractor implements K1Extractor {
     );
 
     if (!endpoint || !key) {
-      throw new Error(
-        'Azure Document Intelligence credentials not configured'
-      );
+      throw new Error('Azure Document Intelligence credentials not configured');
     }
 
     // Dynamic import to avoid loading SDK when not configured
-    const { AzureKeyCredential, DocumentAnalysisClient } = await import(
-      '@azure/ai-form-recognizer'
-    );
+    const { AzureKeyCredential, DocumentAnalysisClient } =
+      await import('@azure/ai-form-recognizer');
 
     const client = new DocumentAnalysisClient(
       endpoint,
@@ -58,10 +58,7 @@ export class AzureExtractor implements K1Extractor {
     );
 
     // Use prebuilt-layout model for general document analysis
-    const poller = await client.beginAnalyzeDocument(
-      'prebuilt-layout',
-      buffer
-    );
+    const poller = await client.beginAnalyzeDocument('prebuilt-layout', buffer);
     const result = await poller.pollUntilDone();
 
     const fields: K1ExtractedField[] = [];
@@ -132,7 +129,7 @@ export class AzureExtractor implements K1Extractor {
 
   private matchKeyToBoxNumber(key: string): string | null {
     // Match patterns like "1", "6a", "19a", "Box 1", "Line 1"
-    const boxPatterns: Array<{ pattern: RegExp; box: string }> = [
+    const boxPatterns: { pattern: RegExp; box: string }[] = [
       { pattern: /^(?:box\s*)?1(?:\s|$|\b)/i, box: '1' },
       { pattern: /^(?:box\s*)?2(?:\s|$|\b)/i, box: '2' },
       { pattern: /^(?:box\s*)?3(?:\s|$|\b)/i, box: '3' },
@@ -164,7 +161,7 @@ export class AzureExtractor implements K1Extractor {
     ];
 
     // Also match by label keywords
-    const labelPatterns: Array<{ pattern: RegExp; box: string }> = [
+    const labelPatterns: { pattern: RegExp; box: string }[] = [
       { pattern: /ordinary\s+business\s+income/i, box: '1' },
       { pattern: /net\s+rental\s+real\s+estate/i, box: '2' },
       { pattern: /other\s+net\s+rental/i, box: '3' },
@@ -267,7 +264,7 @@ export class AzureExtractor implements K1Extractor {
   }
 
   private extractPattern(text: string, pattern: RegExp): string | null {
-    const match = text.match(pattern);
+    const match = pattern.exec(text);
     return match ? match[1].trim() : null;
   }
 
@@ -278,7 +275,7 @@ export class AzureExtractor implements K1Extractor {
     ];
 
     for (const pattern of yearPatterns) {
-      const match = text.match(pattern);
+      const match = pattern.exec(text);
       if (match) {
         const year = parseInt(match[1], 10);
         if (year >= 1900 && year <= 2100) return year;

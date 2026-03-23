@@ -13,7 +13,7 @@ import type { Prisma } from '@prisma/client';
  * Static IRS default box definitions.
  * This is the authoritative list of IRS K-1 (Form 1065) box identifiers.
  */
-const IRS_DEFAULT_BOX_DEFINITIONS: Array<{
+const IRS_DEFAULT_BOX_DEFINITIONS: {
   boxKey: string;
   label: string;
   section: K1BoxSection;
@@ -21,103 +21,735 @@ const IRS_DEFAULT_BOX_DEFINITIONS: Array<{
   sortOrder: number;
   irsFormLine: string | null;
   description: string;
-}> = [
+}[] = [
   // ── Header / Metadata ──────────────────────────────────────────────────
-  { boxKey: 'K1_DOCUMENT_ID', label: 'K-1 Document ID', section: 'HEADER', dataType: 'string', sortOrder: 0, irsFormLine: null, description: 'Large-font ID at top right of K-1 form' },
-  { boxKey: 'TAX_YEAR', label: 'Tax Year', section: 'HEADER', dataType: 'string', sortOrder: 1, irsFormLine: null, description: 'Calendar year or tax year beginning/ending' },
-  { boxKey: 'FINAL_K1', label: 'Final K-1', section: 'HEADER', dataType: 'boolean', sortOrder: 2, irsFormLine: null, description: 'Check if this is a final K-1' },
-  { boxKey: 'AMENDED_K1', label: 'Amended K-1', section: 'HEADER', dataType: 'boolean', sortOrder: 3, irsFormLine: null, description: 'Check if this is an amended K-1' },
+  {
+    boxKey: 'K1_DOCUMENT_ID',
+    label: 'K-1 Document ID',
+    section: 'HEADER',
+    dataType: 'string',
+    sortOrder: 0,
+    irsFormLine: null,
+    description: 'Large-font ID at top right of K-1 form'
+  },
+  {
+    boxKey: 'TAX_YEAR',
+    label: 'Tax Year',
+    section: 'HEADER',
+    dataType: 'string',
+    sortOrder: 1,
+    irsFormLine: null,
+    description: 'Calendar year or tax year beginning/ending'
+  },
+  {
+    boxKey: 'FINAL_K1',
+    label: 'Final K-1',
+    section: 'HEADER',
+    dataType: 'boolean',
+    sortOrder: 2,
+    irsFormLine: null,
+    description: 'Check if this is a final K-1'
+  },
+  {
+    boxKey: 'AMENDED_K1',
+    label: 'Amended K-1',
+    section: 'HEADER',
+    dataType: 'boolean',
+    sortOrder: 3,
+    irsFormLine: null,
+    description: 'Check if this is an amended K-1'
+  },
 
   // ── Part I — Information About the Partnership ─────────────────────────
-  { boxKey: 'A', label: "Partnership's EIN", section: 'PART_I', dataType: 'string', sortOrder: 10, irsFormLine: 'Part I, Line A', description: 'Part I, Line A — Employer identification number' },
-  { boxKey: 'B', label: "Partnership's name, address, city, state, ZIP", section: 'PART_I', dataType: 'string', sortOrder: 11, irsFormLine: 'Part I, Line B', description: 'Part I, Line B' },
-  { boxKey: 'C', label: 'IRS center where partnership filed return', section: 'PART_I', dataType: 'string', sortOrder: 12, irsFormLine: 'Part I, Line C', description: 'Part I, Line C' },
-  { boxKey: 'D', label: 'Publicly traded partnership (PTP)', section: 'PART_I', dataType: 'boolean', sortOrder: 13, irsFormLine: 'Part I, Line D', description: 'Part I, Line D — Check if PTP' },
+  {
+    boxKey: 'A',
+    label: "Partnership's EIN",
+    section: 'PART_I',
+    dataType: 'string',
+    sortOrder: 10,
+    irsFormLine: 'Part I, Line A',
+    description: 'Part I, Line A — Employer identification number'
+  },
+  {
+    boxKey: 'B',
+    label: "Partnership's name, address, city, state, ZIP",
+    section: 'PART_I',
+    dataType: 'string',
+    sortOrder: 11,
+    irsFormLine: 'Part I, Line B',
+    description: 'Part I, Line B'
+  },
+  {
+    boxKey: 'C',
+    label: 'IRS center where partnership filed return',
+    section: 'PART_I',
+    dataType: 'string',
+    sortOrder: 12,
+    irsFormLine: 'Part I, Line C',
+    description: 'Part I, Line C'
+  },
+  {
+    boxKey: 'D',
+    label: 'Publicly traded partnership (PTP)',
+    section: 'PART_I',
+    dataType: 'boolean',
+    sortOrder: 13,
+    irsFormLine: 'Part I, Line D',
+    description: 'Part I, Line D — Check if PTP'
+  },
 
   // ── Part II — Information About the Partner ────────────────────────────
-  { boxKey: 'E', label: "Partner's identifying number", section: 'PART_II', dataType: 'string', sortOrder: 20, irsFormLine: 'Part II, Line E', description: 'Part II, Line E — SSN or TIN' },
-  { boxKey: 'F', label: "Partner's name, address, city, state, ZIP", section: 'PART_II', dataType: 'string', sortOrder: 21, irsFormLine: 'Part II, Line F', description: 'Part II, Line F' },
-  { boxKey: 'G_GENERAL', label: 'General partner or LLC member-manager', section: 'PART_II', dataType: 'boolean', sortOrder: 22, irsFormLine: 'Part II, Line G', description: 'Part II, Line G — General partner checkbox' },
-  { boxKey: 'G_LIMITED', label: 'Limited partner or other LLC member', section: 'PART_II', dataType: 'boolean', sortOrder: 23, irsFormLine: 'Part II, Line G', description: 'Part II, Line G — Limited partner checkbox' },
-  { boxKey: 'H1_DOMESTIC', label: 'Domestic partner', section: 'PART_II', dataType: 'boolean', sortOrder: 24, irsFormLine: 'Part II, Line H1', description: 'Part II, Line H1 — Domestic' },
-  { boxKey: 'H1_FOREIGN', label: 'Foreign partner', section: 'PART_II', dataType: 'boolean', sortOrder: 25, irsFormLine: 'Part II, Line H1', description: 'Part II, Line H1 — Foreign' },
-  { boxKey: 'H2', label: 'Disregarded entity (DE)', section: 'PART_II', dataType: 'boolean', sortOrder: 26, irsFormLine: 'Part II, Line H2', description: 'Part II, Line H2 — DE checkbox' },
-  { boxKey: 'H2_TIN', label: 'Disregarded entity TIN', section: 'PART_II', dataType: 'string', sortOrder: 27, irsFormLine: 'Part II, Line H2', description: 'Part II, Line H2 — DE taxpayer ID' },
-  { boxKey: 'I1', label: 'Type of entity', section: 'PART_II', dataType: 'string', sortOrder: 28, irsFormLine: 'Part II, Line I1', description: 'Part II, Line I1 — Entity type of partner' },
-  { boxKey: 'I2', label: 'Retirement plan (IRA/SEP/Keogh)', section: 'PART_II', dataType: 'boolean', sortOrder: 29, irsFormLine: 'Part II, Line I2', description: 'Part II, Line I2 — Retirement plan checkbox' },
+  {
+    boxKey: 'E',
+    label: "Partner's identifying number",
+    section: 'PART_II',
+    dataType: 'string',
+    sortOrder: 20,
+    irsFormLine: 'Part II, Line E',
+    description: 'Part II, Line E — SSN or TIN'
+  },
+  {
+    boxKey: 'F',
+    label: "Partner's name, address, city, state, ZIP",
+    section: 'PART_II',
+    dataType: 'string',
+    sortOrder: 21,
+    irsFormLine: 'Part II, Line F',
+    description: 'Part II, Line F'
+  },
+  {
+    boxKey: 'G_GENERAL',
+    label: 'General partner or LLC member-manager',
+    section: 'PART_II',
+    dataType: 'boolean',
+    sortOrder: 22,
+    irsFormLine: 'Part II, Line G',
+    description: 'Part II, Line G — General partner checkbox'
+  },
+  {
+    boxKey: 'G_LIMITED',
+    label: 'Limited partner or other LLC member',
+    section: 'PART_II',
+    dataType: 'boolean',
+    sortOrder: 23,
+    irsFormLine: 'Part II, Line G',
+    description: 'Part II, Line G — Limited partner checkbox'
+  },
+  {
+    boxKey: 'H1_DOMESTIC',
+    label: 'Domestic partner',
+    section: 'PART_II',
+    dataType: 'boolean',
+    sortOrder: 24,
+    irsFormLine: 'Part II, Line H1',
+    description: 'Part II, Line H1 — Domestic'
+  },
+  {
+    boxKey: 'H1_FOREIGN',
+    label: 'Foreign partner',
+    section: 'PART_II',
+    dataType: 'boolean',
+    sortOrder: 25,
+    irsFormLine: 'Part II, Line H1',
+    description: 'Part II, Line H1 — Foreign'
+  },
+  {
+    boxKey: 'H2',
+    label: 'Disregarded entity (DE)',
+    section: 'PART_II',
+    dataType: 'boolean',
+    sortOrder: 26,
+    irsFormLine: 'Part II, Line H2',
+    description: 'Part II, Line H2 — DE checkbox'
+  },
+  {
+    boxKey: 'H2_TIN',
+    label: 'Disregarded entity TIN',
+    section: 'PART_II',
+    dataType: 'string',
+    sortOrder: 27,
+    irsFormLine: 'Part II, Line H2',
+    description: 'Part II, Line H2 — DE taxpayer ID'
+  },
+  {
+    boxKey: 'I1',
+    label: 'Type of entity',
+    section: 'PART_II',
+    dataType: 'string',
+    sortOrder: 28,
+    irsFormLine: 'Part II, Line I1',
+    description: 'Part II, Line I1 — Entity type of partner'
+  },
+  {
+    boxKey: 'I2',
+    label: 'Retirement plan (IRA/SEP/Keogh)',
+    section: 'PART_II',
+    dataType: 'boolean',
+    sortOrder: 29,
+    irsFormLine: 'Part II, Line I2',
+    description: 'Part II, Line I2 — Retirement plan checkbox'
+  },
 
   // ── Section J — Partner's Share of Profit, Loss, and Capital ───────────
-  { boxKey: 'J_PROFIT_BEGIN', label: 'Profit — Beginning %', section: 'SECTION_J', dataType: 'percentage', sortOrder: 30, irsFormLine: 'Section J', description: 'Section J — Profit share beginning of year' },
-  { boxKey: 'J_PROFIT_END', label: 'Profit — Ending %', section: 'SECTION_J', dataType: 'percentage', sortOrder: 31, irsFormLine: 'Section J', description: 'Section J — Profit share end of year' },
-  { boxKey: 'J_LOSS_BEGIN', label: 'Loss — Beginning %', section: 'SECTION_J', dataType: 'percentage', sortOrder: 32, irsFormLine: 'Section J', description: 'Section J — Loss share beginning of year' },
-  { boxKey: 'J_LOSS_END', label: 'Loss — Ending %', section: 'SECTION_J', dataType: 'percentage', sortOrder: 33, irsFormLine: 'Section J', description: 'Section J — Loss share end of year' },
-  { boxKey: 'J_CAPITAL_BEGIN', label: 'Capital — Beginning %', section: 'SECTION_J', dataType: 'percentage', sortOrder: 34, irsFormLine: 'Section J', description: 'Section J — Capital share beginning of year' },
-  { boxKey: 'J_CAPITAL_END', label: 'Capital — Ending %', section: 'SECTION_J', dataType: 'percentage', sortOrder: 35, irsFormLine: 'Section J', description: 'Section J — Capital share end of year' },
-  { boxKey: 'J_SALE', label: 'Decrease due to sale', section: 'SECTION_J', dataType: 'boolean', sortOrder: 36, irsFormLine: 'Section J', description: 'Section J — Check if decrease is due to sale' },
-  { boxKey: 'J_EXCHANGE', label: 'Exchange of partnership interest', section: 'SECTION_J', dataType: 'boolean', sortOrder: 37, irsFormLine: 'Section J', description: 'Section J — Check if exchange' },
+  {
+    boxKey: 'J_PROFIT_BEGIN',
+    label: 'Profit — Beginning %',
+    section: 'SECTION_J',
+    dataType: 'percentage',
+    sortOrder: 30,
+    irsFormLine: 'Section J',
+    description: 'Section J — Profit share beginning of year'
+  },
+  {
+    boxKey: 'J_PROFIT_END',
+    label: 'Profit — Ending %',
+    section: 'SECTION_J',
+    dataType: 'percentage',
+    sortOrder: 31,
+    irsFormLine: 'Section J',
+    description: 'Section J — Profit share end of year'
+  },
+  {
+    boxKey: 'J_LOSS_BEGIN',
+    label: 'Loss — Beginning %',
+    section: 'SECTION_J',
+    dataType: 'percentage',
+    sortOrder: 32,
+    irsFormLine: 'Section J',
+    description: 'Section J — Loss share beginning of year'
+  },
+  {
+    boxKey: 'J_LOSS_END',
+    label: 'Loss — Ending %',
+    section: 'SECTION_J',
+    dataType: 'percentage',
+    sortOrder: 33,
+    irsFormLine: 'Section J',
+    description: 'Section J — Loss share end of year'
+  },
+  {
+    boxKey: 'J_CAPITAL_BEGIN',
+    label: 'Capital — Beginning %',
+    section: 'SECTION_J',
+    dataType: 'percentage',
+    sortOrder: 34,
+    irsFormLine: 'Section J',
+    description: 'Section J — Capital share beginning of year'
+  },
+  {
+    boxKey: 'J_CAPITAL_END',
+    label: 'Capital — Ending %',
+    section: 'SECTION_J',
+    dataType: 'percentage',
+    sortOrder: 35,
+    irsFormLine: 'Section J',
+    description: 'Section J — Capital share end of year'
+  },
+  {
+    boxKey: 'J_SALE',
+    label: 'Decrease due to sale',
+    section: 'SECTION_J',
+    dataType: 'boolean',
+    sortOrder: 36,
+    irsFormLine: 'Section J',
+    description: 'Section J — Check if decrease is due to sale'
+  },
+  {
+    boxKey: 'J_EXCHANGE',
+    label: 'Exchange of partnership interest',
+    section: 'SECTION_J',
+    dataType: 'boolean',
+    sortOrder: 37,
+    irsFormLine: 'Section J',
+    description: 'Section J — Check if exchange'
+  },
 
   // ── Section K — Partner's Share of Liabilities ─────────────────────────
-  { boxKey: 'K_NONRECOURSE_BEGIN', label: 'Nonrecourse — Beginning', section: 'SECTION_K', dataType: 'number', sortOrder: 40, irsFormLine: 'Section K', description: 'Section K — Nonrecourse liabilities beginning' },
-  { boxKey: 'K_NONRECOURSE_END', label: 'Nonrecourse — Ending', section: 'SECTION_K', dataType: 'number', sortOrder: 41, irsFormLine: 'Section K', description: 'Section K — Nonrecourse liabilities ending' },
-  { boxKey: 'K_QUAL_NONRECOURSE_BEGIN', label: 'Qualified nonrecourse — Beginning', section: 'SECTION_K', dataType: 'number', sortOrder: 42, irsFormLine: 'Section K', description: 'Section K — Qualified nonrecourse financing beginning' },
-  { boxKey: 'K_QUAL_NONRECOURSE_END', label: 'Qualified nonrecourse — Ending', section: 'SECTION_K', dataType: 'number', sortOrder: 43, irsFormLine: 'Section K', description: 'Section K — Qualified nonrecourse financing ending' },
-  { boxKey: 'K_RECOURSE_BEGIN', label: 'Recourse — Beginning', section: 'SECTION_K', dataType: 'number', sortOrder: 44, irsFormLine: 'Section K', description: 'Section K — Recourse liabilities beginning' },
-  { boxKey: 'K_RECOURSE_END', label: 'Recourse — Ending', section: 'SECTION_K', dataType: 'number', sortOrder: 45, irsFormLine: 'Section K', description: 'Section K — Recourse liabilities ending' },
-  { boxKey: 'K2', label: 'Includes lower-tier partnership liabilities', section: 'SECTION_K', dataType: 'boolean', sortOrder: 46, irsFormLine: 'Section K2', description: 'Section K2 — Checkbox' },
-  { boxKey: 'K3', label: 'Liability subject to guarantees', section: 'SECTION_K', dataType: 'boolean', sortOrder: 47, irsFormLine: 'Section K3', description: 'Section K3 — Checkbox' },
+  {
+    boxKey: 'K_NONRECOURSE_BEGIN',
+    label: 'Nonrecourse — Beginning',
+    section: 'SECTION_K',
+    dataType: 'number',
+    sortOrder: 40,
+    irsFormLine: 'Section K',
+    description: 'Section K — Nonrecourse liabilities beginning'
+  },
+  {
+    boxKey: 'K_NONRECOURSE_END',
+    label: 'Nonrecourse — Ending',
+    section: 'SECTION_K',
+    dataType: 'number',
+    sortOrder: 41,
+    irsFormLine: 'Section K',
+    description: 'Section K — Nonrecourse liabilities ending'
+  },
+  {
+    boxKey: 'K_QUAL_NONRECOURSE_BEGIN',
+    label: 'Qualified nonrecourse — Beginning',
+    section: 'SECTION_K',
+    dataType: 'number',
+    sortOrder: 42,
+    irsFormLine: 'Section K',
+    description: 'Section K — Qualified nonrecourse financing beginning'
+  },
+  {
+    boxKey: 'K_QUAL_NONRECOURSE_END',
+    label: 'Qualified nonrecourse — Ending',
+    section: 'SECTION_K',
+    dataType: 'number',
+    sortOrder: 43,
+    irsFormLine: 'Section K',
+    description: 'Section K — Qualified nonrecourse financing ending'
+  },
+  {
+    boxKey: 'K_RECOURSE_BEGIN',
+    label: 'Recourse — Beginning',
+    section: 'SECTION_K',
+    dataType: 'number',
+    sortOrder: 44,
+    irsFormLine: 'Section K',
+    description: 'Section K — Recourse liabilities beginning'
+  },
+  {
+    boxKey: 'K_RECOURSE_END',
+    label: 'Recourse — Ending',
+    section: 'SECTION_K',
+    dataType: 'number',
+    sortOrder: 45,
+    irsFormLine: 'Section K',
+    description: 'Section K — Recourse liabilities ending'
+  },
+  {
+    boxKey: 'K2',
+    label: 'Includes lower-tier partnership liabilities',
+    section: 'SECTION_K',
+    dataType: 'boolean',
+    sortOrder: 46,
+    irsFormLine: 'Section K2',
+    description: 'Section K2 — Checkbox'
+  },
+  {
+    boxKey: 'K3',
+    label: 'Liability subject to guarantees',
+    section: 'SECTION_K',
+    dataType: 'boolean',
+    sortOrder: 47,
+    irsFormLine: 'Section K3',
+    description: 'Section K3 — Checkbox'
+  },
 
   // ── Section L — Partner's Capital Account Analysis ─────────────────────
-  { boxKey: 'L_BEG_CAPITAL', label: 'Beginning capital account', section: 'SECTION_L', dataType: 'number', sortOrder: 50, irsFormLine: 'Section L', description: 'Section L — Beginning capital' },
-  { boxKey: 'L_CONTRIBUTED', label: 'Capital contributed during year', section: 'SECTION_L', dataType: 'number', sortOrder: 51, irsFormLine: 'Section L', description: 'Section L — Capital contributed' },
-  { boxKey: 'L_CURR_YR_INCOME', label: 'Current year net income (loss)', section: 'SECTION_L', dataType: 'number', sortOrder: 52, irsFormLine: 'Section L', description: 'Section L — Current year income/loss' },
-  { boxKey: 'L_OTHER', label: 'Other increase (decrease)', section: 'SECTION_L', dataType: 'number', sortOrder: 53, irsFormLine: 'Section L', description: 'Section L — Other adjustments' },
-  { boxKey: 'L_WITHDRAWALS', label: 'Withdrawals and distributions', section: 'SECTION_L', dataType: 'number', sortOrder: 54, irsFormLine: 'Section L', description: 'Section L — Withdrawals/distributions' },
-  { boxKey: 'L_END_CAPITAL', label: 'Ending capital account', section: 'SECTION_L', dataType: 'number', sortOrder: 55, irsFormLine: 'Section L', description: 'Section L — Ending capital' },
+  {
+    boxKey: 'L_BEG_CAPITAL',
+    label: 'Beginning capital account',
+    section: 'SECTION_L',
+    dataType: 'number',
+    sortOrder: 50,
+    irsFormLine: 'Section L',
+    description: 'Section L — Beginning capital'
+  },
+  {
+    boxKey: 'L_CONTRIBUTED',
+    label: 'Capital contributed during year',
+    section: 'SECTION_L',
+    dataType: 'number',
+    sortOrder: 51,
+    irsFormLine: 'Section L',
+    description: 'Section L — Capital contributed'
+  },
+  {
+    boxKey: 'L_CURR_YR_INCOME',
+    label: 'Current year net income (loss)',
+    section: 'SECTION_L',
+    dataType: 'number',
+    sortOrder: 52,
+    irsFormLine: 'Section L',
+    description: 'Section L — Current year income/loss'
+  },
+  {
+    boxKey: 'L_OTHER',
+    label: 'Other increase (decrease)',
+    section: 'SECTION_L',
+    dataType: 'number',
+    sortOrder: 53,
+    irsFormLine: 'Section L',
+    description: 'Section L — Other adjustments'
+  },
+  {
+    boxKey: 'L_WITHDRAWALS',
+    label: 'Withdrawals and distributions',
+    section: 'SECTION_L',
+    dataType: 'number',
+    sortOrder: 54,
+    irsFormLine: 'Section L',
+    description: 'Section L — Withdrawals/distributions'
+  },
+  {
+    boxKey: 'L_END_CAPITAL',
+    label: 'Ending capital account',
+    section: 'SECTION_L',
+    dataType: 'number',
+    sortOrder: 55,
+    irsFormLine: 'Section L',
+    description: 'Section L — Ending capital'
+  },
 
   // ── Section M — Contributed Property ───────────────────────────────────
-  { boxKey: 'M_YES', label: 'Contributed property with built-in gain/loss — Yes', section: 'SECTION_M', dataType: 'boolean', sortOrder: 60, irsFormLine: 'Section M', description: 'Section M — Yes checkbox' },
-  { boxKey: 'M_NO', label: 'Contributed property with built-in gain/loss — No', section: 'SECTION_M', dataType: 'boolean', sortOrder: 61, irsFormLine: 'Section M', description: 'Section M — No checkbox' },
+  {
+    boxKey: 'M_YES',
+    label: 'Contributed property with built-in gain/loss — Yes',
+    section: 'SECTION_M',
+    dataType: 'boolean',
+    sortOrder: 60,
+    irsFormLine: 'Section M',
+    description: 'Section M — Yes checkbox'
+  },
+  {
+    boxKey: 'M_NO',
+    label: 'Contributed property with built-in gain/loss — No',
+    section: 'SECTION_M',
+    dataType: 'boolean',
+    sortOrder: 61,
+    irsFormLine: 'Section M',
+    description: 'Section M — No checkbox'
+  },
 
   // ── Section N — Net Unrecognized Section 704(c) ────────────────────────
-  { boxKey: 'N_BEGINNING', label: 'Net 704(c) gain/loss — Beginning', section: 'SECTION_N', dataType: 'number', sortOrder: 62, irsFormLine: 'Section N', description: 'Section N — Beginning balance' },
-  { boxKey: 'N_ENDING', label: 'Net 704(c) gain/loss — Ending', section: 'SECTION_N', dataType: 'number', sortOrder: 63, irsFormLine: 'Section N', description: 'Section N — Ending balance' },
+  {
+    boxKey: 'N_BEGINNING',
+    label: 'Net 704(c) gain/loss — Beginning',
+    section: 'SECTION_N',
+    dataType: 'number',
+    sortOrder: 62,
+    irsFormLine: 'Section N',
+    description: 'Section N — Beginning balance'
+  },
+  {
+    boxKey: 'N_ENDING',
+    label: 'Net 704(c) gain/loss — Ending',
+    section: 'SECTION_N',
+    dataType: 'number',
+    sortOrder: 63,
+    irsFormLine: 'Section N',
+    description: 'Section N — Ending balance'
+  },
 
   // ── Part III — Partner's Share of Current Year Income, Deductions, etc. ─
-  { boxKey: '1', label: 'Ordinary business income (loss)', section: 'PART_III', dataType: 'number', sortOrder: 100, irsFormLine: 'Box 1', description: 'IRS Schedule K-1 Box 1' },
-  { boxKey: '2', label: 'Net rental real estate income (loss)', section: 'PART_III', dataType: 'number', sortOrder: 101, irsFormLine: 'Box 2', description: 'IRS Schedule K-1 Box 2' },
-  { boxKey: '3', label: 'Other net rental income (loss)', section: 'PART_III', dataType: 'number', sortOrder: 102, irsFormLine: 'Box 3', description: 'IRS Schedule K-1 Box 3' },
-  { boxKey: '4', label: 'Guaranteed payments for services', section: 'PART_III', dataType: 'number', sortOrder: 103, irsFormLine: 'Box 4', description: 'IRS Schedule K-1 Box 4' },
-  { boxKey: '4a', label: 'Guaranteed payments for capital', section: 'PART_III', dataType: 'number', sortOrder: 104, irsFormLine: 'Box 4a', description: 'IRS Schedule K-1 Box 4a' },
-  { boxKey: '4b', label: 'Total guaranteed payments', section: 'PART_III', dataType: 'number', sortOrder: 105, irsFormLine: 'Box 4b', description: 'IRS Schedule K-1 Box 4b' },
-  { boxKey: '5', label: 'Interest income', section: 'PART_III', dataType: 'number', sortOrder: 106, irsFormLine: 'Box 5', description: 'IRS Schedule K-1 Box 5' },
-  { boxKey: '6a', label: 'Ordinary dividends', section: 'PART_III', dataType: 'number', sortOrder: 107, irsFormLine: 'Box 6a', description: 'IRS Schedule K-1 Box 6a' },
-  { boxKey: '6b', label: 'Qualified dividends', section: 'PART_III', dataType: 'number', sortOrder: 108, irsFormLine: 'Box 6b', description: 'IRS Schedule K-1 Box 6b' },
-  { boxKey: '6c', label: 'Dividend equivalents', section: 'PART_III', dataType: 'number', sortOrder: 109, irsFormLine: 'Box 6c', description: 'IRS Schedule K-1 Box 6c' },
-  { boxKey: '7', label: 'Royalties', section: 'PART_III', dataType: 'number', sortOrder: 110, irsFormLine: 'Box 7', description: 'IRS Schedule K-1 Box 7' },
-  { boxKey: '8', label: 'Net short-term capital gain (loss)', section: 'PART_III', dataType: 'number', sortOrder: 111, irsFormLine: 'Box 8', description: 'IRS Schedule K-1 Box 8' },
-  { boxKey: '9a', label: 'Net long-term capital gain (loss)', section: 'PART_III', dataType: 'number', sortOrder: 112, irsFormLine: 'Box 9a', description: 'IRS Schedule K-1 Box 9a' },
-  { boxKey: '9b', label: 'Collectibles (28%) gain (loss)', section: 'PART_III', dataType: 'number', sortOrder: 113, irsFormLine: 'Box 9b', description: 'IRS Schedule K-1 Box 9b' },
-  { boxKey: '9c', label: 'Unrecaptured section 1250 gain', section: 'PART_III', dataType: 'number', sortOrder: 114, irsFormLine: 'Box 9c', description: 'IRS Schedule K-1 Box 9c' },
-  { boxKey: '10', label: 'Net section 1231 gain (loss)', section: 'PART_III', dataType: 'number', sortOrder: 115, irsFormLine: 'Box 10', description: 'IRS Schedule K-1 Box 10' },
-  { boxKey: '11', label: 'Other income (loss)', section: 'PART_III', dataType: 'number', sortOrder: 116, irsFormLine: 'Box 11', description: 'IRS Schedule K-1 Box 11' },
-  { boxKey: '12', label: 'Section 179 deduction', section: 'PART_III', dataType: 'number', sortOrder: 117, irsFormLine: 'Box 12', description: 'IRS Schedule K-1 Box 12' },
-  { boxKey: '13', label: 'Other deductions', section: 'PART_III', dataType: 'number', sortOrder: 118, irsFormLine: 'Box 13', description: 'IRS Schedule K-1 Box 13' },
-  { boxKey: '14', label: 'Self-employment earnings (loss)', section: 'PART_III', dataType: 'number', sortOrder: 119, irsFormLine: 'Box 14', description: 'IRS Schedule K-1 Box 14' },
-  { boxKey: '15', label: 'Credits', section: 'PART_III', dataType: 'number', sortOrder: 120, irsFormLine: 'Box 15', description: 'IRS Schedule K-1 Box 15' },
-  { boxKey: '16', label: 'Foreign transactions', section: 'PART_III', dataType: 'number', sortOrder: 121, irsFormLine: 'Box 16', description: 'IRS Schedule K-1 Box 16' },
-  { boxKey: '16_K3', label: 'Schedule K-3 is attached', section: 'PART_III', dataType: 'boolean', sortOrder: 122, irsFormLine: 'Box 16', description: 'IRS Schedule K-1 Box 16 K-3 checkbox' },
-  { boxKey: '17', label: 'Alternative minimum tax (AMT) items', section: 'PART_III', dataType: 'number', sortOrder: 123, irsFormLine: 'Box 17', description: 'IRS Schedule K-1 Box 17' },
-  { boxKey: '18', label: 'Tax-exempt income and nondeductible expenses', section: 'PART_III', dataType: 'number', sortOrder: 124, irsFormLine: 'Box 18', description: 'IRS Schedule K-1 Box 18' },
-  { boxKey: '19', label: 'Distributions', section: 'PART_III', dataType: 'number', sortOrder: 125, irsFormLine: 'Box 19', description: 'IRS Schedule K-1 Box 19' },
-  { boxKey: '19a', label: 'Distributions — Cash and marketable securities', section: 'PART_III', dataType: 'number', sortOrder: 126, irsFormLine: 'Box 19a', description: 'IRS Schedule K-1 Box 19a' },
-  { boxKey: '19b', label: 'Distributions — Other property', section: 'PART_III', dataType: 'number', sortOrder: 127, irsFormLine: 'Box 19b', description: 'IRS Schedule K-1 Box 19b' },
-  { boxKey: '20A', label: 'Other information — Code A', section: 'PART_III', dataType: 'number', sortOrder: 128, irsFormLine: 'Box 20, Code A', description: 'IRS Schedule K-1 Box 20, Code A' },
-  { boxKey: '20B', label: 'Other information — Code B', section: 'PART_III', dataType: 'number', sortOrder: 129, irsFormLine: 'Box 20, Code B', description: 'IRS Schedule K-1 Box 20, Code B' },
-  { boxKey: '20V', label: 'Other information — Code V', section: 'PART_III', dataType: 'number', sortOrder: 130, irsFormLine: 'Box 20, Code V', description: 'IRS Schedule K-1 Box 20, Code V' },
-  { boxKey: '20_WILDCARD', label: 'Other information — Other codes', section: 'PART_III', dataType: 'number', sortOrder: 131, irsFormLine: 'Box 20', description: 'IRS Schedule K-1 Box 20, all other codes' },
-  { boxKey: '21', label: 'Foreign taxes paid or accrued', section: 'PART_III', dataType: 'number', sortOrder: 132, irsFormLine: 'Box 21', description: 'IRS Schedule K-1 Box 21' },
-  { boxKey: '22', label: 'More than one activity for at-risk purposes', section: 'PART_III', dataType: 'boolean', sortOrder: 133, irsFormLine: 'Box 22', description: 'IRS Schedule K-1 Box 22 — Checkbox' },
-  { boxKey: '23', label: 'More than one activity for passive activity purposes', section: 'PART_III', dataType: 'boolean', sortOrder: 134, irsFormLine: 'Box 23', description: 'IRS Schedule K-1 Box 23 — Checkbox' }
+  {
+    boxKey: '1',
+    label: 'Ordinary business income (loss)',
+    section: 'PART_III',
+    dataType: 'number',
+    sortOrder: 100,
+    irsFormLine: 'Box 1',
+    description: 'IRS Schedule K-1 Box 1'
+  },
+  {
+    boxKey: '2',
+    label: 'Net rental real estate income (loss)',
+    section: 'PART_III',
+    dataType: 'number',
+    sortOrder: 101,
+    irsFormLine: 'Box 2',
+    description: 'IRS Schedule K-1 Box 2'
+  },
+  {
+    boxKey: '3',
+    label: 'Other net rental income (loss)',
+    section: 'PART_III',
+    dataType: 'number',
+    sortOrder: 102,
+    irsFormLine: 'Box 3',
+    description: 'IRS Schedule K-1 Box 3'
+  },
+  {
+    boxKey: '4',
+    label: 'Guaranteed payments for services',
+    section: 'PART_III',
+    dataType: 'number',
+    sortOrder: 103,
+    irsFormLine: 'Box 4',
+    description: 'IRS Schedule K-1 Box 4'
+  },
+  {
+    boxKey: '4a',
+    label: 'Guaranteed payments for capital',
+    section: 'PART_III',
+    dataType: 'number',
+    sortOrder: 104,
+    irsFormLine: 'Box 4a',
+    description: 'IRS Schedule K-1 Box 4a'
+  },
+  {
+    boxKey: '4b',
+    label: 'Total guaranteed payments',
+    section: 'PART_III',
+    dataType: 'number',
+    sortOrder: 105,
+    irsFormLine: 'Box 4b',
+    description: 'IRS Schedule K-1 Box 4b'
+  },
+  {
+    boxKey: '5',
+    label: 'Interest income',
+    section: 'PART_III',
+    dataType: 'number',
+    sortOrder: 106,
+    irsFormLine: 'Box 5',
+    description: 'IRS Schedule K-1 Box 5'
+  },
+  {
+    boxKey: '6a',
+    label: 'Ordinary dividends',
+    section: 'PART_III',
+    dataType: 'number',
+    sortOrder: 107,
+    irsFormLine: 'Box 6a',
+    description: 'IRS Schedule K-1 Box 6a'
+  },
+  {
+    boxKey: '6b',
+    label: 'Qualified dividends',
+    section: 'PART_III',
+    dataType: 'number',
+    sortOrder: 108,
+    irsFormLine: 'Box 6b',
+    description: 'IRS Schedule K-1 Box 6b'
+  },
+  {
+    boxKey: '6c',
+    label: 'Dividend equivalents',
+    section: 'PART_III',
+    dataType: 'number',
+    sortOrder: 109,
+    irsFormLine: 'Box 6c',
+    description: 'IRS Schedule K-1 Box 6c'
+  },
+  {
+    boxKey: '7',
+    label: 'Royalties',
+    section: 'PART_III',
+    dataType: 'number',
+    sortOrder: 110,
+    irsFormLine: 'Box 7',
+    description: 'IRS Schedule K-1 Box 7'
+  },
+  {
+    boxKey: '8',
+    label: 'Net short-term capital gain (loss)',
+    section: 'PART_III',
+    dataType: 'number',
+    sortOrder: 111,
+    irsFormLine: 'Box 8',
+    description: 'IRS Schedule K-1 Box 8'
+  },
+  {
+    boxKey: '9a',
+    label: 'Net long-term capital gain (loss)',
+    section: 'PART_III',
+    dataType: 'number',
+    sortOrder: 112,
+    irsFormLine: 'Box 9a',
+    description: 'IRS Schedule K-1 Box 9a'
+  },
+  {
+    boxKey: '9b',
+    label: 'Collectibles (28%) gain (loss)',
+    section: 'PART_III',
+    dataType: 'number',
+    sortOrder: 113,
+    irsFormLine: 'Box 9b',
+    description: 'IRS Schedule K-1 Box 9b'
+  },
+  {
+    boxKey: '9c',
+    label: 'Unrecaptured section 1250 gain',
+    section: 'PART_III',
+    dataType: 'number',
+    sortOrder: 114,
+    irsFormLine: 'Box 9c',
+    description: 'IRS Schedule K-1 Box 9c'
+  },
+  {
+    boxKey: '10',
+    label: 'Net section 1231 gain (loss)',
+    section: 'PART_III',
+    dataType: 'number',
+    sortOrder: 115,
+    irsFormLine: 'Box 10',
+    description: 'IRS Schedule K-1 Box 10'
+  },
+  {
+    boxKey: '11',
+    label: 'Other income (loss)',
+    section: 'PART_III',
+    dataType: 'number',
+    sortOrder: 116,
+    irsFormLine: 'Box 11',
+    description: 'IRS Schedule K-1 Box 11'
+  },
+  {
+    boxKey: '12',
+    label: 'Section 179 deduction',
+    section: 'PART_III',
+    dataType: 'number',
+    sortOrder: 117,
+    irsFormLine: 'Box 12',
+    description: 'IRS Schedule K-1 Box 12'
+  },
+  {
+    boxKey: '13',
+    label: 'Other deductions',
+    section: 'PART_III',
+    dataType: 'number',
+    sortOrder: 118,
+    irsFormLine: 'Box 13',
+    description: 'IRS Schedule K-1 Box 13'
+  },
+  {
+    boxKey: '14',
+    label: 'Self-employment earnings (loss)',
+    section: 'PART_III',
+    dataType: 'number',
+    sortOrder: 119,
+    irsFormLine: 'Box 14',
+    description: 'IRS Schedule K-1 Box 14'
+  },
+  {
+    boxKey: '15',
+    label: 'Credits',
+    section: 'PART_III',
+    dataType: 'number',
+    sortOrder: 120,
+    irsFormLine: 'Box 15',
+    description: 'IRS Schedule K-1 Box 15'
+  },
+  {
+    boxKey: '16',
+    label: 'Foreign transactions',
+    section: 'PART_III',
+    dataType: 'number',
+    sortOrder: 121,
+    irsFormLine: 'Box 16',
+    description: 'IRS Schedule K-1 Box 16'
+  },
+  {
+    boxKey: '16_K3',
+    label: 'Schedule K-3 is attached',
+    section: 'PART_III',
+    dataType: 'boolean',
+    sortOrder: 122,
+    irsFormLine: 'Box 16',
+    description: 'IRS Schedule K-1 Box 16 K-3 checkbox'
+  },
+  {
+    boxKey: '17',
+    label: 'Alternative minimum tax (AMT) items',
+    section: 'PART_III',
+    dataType: 'number',
+    sortOrder: 123,
+    irsFormLine: 'Box 17',
+    description: 'IRS Schedule K-1 Box 17'
+  },
+  {
+    boxKey: '18',
+    label: 'Tax-exempt income and nondeductible expenses',
+    section: 'PART_III',
+    dataType: 'number',
+    sortOrder: 124,
+    irsFormLine: 'Box 18',
+    description: 'IRS Schedule K-1 Box 18'
+  },
+  {
+    boxKey: '19',
+    label: 'Distributions',
+    section: 'PART_III',
+    dataType: 'number',
+    sortOrder: 125,
+    irsFormLine: 'Box 19',
+    description: 'IRS Schedule K-1 Box 19'
+  },
+  {
+    boxKey: '19a',
+    label: 'Distributions — Cash and marketable securities',
+    section: 'PART_III',
+    dataType: 'number',
+    sortOrder: 126,
+    irsFormLine: 'Box 19a',
+    description: 'IRS Schedule K-1 Box 19a'
+  },
+  {
+    boxKey: '19b',
+    label: 'Distributions — Other property',
+    section: 'PART_III',
+    dataType: 'number',
+    sortOrder: 127,
+    irsFormLine: 'Box 19b',
+    description: 'IRS Schedule K-1 Box 19b'
+  },
+  {
+    boxKey: '20A',
+    label: 'Other information — Code A',
+    section: 'PART_III',
+    dataType: 'number',
+    sortOrder: 128,
+    irsFormLine: 'Box 20, Code A',
+    description: 'IRS Schedule K-1 Box 20, Code A'
+  },
+  {
+    boxKey: '20B',
+    label: 'Other information — Code B',
+    section: 'PART_III',
+    dataType: 'number',
+    sortOrder: 129,
+    irsFormLine: 'Box 20, Code B',
+    description: 'IRS Schedule K-1 Box 20, Code B'
+  },
+  {
+    boxKey: '20V',
+    label: 'Other information — Code V',
+    section: 'PART_III',
+    dataType: 'number',
+    sortOrder: 130,
+    irsFormLine: 'Box 20, Code V',
+    description: 'IRS Schedule K-1 Box 20, Code V'
+  },
+  {
+    boxKey: '20_WILDCARD',
+    label: 'Other information — Other codes',
+    section: 'PART_III',
+    dataType: 'number',
+    sortOrder: 131,
+    irsFormLine: 'Box 20',
+    description: 'IRS Schedule K-1 Box 20, all other codes'
+  },
+  {
+    boxKey: '21',
+    label: 'Foreign taxes paid or accrued',
+    section: 'PART_III',
+    dataType: 'number',
+    sortOrder: 132,
+    irsFormLine: 'Box 21',
+    description: 'IRS Schedule K-1 Box 21'
+  },
+  {
+    boxKey: '22',
+    label: 'More than one activity for at-risk purposes',
+    section: 'PART_III',
+    dataType: 'boolean',
+    sortOrder: 133,
+    irsFormLine: 'Box 22',
+    description: 'IRS Schedule K-1 Box 22 — Checkbox'
+  },
+  {
+    boxKey: '23',
+    label: 'More than one activity for passive activity purposes',
+    section: 'PART_III',
+    dataType: 'boolean',
+    sortOrder: 134,
+    irsFormLine: 'Box 23',
+    description: 'IRS Schedule K-1 Box 23 — Checkbox'
+  }
 ];
 
 /** Default aggregation rules (embedded constants) */
@@ -209,7 +841,22 @@ export const DEFAULT_AGGREGATION_RULES = [
   {
     name: 'Total K-1 Income (Net)',
     operation: 'SUM' as const,
-    sourceBoxKeys: ['1', '2', '3', '4b', '5', '6a', '7', '8', '9a', '9b', '9c', '10', '11', '14'],
+    sourceBoxKeys: [
+      '1',
+      '2',
+      '3',
+      '4b',
+      '5',
+      '6a',
+      '7',
+      '8',
+      '9a',
+      '9b',
+      '9c',
+      '10',
+      '11',
+      '14'
+    ],
     sortOrder: 15
   }
 ] as const;
@@ -242,10 +889,7 @@ export class K1BoxDefinitionService implements OnModuleInit {
         );
       }
     } catch (error) {
-      this.logger.error(
-        'Failed to auto-seed K1BoxDefinition defaults',
-        error
-      );
+      this.logger.error('Failed to auto-seed K1BoxDefinition defaults', error);
     }
   }
 
@@ -324,9 +968,7 @@ export class K1BoxDefinitionService implements OnModuleInit {
       })
     ]);
 
-    const overrideMap = new Map(
-      overrides.map((o) => [o.boxKey, o])
-    );
+    const overrideMap = new Map(overrides.map((o) => [o.boxKey, o]));
 
     return definitions
       .map((d) => {

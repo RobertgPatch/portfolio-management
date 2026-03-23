@@ -82,7 +82,10 @@ import { MatIconModule } from '@angular/material/icon';
               class="income-value"
               [ngClass]="getValueClass(totalOrdinaryIncome)"
             >
-              {{ totalOrdinaryIncome | currency: 'USD' : 'symbol' : '1.0-0' }}
+              {{
+                totalOrdinaryIncome
+                  | currency: currencyCode : 'symbol' : '1.0-0'
+              }}
             </div>
             <div class="income-label">Total Ordinary Income</div>
           </div>
@@ -91,7 +94,9 @@ import { MatIconModule } from '@angular/material/icon';
               class="income-value"
               [ngClass]="getValueClass(totalCapitalGains)"
             >
-              {{ totalCapitalGains | currency: 'USD' : 'symbol' : '1.0-0' }}
+              {{
+                totalCapitalGains | currency: currencyCode : 'symbol' : '1.0-0'
+              }}
             </div>
             <div class="income-label">Total Capital Gains</div>
           </div>
@@ -100,7 +105,9 @@ import { MatIconModule } from '@angular/material/icon';
               class="income-value"
               [ngClass]="getValueClass(totalDistributions)"
             >
-              {{ totalDistributions | currency: 'USD' : 'symbol' : '1.0-0' }}
+              {{
+                totalDistributions | currency: currencyCode : 'symbol' : '1.0-0'
+              }}
             </div>
             <div class="income-label">Total Distributions</div>
           </div>
@@ -110,7 +117,8 @@ import { MatIconModule } from '@angular/material/icon';
               [ngClass]="getValueClass(totalOtherAdjustments)"
             >
               {{
-                totalOtherAdjustments | currency: 'USD' : 'symbol' : '1.0-0'
+                totalOtherAdjustments
+                  | currency: currencyCode : 'symbol' : '1.0-0'
               }}
             </div>
             <div class="income-label">Total Other Adjustments</div>
@@ -121,12 +129,16 @@ import { MatIconModule } from '@angular/material/icon';
   `
 })
 export class GfK1IncomeSummaryComponent {
+  @Input() public currencyCode: string = 'USD';
   @Input() public rows: IActivityRow[] = [];
 
   public get totalOrdinaryIncome(): number {
     return this.rows.reduce(
       (sum, row) =>
-        sum + (row.interest ?? 0) + (row.dividends ?? 0) + (row.remainingK1IncomeDed ?? 0),
+        sum +
+        (row.interest ?? 0) +
+        (row.dividends ?? 0) +
+        (row.remainingK1IncomeDed ?? 0),
       0
     );
   }
@@ -140,10 +152,7 @@ export class GfK1IncomeSummaryComponent {
   }
 
   public get totalOtherAdjustments(): number {
-    return this.rows.reduce(
-      (sum, row) => sum + (row.otherAdjustments ?? 0),
-      0
-    );
+    return this.rows.reduce((sum, row) => sum + (row.otherAdjustments ?? 0), 0);
   }
 
   public getValueClass(value: number): string {

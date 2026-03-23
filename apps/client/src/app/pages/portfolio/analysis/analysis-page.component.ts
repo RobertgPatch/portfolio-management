@@ -17,6 +17,7 @@ import {
   User
 } from '@ghostfolio/common/interfaces';
 import { hasPermission, permissions } from '@ghostfolio/common/permissions';
+import { GfAccountingNumberPipe } from '@ghostfolio/common/pipes';
 import type { AiPromptMode, GroupBy } from '@ghostfolio/common/types';
 import { translate } from '@ghostfolio/ui/i18n';
 import { GfK1IncomeSummaryComponent } from '@ghostfolio/ui/k1-income-summary';
@@ -40,8 +41,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatTableModule } from '@angular/material/table';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatTableModule } from '@angular/material/table';
 import { RouterModule } from '@angular/router';
 import { IonIcon } from '@ionic/angular/standalone';
 import { SymbolProfile } from '@prisma/client';
@@ -51,10 +52,12 @@ import { isNumber, sortBy } from 'lodash';
 import ms from 'ms';
 import { DeviceDetectorService } from 'ngx-device-detector';
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
+import { forkJoin } from 'rxjs';
 
 @Component({
   imports: [
     CommonModule,
+    GfAccountingNumberPipe,
     GfBenchmarkComparatorComponent,
     GfInvestmentChartComponent,
     GfK1IncomeSummaryComponent,
@@ -116,6 +119,7 @@ export class GfAnalysisPageComponent implements OnInit {
   public investmentTimelineDataLabel = $localize`Investment`;
   public investmentsByGroup: InvestmentItem[];
   public isLoadingAnalysisPrompt: boolean;
+  public naLabel = $localize`N/A`;
   public isLoadingBenchmarkComparator: boolean;
   public isLoadingDividendTimelineChart: boolean;
   public isLoadingInvestmentChart: boolean;
@@ -411,50 +415,27 @@ export class GfAnalysisPageComponent implements OnInit {
 
   private fetchFamilyOfficeData() {
     this.isLoadingFamilyOffice = true;
+    this.hasFamilyOfficeData = false;
 
-    this.familyOfficeDataService
-      .fetchPortfolioSummary()
+    forkJoin({
+      activity: this.familyOfficeDataService.fetchActivity(),
+      assetClassSummary: this.familyOfficeDataService.fetchAssetClassSummary(),
+      portfolioSummary: this.familyOfficeDataService.fetchPortfolioSummary()
+    })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         error: () => {
           this.isLoadingFamilyOffice = false;
           this.changeDetectorRef.markForCheck();
         },
-        next: (portfolioSummary) => {
+        next: ({ activity, assetClassSummary, portfolioSummary }) => {
           this.portfolioSummary = portfolioSummary;
-          this.hasFamilyOfficeData =
-            this.hasFamilyOfficeData ||
-            (portfolioSummary?.entities?.length ?? 0) > 0;
-          this.isLoadingFamilyOffice = false;
-          this.changeDetectorRef.markForCheck();
-        }
-      });
-
-    this.familyOfficeDataService
-      .fetchAssetClassSummary()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        error: () => {
-          this.changeDetectorRef.markForCheck();
-        },
-        next: (assetClassSummary) => {
           this.assetClassSummary = assetClassSummary;
-          this.changeDetectorRef.markForCheck();
-        }
-      });
-
-    this.familyOfficeDataService
-      .fetchActivity()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        error: () => {
-          this.changeDetectorRef.markForCheck();
-        },
-        next: (activityDetail) => {
-          this.activityDetail = activityDetail;
+          this.activityDetail = activity;
           this.hasFamilyOfficeData =
-            this.hasFamilyOfficeData ||
-            (activityDetail?.rows?.length ?? 0) > 0;
+            (portfolioSummary?.entities?.length ?? 0) > 0 ||
+            (activity?.rows?.length ?? 0) > 0;
+          this.isLoadingFamilyOffice = false;
           this.changeDetectorRef.markForCheck();
         }
       });

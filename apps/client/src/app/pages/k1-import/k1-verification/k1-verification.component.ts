@@ -97,10 +97,18 @@ export class K1VerificationComponent implements OnInit {
   ];
 
   // All box definitions from the API (for assigning unmapped items)
-  public allBoxDefinitions: Array<{ boxKey: string; label: string; section?: string }> = [];
+  public allBoxDefinitions: {
+    boxKey: string;
+    label: string;
+    section?: string;
+  }[] = [];
 
   // Available box definitions for the dropdown (excludes already-mapped boxes)
-  public availableBoxDefinitions: Array<{ boxKey: string; label: string; section?: string }> = [];
+  public availableBoxDefinitions: {
+    boxKey: string;
+    label: string;
+    section?: string;
+  }[] = [];
 
   public constructor(
     private readonly activatedRoute: ActivatedRoute,
@@ -165,7 +173,10 @@ export class K1VerificationComponent implements OnInit {
     if (field.cellType === 'boolean') {
       const lower = field.editValue.toLowerCase().trim();
       field.numericValue = null;
-      field.rawValue = (lower === 'true' || lower === 'yes' || lower === '1' || lower === 'x') ? 'true' : 'false';
+      field.rawValue =
+        lower === 'true' || lower === 'yes' || lower === '1' || lower === 'x'
+          ? 'true'
+          : 'false';
     } else if (field.cellType === 'string') {
       field.numericValue = null;
     } else {
@@ -290,8 +301,7 @@ export class K1VerificationComponent implements OnInit {
           this.router.navigate(['/k1-import']);
         },
         error: (err) => {
-          this.error =
-            err?.error?.message || err?.message || 'Cancel failed.';
+          this.error = err?.error?.message || err?.message || 'Cancel failed.';
           this.changeDetectorRef.markForCheck();
         }
       });
@@ -306,10 +316,7 @@ export class K1VerificationComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (session: any) => {
-          if (
-            session.status !== 'EXTRACTED' &&
-            session.status !== 'VERIFIED'
-          ) {
+          if (session.status !== 'EXTRACTED' && session.status !== 'VERIFIED') {
             this.error = `Session is in ${session.status} status. Cannot verify.`;
             this.isLoading = false;
             this.changeDetectorRef.markForCheck();
@@ -371,7 +378,7 @@ export class K1VerificationComponent implements OnInit {
     }
 
     // All IRS default aggregation rules — mirrors DEFAULT_AGGREGATION_RULES on the backend
-    const rules: Array<{ name: string; sourceCells: string[] }> = [
+    const rules: { name: string; sourceCells: string[] }[] = [
       { name: 'Total Ordinary Income', sourceCells: ['1'] },
       { name: 'Net Rental Income', sourceCells: ['2', '3'] },
       { name: 'Guaranteed Payments', sourceCells: ['4a', '4b'] },
@@ -379,14 +386,35 @@ export class K1VerificationComponent implements OnInit {
       { name: 'Total Dividends', sourceCells: ['6a'] },
       { name: 'Qualified Dividends', sourceCells: ['6b'] },
       { name: 'Royalties', sourceCells: ['7'] },
-      { name: 'Total Capital Gains', sourceCells: ['8', '9a', '9b', '9c', '10'] },
+      {
+        name: 'Total Capital Gains',
+        sourceCells: ['8', '9a', '9b', '9c', '10']
+      },
       { name: 'Other Income', sourceCells: ['11'] },
       { name: 'Total Deductions', sourceCells: ['12', '13'] },
       { name: 'Self-Employment Earnings', sourceCells: ['14'] },
       { name: 'Alternative Minimum Tax Items', sourceCells: ['17'] },
       { name: 'Total Distributions', sourceCells: ['19a', '19b', '19'] },
       { name: 'Foreign Taxes Paid', sourceCells: ['21'] },
-      { name: 'Total K-1 Income (Net)', sourceCells: ['1', '2', '3', '4b', '5', '6a', '7', '8', '9a', '9b', '9c', '10', '11', '14'] }
+      {
+        name: 'Total K-1 Income (Net)',
+        sourceCells: [
+          '1',
+          '2',
+          '3',
+          '4b',
+          '5',
+          '6a',
+          '7',
+          '8',
+          '9a',
+          '9b',
+          '9c',
+          '10',
+          '11',
+          '14'
+        ]
+      }
     ];
 
     this.aggregations = rules.map((rule, index) => {
@@ -415,9 +443,7 @@ export class K1VerificationComponent implements OnInit {
   private checkConfirmability(): void {
     // All medium/low fields must be reviewed
     const allFieldsReviewed = this.fields.every(
-      (f) =>
-        f.confidenceLevel === 'HIGH' ||
-        f.isReviewed
+      (f) => f.confidenceLevel === 'HIGH' || f.isReviewed
     );
 
     // All unmapped items must be resolved
