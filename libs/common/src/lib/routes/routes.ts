@@ -80,6 +80,11 @@ export const internalRoutes: Record<string, InternalRoute> = {
     routerLink: ['/auth'],
     title: $localize`Sign in`
   },
+  fmv: {
+    path: 'fmv',
+    routerLink: ['/fmv'],
+    title: $localize`FMV`
+  },
   home: {
     path: 'home',
     routerLink: ['/home'],
@@ -131,6 +136,11 @@ export const internalRoutes: Record<string, InternalRoute> = {
         path: 'allocations',
         routerLink: ['/portfolio', 'allocations'],
         title: $localize`Allocations`
+      },
+      allocationsV2: {
+        path: 'allocations-v2',
+        routerLink: ['/portfolio', 'allocations-v2'],
+        title: $localize`Allocations V2`
       },
       analysis: {
         path: undefined, // Default sub route
