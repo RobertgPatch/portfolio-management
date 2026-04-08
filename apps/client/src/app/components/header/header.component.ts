@@ -176,7 +176,7 @@ export class GfHeaderComponent implements OnChanges {
 
   public k1CenterRoutes = ['k1-import', 'k-documents', 'cell-mapping'];
 
-  public fmvRoutes = ['fmv', 'accounts'];
+  public fmvRoutes = ['fmv'];
 
   public analysisRoutes = ['home', 'portfolio'];
 

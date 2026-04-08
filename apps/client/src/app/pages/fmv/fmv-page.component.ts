@@ -215,10 +215,14 @@ export class FmvPageComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response: AccountsResponse) => {
-          this.accounts = response.accounts.filter(
+          const accounts = response.accounts.filter(
             (account) => !account.isExcluded
           );
-          this.totalValueInBaseCurrency = response.totalValueInBaseCurrency;
+          this.accounts = accounts;
+          this.totalValueInBaseCurrency = accounts.reduce(
+            (total, account) => total + account.valueInBaseCurrency,
+            0
+          );
           this.isLoading = false;
           this.changeDetectorRef.markForCheck();
         },

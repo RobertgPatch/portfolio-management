@@ -11,6 +11,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
+  inject,
   Input,
   OnChanges,
   OnDestroy,
@@ -67,6 +68,7 @@ export interface AllocationSlice {
     NgxSkeletonLoaderModule,
     PercentPipe
   ],
+  providers: [CurrencyPipe],
   selector: 'gf-allocation-donut-cards',
   styleUrls: ['./allocation-donut-cards.component.scss'],
   templateUrl: './allocation-donut-cards.component.html'
@@ -95,6 +97,7 @@ export class GfAllocationDonutCardsComponent implements OnChanges, OnDestroy {
   protected readonly sliceClicked = output<AssetProfileIdentifier>();
 
   private readonly OTHER_KEY = 'OTHER';
+  private readonly currencyPipe = inject(CurrencyPipe);
 
   private readonly chartCanvas =
     viewChild<ElementRef<HTMLCanvasElement>>('donutCanvas');
@@ -114,15 +117,16 @@ export class GfAllocationDonutCardsComponent implements OnChanges, OnDestroy {
   }
 
   public onSliceClick(slice: AllocationSlice) {
-    const entry = Object.entries(this.data).find(([, item]) => {
-      return item.name === slice.name || item.dataSource;
-    });
+    // When no key grouping is applied, slice.key matches the data entry key
+    // directly (symbol). When a key group is applied, slice.key is the group
+    // value (e.g. 'USD') which may or may not match a data key.
+    const item = this.data[slice.key];
 
-    if (entry) {
-      const [symbol, item] = entry;
-      if (item.dataSource) {
-        this.sliceClicked.emit({ dataSource: item.dataSource, symbol });
-      }
+    if (item) {
+      this.sliceClicked.emit({
+        dataSource: item.dataSource as DataSource,
+        symbol: slice.key
+      });
     }
   }
 
@@ -130,13 +134,15 @@ export class GfAllocationDonutCardsComponent implements OnChanges, OnDestroy {
     if (this.isInPercent) {
       return '100%';
     }
-    if (this.totalValue >= 1_000_000) {
-      return `$${(this.totalValue / 1_000_000).toFixed(1)}M`;
-    }
-    if (this.totalValue >= 1_000) {
-      return `$${(this.totalValue / 1_000).toFixed(0)}K`;
-    }
-    return `$${this.totalValue.toFixed(0)}`;
+    return (
+      this.currencyPipe.transform(
+        this.totalValue,
+        this.baseCurrency,
+        'symbol',
+        '1.0-0',
+        this.locale
+      ) ?? `${this.baseCurrency ?? '$'}0`
+    );
   }
 
   private initialize() {

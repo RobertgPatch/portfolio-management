@@ -165,9 +165,10 @@ export class PlaidSyncProcessor {
           await this.prismaService.order.update({
             data: {
               quantity: holding.quantity,
-              unitPrice: holding.cost_basis
-                ? holding.cost_basis / holding.quantity
-                : holding.institution_price ?? 0
+              unitPrice:
+                holding.cost_basis && holding.quantity > 0
+                  ? holding.cost_basis / holding.quantity
+                  : (holding.institution_price ?? 0)
             },
             where: { id: existingOrder.id }
           });
@@ -185,9 +186,10 @@ export class PlaidSyncProcessor {
               quantity: holding.quantity,
               symbolProfileId: symbolProfile.id,
               type: 'BUY',
-              unitPrice: holding.cost_basis
-                ? holding.cost_basis / holding.quantity
-                : holding.institution_price ?? 0,
+              unitPrice:
+                holding.cost_basis && holding.quantity > 0
+                  ? holding.cost_basis / holding.quantity
+                  : (holding.institution_price ?? 0),
               userId: plaidItem.userId
             } as Prisma.OrderUncheckedCreateInput
           });
@@ -247,7 +249,12 @@ export class PlaidSyncProcessor {
 
   private decryptAccessToken(encryptedToken: string): string {
     const keyStr = this.configurationService.get('PLAID_ENCRYPTION_KEY');
-    const key = Buffer.from(keyStr.slice(0, 32), 'utf8');
+    if (!keyStr || !/^[0-9a-fA-F]{64}$/.test(keyStr)) {
+      throw new Error(
+        'PLAID_ENCRYPTION_KEY must be a 64-character hex string (32 bytes) for AES-256'
+      );
+    }
+    const key = Buffer.from(keyStr, 'hex');
     const [ivHex, authTagHex, encryptedHex] = encryptedToken.split(':');
     const iv = Buffer.from(ivHex, 'hex');
     const authTag = Buffer.from(authTagHex, 'hex');

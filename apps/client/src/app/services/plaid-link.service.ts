@@ -151,29 +151,34 @@ export class PlaidLinkService {
   public openPlaidLink(linkToken: string): Observable<PlaidLinkResult> {
     const result$ = new Subject<PlaidLinkResult>();
 
-    this.loadPlaidScript().then(() => {
-      const handler = window.Plaid.create({
-        token: linkToken,
-        onSuccess: (publicToken, metadata) => {
-          this.ngZone.run(() => {
-            result$.next({ publicToken, metadata });
-            result$.complete();
-          });
-          handler.destroy();
-        },
-        onExit: (err) => {
-          this.ngZone.run(() => {
-            if (err) {
-              result$.error(err);
-            } else {
+    this.loadPlaidScript().then(
+      () => {
+        const handler = window.Plaid.create({
+          token: linkToken,
+          onSuccess: (publicToken, metadata) => {
+            this.ngZone.run(() => {
+              result$.next({ publicToken, metadata });
               result$.complete();
-            }
-          });
-          handler.destroy();
-        }
-      });
-      handler.open();
-    });
+            });
+            handler.destroy();
+          },
+          onExit: (err) => {
+            this.ngZone.run(() => {
+              if (err) {
+                result$.error(err);
+              } else {
+                result$.complete();
+              }
+            });
+            handler.destroy();
+          }
+        });
+        handler.open();
+      },
+      (err) => {
+        result$.error(err);
+      }
+    );
 
     return result$.asObservable();
   }

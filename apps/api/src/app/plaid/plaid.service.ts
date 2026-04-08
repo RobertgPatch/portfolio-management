@@ -139,17 +139,30 @@ export class PlaidService {
     // Encrypt the access token for storage
     const encryptedToken = this.encryptAccessToken(accessToken);
 
-    // Find or create platform for the institution
-    let platform = await this.prismaService.platform.findFirst({
-      where: { name: institutionName }
+    // Find or create platform for the institution using a unique URL per institution
+    const platformUrl = `plaid://${institutionId}`;
+
+    let platform = await this.prismaService.platform.findUnique({
+      where: { url: platformUrl }
     });
+
+    if (!platform) {
+      platform = await this.prismaService.platform.findFirst({
+        where: { name: institutionName }
+      });
+    }
 
     if (!platform) {
       platform = await this.prismaService.platform.create({
         data: {
           name: institutionName,
-          url: ''
+          url: platformUrl
         }
+      });
+    } else if (platform.url !== platformUrl) {
+      platform = await this.prismaService.platform.update({
+        data: { url: platformUrl },
+        where: { id: platform.id }
       });
     }
 
@@ -336,6 +349,11 @@ export class PlaidService {
     webhook_code: string;
     webhook_type: string;
   }) {
+    if (!this.isEnabled()) {
+      this.logger.log('Plaid feature is disabled; ignoring webhook');
+      return;
+    }
+
     const { item_id, webhook_code, webhook_type } = payload;
 
     this.logger.log(
@@ -411,13 +429,12 @@ export class PlaidService {
 
   private getEncryptionKey(): Buffer {
     const keyStr = this.configurationService.get('PLAID_ENCRYPTION_KEY');
-    if (!keyStr || keyStr.length < 32) {
+    if (!keyStr || !/^[0-9a-fA-F]{64}$/.test(keyStr)) {
       throw new Error(
-        'PLAID_ENCRYPTION_KEY must be at least 32 characters for AES-256'
+        'PLAID_ENCRYPTION_KEY must be a 64-character hex string (32 bytes) for AES-256'
       );
     }
-    // Use first 32 bytes of the key string
-    return Buffer.from(keyStr.slice(0, 32), 'utf8');
+    return Buffer.from(keyStr, 'hex');
   }
 
   private ensureEnabled() {
