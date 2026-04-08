@@ -122,9 +122,9 @@ export class GfAllocationDonutCardsComponent implements OnChanges, OnDestroy {
     // value (e.g. 'USD') which may or may not match a data key.
     const item = this.data[slice.key];
 
-    if (item) {
+    if (item?.dataSource) {
       this.sliceClicked.emit({
-        dataSource: item.dataSource as DataSource,
+        dataSource: item.dataSource,
         symbol: slice.key
       });
     }

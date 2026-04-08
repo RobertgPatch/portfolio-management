@@ -142,15 +142,11 @@ export class PlaidService {
     // Find or create platform for the institution using a unique URL per institution
     const platformUrl = `plaid://${institutionId}`;
 
-    let platform = await this.prismaService.platform.findUnique({
-      where: { url: platformUrl }
+    let platform = await this.prismaService.platform.findFirst({
+      where: {
+        OR: [{ url: platformUrl }, { name: institutionName }]
+      }
     });
-
-    if (!platform) {
-      platform = await this.prismaService.platform.findFirst({
-        where: { name: institutionName }
-      });
-    }
 
     if (!platform) {
       platform = await this.prismaService.platform.create({
