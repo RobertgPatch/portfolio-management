@@ -27,19 +27,19 @@ interface ConfirmationResult {
     filingStatus: string;
     data: Record<string, number | null>;
   };
-  distributions: Array<{
+  distributions: {
     id: string;
     entityId: string;
     type: string;
     amount: number;
     date: string;
-  }>;
-  allocations: Array<{
+  }[];
+  allocations: {
     entityId: string;
     entityName: string;
     ownershipPercent: number;
     allocatedValues: Record<string, number>;
-  }>;
+  }[];
   document: { id: string; type: string; name: string } | null;
 }
 
@@ -147,10 +147,7 @@ export class K1ConfirmationComponent implements OnInit {
    */
   public viewKDocument(): void {
     if (this.result?.kDocument?.id) {
-      this.router.navigate([
-        '/k-documents',
-        this.result.kDocument.id
-      ]);
+      this.router.navigate(['/k-documents', this.result.kDocument.id]);
     }
   }
 

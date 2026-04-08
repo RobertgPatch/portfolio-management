@@ -35,14 +35,18 @@ The client runs at http://localhost:4200 and the API at http://localhost:3333.
 
 ## Auth Token
 
-Use this token for API testing:
-```
-3a99343a9f099119cf2c297fe082de12e656e6291cd6a45b4b128f775e0898af4e5141e1c032b1ff64d12efde3c0a31d4c9c1cc1022f64ec9dc4e88dbcc8f318
+Use a valid Bearer token for API testing. You can retrieve one by logging in via the UI and copying the token from the browser's local storage or from the login response.
+
+Set it as an environment variable:
+
+```bash
+export TOKEN=<your-bearer-token>
 ```
 
 ## Verification Workflow
 
 ### P1: Portfolio Analysis + K1 Data
+
 1. Navigate to http://localhost:4200/portfolio
 2. Verify the analysis page shows family office performance metrics (IRR, TVPI, DPI, RVPI)
 3. Verify K1 income summary card shows income categories
@@ -50,17 +54,20 @@ Use this token for API testing:
 5. If no K1 data exists, verify the empty state guides to K-1 Import
 
 ### P2: Navigation Restructure
-1. After login, verify the header shows 5 top-level items: Dashboard, Partnerships, K-1 Center, Analysis, Admin
-2. Click "Partnerships" — verify dropdown shows Entities, Partnerships, Distributions, Portfolio Views
+
+1. After login, verify the header shows 5 top-level items: Dashboard, Partnerships, Portfolio Views, K-1 Center, Analysis, Admin
+2. Click "Partnerships" — verify dropdown shows Entities, Partnerships, Distributions, Accounts
 3. Click "K-1 Center" — verify dropdown shows K-1 Import, K-1 Documents, Cell Mapping
 4. Navigate to a legacy page via URL (e.g., /home/holdings) — verify it still loads
 
 ### P3: Dashboard Landing
+
 1. Navigate to http://localhost:4200/ — verify redirect to /family-office
 2. Verify dashboard shows AUM, allocations, portfolio metrics, K1 income summary, recent distributions
 3. If no data, verify onboarding guide appears
 
 ### P4: Legacy Pages
+
 1. Navigate to Admin > Legacy section
 2. Verify Overview, Holdings, Summary, Markets, Watchlist, FIRE, X-Ray are all accessible
 
@@ -85,13 +92,13 @@ curl -H "Authorization: Bearer $TOKEN" "http://localhost:3333/api/v1/family-offi
 
 ## Key Files to Modify
 
-| File | Change |
-|---|---|
-| `apps/client/src/app/components/header/header.component.html` | Restructure nav to 5 grouped items |
-| `apps/client/src/app/components/header/header.component.ts` | Add mat-menu properties for nav groups |
-| `apps/client/src/app/pages/portfolio/analysis/analysis-page.component.ts` | Inject FamilyOfficeDataService, fetch K1 data |
-| `apps/client/src/app/pages/portfolio/analysis/analysis-page.component.html` | Add FO metrics sections |
-| `apps/client/src/app/pages/family-dashboard/dashboard-page.component.ts` | Add portfolio summary + K1 income sections |
-| `apps/client/src/app/app.routes.ts` | Change wildcard redirect to `family-office` |
-| `libs/ui/src/lib/k1-income-summary/` | NEW: K1 income breakdown card component |
-| `libs/ui/src/lib/nav-menu-group/` | NEW: Grouped nav item with mat-menu dropdown |
+| File                                                                        | Change                                        |
+| --------------------------------------------------------------------------- | --------------------------------------------- |
+| `apps/client/src/app/components/header/header.component.html`               | Restructure nav to 5 grouped items            |
+| `apps/client/src/app/components/header/header.component.ts`                 | Add mat-menu properties for nav groups        |
+| `apps/client/src/app/pages/portfolio/analysis/analysis-page.component.ts`   | Inject FamilyOfficeDataService, fetch K1 data |
+| `apps/client/src/app/pages/portfolio/analysis/analysis-page.component.html` | Add FO metrics sections                       |
+| `apps/client/src/app/pages/family-dashboard/dashboard-page.component.ts`    | Add portfolio summary + K1 income sections    |
+| `apps/client/src/app/app.routes.ts`                                         | Change wildcard redirect to `family-office`   |
+| `libs/ui/src/lib/k1-income-summary/`                                        | NEW: K1 income breakdown card component       |
+| `libs/ui/src/lib/nav-menu-group/`                                           | NEW: Grouped nav item with mat-menu dropdown  |

@@ -28,7 +28,7 @@ export class K1AllocationService {
   public async allocateToMembers(
     partnershipId: string,
     taxYear: number,
-    fields: Array<{ boxNumber: string; numericValue: number | null }>
+    fields: { boxNumber: string; numericValue: number | null }[]
   ): Promise<MemberAllocation[]> {
     // Get active members as of tax year end
     const taxYearEnd = new Date(taxYear, 11, 31); // Dec 31 of tax year

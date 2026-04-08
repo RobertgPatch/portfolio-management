@@ -11,15 +11,15 @@ This feature requires **no new database models or schema changes**. All data ent
 
 These Prisma models already exist and power the family office API endpoints:
 
-| Entity | Prisma Model | Key Fields | Used By |
-|---|---|---|---|
-| Entity | `Entity` | id, name, type (INDIVIDUAL/TRUST/LLC/LP/CORPORATION), taxId | Dashboard allocations, Portfolio Summary |
-| Partnership | `Partnership` | id, name, ein, entityId, currentValuation | Dashboard AUM, Performance metrics |
-| Distribution | `Distribution` | id, partnershipId, entityId, amount, date, type | Dashboard recent distributions |
-| K1 Document | `KDocument` | id, partnershipId, taxYear, filingStatus, normalizedData | K1 filing status, Activity ledger |
-| K1 Box Definition | `K1BoxDefinition` | id, formType, boxNumber, description, dataType | K1 parsing, Cell Mapping page |
-| Valuation | `Valuation` | id, partnershipId, value, quarter, year | AUM calculation |
-| Partner Performance | `PartnerPerformance` | id, partnershipId, irr, tvpi, dpi, rvpi | Performance metrics |
+| Entity              | Prisma Model         | Key Fields                                                  | Used By                                  |
+| ------------------- | -------------------- | ----------------------------------------------------------- | ---------------------------------------- |
+| Entity              | `Entity`             | id, name, type (INDIVIDUAL/TRUST/LLC/LP/CORPORATION), taxId | Dashboard allocations, Portfolio Summary |
+| Partnership         | `Partnership`        | id, name, ein, entityId, currentValuation                   | Dashboard AUM, Performance metrics       |
+| Distribution        | `Distribution`       | id, partnershipId, entityId, amount, date, type             | Dashboard recent distributions           |
+| K1 Document         | `KDocument`          | id, partnershipId, taxYear, filingStatus, normalizedData    | K1 filing status, Activity ledger        |
+| K1 Box Definition   | `K1BoxDefinition`    | id, formType, boxNumber, description, dataType              | K1 parsing, Cell Mapping page            |
+| Valuation           | `Valuation`          | id, partnershipId, value, quarter, year                     | AUM calculation                          |
+| Partner Performance | `PartnerPerformance` | id, partnershipId, irr, tvpi, dpi, rvpi                     | Performance metrics                      |
 
 ## UI State Models (Data Flow)
 

@@ -1,5 +1,5 @@
-import { K1ImportDataService } from '@ghostfolio/client/services/k1-import-data.service';
 import { FamilyOfficeDataService } from '@ghostfolio/client/services/family-office-data.service';
+import { K1ImportDataService } from '@ghostfolio/client/services/k1-import-data.service';
 
 import { CommonModule } from '@angular/common';
 import {
@@ -21,10 +21,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router, RouterModule } from '@angular/router';
 import { addIcons } from 'ionicons';
-import {
-  cloudUploadOutline,
-  documentTextOutline
-} from 'ionicons/icons';
+import { cloudUploadOutline, documentTextOutline } from 'ionicons/icons';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -48,10 +45,17 @@ import {
 export class K1ImportPageComponent implements OnDestroy, OnInit {
   public error: string | null = null;
   public extractionStatus: string | null = null;
-  public historyColumns = ['createdAt', 'fileName', 'taxYear', 'status', 'kDocument', 'actions'];
+  public historyColumns = [
+    'createdAt',
+    'fileName',
+    'taxYear',
+    'status',
+    'kDocument',
+    'actions'
+  ];
   public importHistory: any[] = [];
   public isUploading = false;
-  public partnerships: Array<{ id: string; name: string }> = [];
+  public partnerships: { id: string; name: string }[] = [];
   public selectedFile: File | null = null;
   public selectedPartnershipId = '';
   public sessionId: string | null = null;
@@ -197,8 +201,7 @@ export class K1ImportPageComponent implements OnDestroy, OnInit {
         },
         error: (err) => {
           this.isUploading = false;
-          this.error =
-            err?.error?.message || err?.message || 'Upload failed.';
+          this.error = err?.error?.message || err?.message || 'Upload failed.';
           this.extractionStatus = null;
           this.changeDetectorRef.markForCheck();
         }
@@ -246,8 +249,7 @@ export class K1ImportPageComponent implements OnDestroy, OnInit {
               this.router.navigate(['/k1-import', sessionId, 'verify']);
             } else if (session.status === 'FAILED') {
               this.stopPolling();
-              this.error =
-                session.errorMessage || 'Extraction failed.';
+              this.error = session.errorMessage || 'Extraction failed.';
               this.extractionStatus = 'FAILED';
             }
 

@@ -5,14 +5,16 @@
 
 ## Primary Navigation Structure
 
-The header navigation for authenticated users MUST display exactly these 5 top-level items:
+The header navigation for authenticated users MUST display exactly these top-level items:
 
 ### 1. Dashboard (direct link)
+
 - **Route**: `/family-office`
 - **Label**: "Dashboard"
 - **Behavior**: Direct navigation (no submenu)
 
 ### 2. Partnerships (dropdown menu)
+
 - **Label**: "Partnerships"
 - **Sub-items**:
   | Label | Route | Description |
@@ -20,9 +22,16 @@ The header navigation for authenticated users MUST display exactly these 5 top-l
   | Entities | `/entities` | Entity management (trusts, LLCs, etc.) |
   | Partnerships | `/partnerships` | Partnership list and details |
   | Distributions | `/distributions` | Distribution tracking |
-  | Portfolio Views | `/portfolio-views` | Configurable performance views |
+  | Accounts | `/accounts` | Brokerage accounts linked to entities |
 
-### 3. K-1 Center (dropdown menu)
+### 3. Portfolio Views (direct link)
+
+- **Route**: `/portfolio-views`
+- **Label**: "Portfolio Views"
+- **Behavior**: Direct navigation (no submenu)
+
+### 4. K-1 Center (dropdown menu)
+
 - **Label**: "K-1 Center"
 - **Sub-items**:
   | Label | Route | Description |
@@ -31,12 +40,14 @@ The header navigation for authenticated users MUST display exactly these 5 top-l
   | K-1 Documents | `/k-documents` | Browse parsed K1 documents |
   | Cell Mapping | `/cell-mapping` | K1 box definition management |
 
-### 4. Analysis (direct link)
+### 5. Analysis (direct link)
+
 - **Route**: `/portfolio` (existing portfolio page with analysis, activities, allocations tabs)
 - **Label**: "Analysis"
 - **Behavior**: Direct navigation (no submenu)
 
-### 5. Admin (dropdown menu, conditional)
+### 6. Admin (dropdown menu, conditional)
+
 - **Label**: "Admin"
 - **Visibility**: Shows only when `hasPermissionToAccessAdminControl` is true
 - **Sub-items**:
@@ -49,15 +60,16 @@ The header navigation for authenticated users MUST display exactly these 5 top-l
   | Legacy Pages | (submenu or section) | Always |
 
 ### Legacy Pages (accessible from Admin > Legacy or via direct URL)
-| Label | Route |
-|---|---|
-| Overview | `/home` |
-| Holdings | `/home/holdings` |
-| Summary | `/home/summary` |
-| Markets | `/home/markets` |
-| Watchlist | `/home/watchlist` |
-| FIRE Calculator | `/portfolio/fire` |
-| X-Ray | `/portfolio/x-ray` |
+
+| Label           | Route              |
+| --------------- | ------------------ |
+| Overview        | `/home`            |
+| Holdings        | `/home/holdings`   |
+| Summary         | `/home/summary`    |
+| Markets         | `/home/markets`    |
+| Watchlist       | `/home/watchlist`  |
+| FIRE Calculator | `/portfolio/fire`  |
+| X-Ray           | `/portfolio/x-ray` |
 
 ## Mobile Navigation
 
@@ -69,8 +81,8 @@ All existing routes MUST continue to work. No routes are removed or redirected. 
 
 ## Default Route Change
 
-| Current | Target |
-|---|---|
+| Current        | Target                  |
+| -------------- | ----------------------- |
 | `/**` → `home` | `/**` → `family-office` |
 
 The wildcard redirect in `app.routes.ts` changes from `redirectTo: 'home'` to `redirectTo: 'family-office'`.

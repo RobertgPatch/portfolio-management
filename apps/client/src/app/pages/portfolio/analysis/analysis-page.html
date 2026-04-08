@@ -187,61 +187,59 @@
                 [dataSource]="portfolioSummary.entities"
               >
                 <ng-container matColumnDef="entityName">
-                  <th *matHeaderCellDef mat-header-cell i18n>Entity</th>
+                  <th *matHeaderCellDef i18n mat-header-cell>Entity</th>
                   <td *matCellDef="let row" mat-cell>{{ row.entityName }}</td>
                 </ng-container>
                 <ng-container matColumnDef="originalCommitment">
-                  <th *matHeaderCellDef mat-header-cell i18n>Commitment</th>
+                  <th *matHeaderCellDef i18n mat-header-cell>Commitment</th>
                   <td *matCellDef="let row" mat-cell>
-                    {{ row.originalCommitment | number: '1.0-0' }}
+                    {{ row.originalCommitment | gfAccountingNumber }}
                   </td>
                 </ng-container>
                 <ng-container matColumnDef="percentCalled">
-                  <th *matHeaderCellDef mat-header-cell i18n>% Called</th>
+                  <th *matHeaderCellDef i18n mat-header-cell>% Called</th>
                   <td *matCellDef="let row" mat-cell>
                     {{
                       row.percentCalled !== null
                         ? (row.percentCalled | number: '1.1-1') + '%'
-                        : 'N/A'
+                        : naLabel
                     }}
                   </td>
                 </ng-container>
                 <ng-container matColumnDef="unfundedCommitment">
-                  <th *matHeaderCellDef mat-header-cell i18n>Unfunded</th>
+                  <th *matHeaderCellDef i18n mat-header-cell>Unfunded</th>
                   <td *matCellDef="let row" mat-cell>
-                    {{ row.unfundedCommitment | number: '1.0-0' }}
+                    {{ row.unfundedCommitment | gfAccountingNumber }}
                   </td>
                 </ng-container>
                 <ng-container matColumnDef="paidIn">
-                  <th *matHeaderCellDef mat-header-cell i18n>Paid-In</th>
+                  <th *matHeaderCellDef i18n mat-header-cell>Paid-In</th>
                   <td *matCellDef="let row" mat-cell>
-                    {{ row.paidIn | number: '1.0-0' }}
+                    {{ row.paidIn | gfAccountingNumber }}
                   </td>
                 </ng-container>
                 <ng-container matColumnDef="distributions">
-                  <th *matHeaderCellDef mat-header-cell i18n>Distributions</th>
+                  <th *matHeaderCellDef i18n mat-header-cell>Distributions</th>
                   <td *matCellDef="let row" mat-cell>
-                    {{ row.distributions | number: '1.0-0' }}
+                    {{ row.distributions | gfAccountingNumber }}
                   </td>
                 </ng-container>
                 <ng-container matColumnDef="irr">
-                  <th *matHeaderCellDef mat-header-cell i18n>IRR</th>
+                  <th *matHeaderCellDef i18n mat-header-cell>IRR</th>
                   <td *matCellDef="let row" mat-cell>
                     {{
-                      row.irr !== null
-                        ? (row.irr | percent: '1.2-2')
-                        : 'N/A'
+                      row.irr !== null ? (row.irr | percent: '1.2-2') : naLabel
                     }}
                   </td>
                 </ng-container>
                 <ng-container matColumnDef="tvpi">
-                  <th *matHeaderCellDef mat-header-cell i18n>TVPI</th>
+                  <th *matHeaderCellDef i18n mat-header-cell>TVPI</th>
                   <td *matCellDef="let row" mat-cell>
                     {{ row.tvpi | number: '1.2-2' }}x
                   </td>
                 </ng-container>
                 <ng-container matColumnDef="dpi">
-                  <th *matHeaderCellDef mat-header-cell i18n>DPI</th>
+                  <th *matHeaderCellDef i18n mat-header-cell>DPI</th>
                   <td *matCellDef="let row" mat-cell>
                     {{ row.dpi | number: '1.2-2' }}x
                   </td>
@@ -271,10 +269,8 @@
       <div class="col-lg">
         <mat-card appearance="outlined">
           <mat-card-content class="text-center py-4">
-            <p i18n>
-              No K-1 data available. Import a K-1 to get started.
-            </p>
-            <a mat-flat-button color="primary" routerLink="/k1-import" i18n
+            <p i18n>No K-1 data available. Import a K-1 to get started.</p>
+            <a color="primary" i18n mat-flat-button routerLink="/k1-import"
               >Import K-1</a
             >
           </mat-card-content>
@@ -439,55 +435,50 @@
                 [dataSource]="assetClassSummary.assetClasses"
               >
                 <ng-container matColumnDef="assetClassLabel">
-                  <th *matHeaderCellDef mat-header-cell i18n>Asset Class</th>
+                  <th *matHeaderCellDef i18n mat-header-cell>Asset Class</th>
                   <td *matCellDef="let row" mat-cell>
                     {{ row.assetClassLabel }}
                   </td>
                 </ng-container>
                 <ng-container matColumnDef="originalCommitment">
-                  <th *matHeaderCellDef mat-header-cell i18n>Commitment</th>
+                  <th *matHeaderCellDef i18n mat-header-cell>Commitment</th>
                   <td *matCellDef="let row" mat-cell>
-                    {{ row.originalCommitment | number: '1.0-0' }}
+                    {{ row.originalCommitment | gfAccountingNumber }}
                   </td>
                 </ng-container>
                 <ng-container matColumnDef="paidIn">
-                  <th *matHeaderCellDef mat-header-cell i18n>Paid-In</th>
+                  <th *matHeaderCellDef i18n mat-header-cell>Paid-In</th>
                   <td *matCellDef="let row" mat-cell>
-                    {{ row.paidIn | number: '1.0-0' }}
+                    {{ row.paidIn | gfAccountingNumber }}
                   </td>
                 </ng-container>
                 <ng-container matColumnDef="distributions">
-                  <th *matHeaderCellDef mat-header-cell i18n>Distributions</th>
+                  <th *matHeaderCellDef i18n mat-header-cell>Distributions</th>
                   <td *matCellDef="let row" mat-cell>
-                    {{ row.distributions | number: '1.0-0' }}
+                    {{ row.distributions | gfAccountingNumber }}
                   </td>
                 </ng-container>
                 <ng-container matColumnDef="irr">
-                  <th *matHeaderCellDef mat-header-cell i18n>IRR</th>
+                  <th *matHeaderCellDef i18n mat-header-cell>IRR</th>
                   <td *matCellDef="let row" mat-cell>
                     {{
-                      row.irr !== null
-                        ? (row.irr | percent: '1.2-2')
-                        : 'N/A'
+                      row.irr !== null ? (row.irr | percent: '1.2-2') : naLabel
                     }}
                   </td>
                 </ng-container>
                 <ng-container matColumnDef="tvpi">
-                  <th *matHeaderCellDef mat-header-cell i18n>TVPI</th>
+                  <th *matHeaderCellDef i18n mat-header-cell>TVPI</th>
                   <td *matCellDef="let row" mat-cell>
                     {{ row.tvpi | number: '1.2-2' }}x
                   </td>
                 </ng-container>
                 <ng-container matColumnDef="dpi">
-                  <th *matHeaderCellDef mat-header-cell i18n>DPI</th>
+                  <th *matHeaderCellDef i18n mat-header-cell>DPI</th>
                   <td *matCellDef="let row" mat-cell>
                     {{ row.dpi | number: '1.2-2' }}x
                   </td>
                 </ng-container>
-                <tr
-                  *matHeaderRowDef="assetClassColumns"
-                  mat-header-row
-                ></tr>
+                <tr *matHeaderRowDef="assetClassColumns" mat-header-row></tr>
                 <tr
                   *matRowDef="let row; columns: assetClassColumns"
                   mat-row

@@ -67,9 +67,7 @@ export class PortfolioViewsPageComponent implements OnInit {
   // Period mode
   public periodMode: PeriodMode = 'YEARLY';
   public valuationYear: number = new Date().getFullYear();
-  public selectedQuarter: number = Math.ceil(
-    (new Date().getMonth() + 1) / 3
-  );
+  public selectedQuarter: number = Math.ceil((new Date().getMonth() + 1) / 3);
   public availableYears: number[] = [];
   public availableQuarters = [
     { value: 1, label: 'Q1 (Jan–Mar)' },
@@ -262,7 +260,7 @@ export class PortfolioViewsPageComponent implements OnInit {
     this.router.navigate(['/entities', entityId]);
   }
 
-  public onAssetClassRowClick(_assetClass: string) {
+  public onAssetClassRowClick(_assetClass: string): void {
     // TODO: Implement drill-down into partnerships for this asset class
   }
 
@@ -467,12 +465,7 @@ export class PortfolioViewsPageComponent implements OnInit {
     const comparison = this.comparisonPortfolioSummary.totals;
 
     this.portfolioDeltas = [
-      this.buildDelta(
-        'Paid-In',
-        primary.paidIn,
-        comparison.paidIn,
-        'currency'
-      ),
+      this.buildDelta('Paid-In', primary.paidIn, comparison.paidIn, 'currency'),
       this.buildDelta(
         'Distributions',
         primary.distributions,
@@ -508,12 +501,7 @@ export class PortfolioViewsPageComponent implements OnInit {
     const comparison = this.comparisonAssetClassSummary.totals;
 
     this.assetClassDeltas = [
-      this.buildDelta(
-        'Paid-In',
-        primary.paidIn,
-        comparison.paidIn,
-        'currency'
-      ),
+      this.buildDelta('Paid-In', primary.paidIn, comparison.paidIn, 'currency'),
       this.buildDelta(
         'Distributions',
         primary.distributions,
@@ -549,7 +537,14 @@ export class PortfolioViewsPageComponent implements OnInit {
       }
     }
 
-    return { label, primaryValue, comparisonValue, delta, deltaPercent, format };
+    return {
+      label,
+      primaryValue,
+      comparisonValue,
+      delta,
+      deltaPercent,
+      format
+    };
   }
 
   private loadActivity() {

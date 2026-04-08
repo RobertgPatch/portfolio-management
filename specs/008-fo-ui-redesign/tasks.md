@@ -26,8 +26,8 @@
 
 **Purpose**: No project initialization needed — this feature works entirely within the existing codebase. Phase 1 is minimal: verify the dev environment and existing API endpoints respond correctly.
 
-- [X] T001 Verify dev environment starts cleanly: `docker compose -f docker/docker-compose.dev.yml up -d`, `npx nx serve api`, `npx nx serve client`
-- [X] T002 Verify family office API endpoints return data: `GET /api/v1/family-office/dashboard`, `GET /api/v1/family-office/portfolio-summary`, `GET /api/v1/family-office/asset-class-summary`, `GET /api/v1/family-office/activity`
+- [x] T001 Verify dev environment starts cleanly: `docker compose -f docker/docker-compose.dev.yml up -d`, `npx nx serve api`, `npx nx serve client`
+- [x] T002 Verify family office API endpoints return data: `GET /api/v1/family-office/dashboard`, `GET /api/v1/family-office/portfolio-summary`, `GET /api/v1/family-office/asset-class-summary`, `GET /api/v1/family-office/activity`
 
 ---
 
@@ -37,10 +37,10 @@
 
 **⚠️ CRITICAL**: US1 and US3 depend on these components being available.
 
-- [X] T003 [P] Create K1 income summary component in libs/ui/src/lib/k1-income-summary/k1-income-summary.component.ts — standalone Angular component accepting `IActivityRow[]` input, aggregates and displays: Total Ordinary Income (interest + dividends + remainingK1IncomeDed), Total Capital Gains, Total Distributions, Total Other Adjustments as a Material card with labeled dollar amounts. Zero values display as $0 per FR-001/SC-007.
-- [X] T004 [P] SKIPPED — Reusing existing `gf-performance-metrics` component at libs/ui/src/lib/performance-metrics/ which already displays IRR, TVPI, DPI, RVPI as individual mat-cards with proper formatting.
-- [X] T005 [P] Create nav menu group component in libs/ui/src/lib/nav-menu-group/nav-menu-group.component.ts — standalone Angular component with a `mat-button` trigger and `mat-menu` dropdown. Inputs: `label: string`, `menuItems: { label: string, routerLink: string }[]`, `isActive: boolean`. Outputs: renders a toolbar button that opens a dropdown with `routerLink` items. Used for Partnerships, K-1 Center, and Admin nav groups.
-- [X] T006 Export two new components from libs/ui/src/lib/ barrel files (index.ts) — k1-income-summary and nav-menu-group importable via `@ghostfolio/ui/k1-income-summary` and `@ghostfolio/ui/nav-menu-group`
+- [x] T003 [P] Create K1 income summary component in libs/ui/src/lib/k1-income-summary/k1-income-summary.component.ts — standalone Angular component accepting `IActivityRow[]` input, aggregates and displays: Total Ordinary Income (interest + dividends + remainingK1IncomeDed), Total Capital Gains, Total Distributions, Total Other Adjustments as a Material card with labeled dollar amounts. Zero values display as $0 per FR-001/SC-007.
+- [x] T004 [P] SKIPPED — Reusing existing `gf-performance-metrics` component at libs/ui/src/lib/performance-metrics/ which already displays IRR, TVPI, DPI, RVPI as individual mat-cards with proper formatting.
+- [x] T005 [P] Create nav menu group component in libs/ui/src/lib/nav-menu-group/nav-menu-group.component.ts — standalone Angular component with a `mat-button` trigger and `mat-menu` dropdown. Inputs: `label: string`, `menuItems: { label: string, routerLink: string }[]`, `isActive: boolean`. Outputs: renders a toolbar button that opens a dropdown with `routerLink` items. Used for Partnerships, K-1 Center, and Admin nav groups.
+- [x] T006 Export two new components from libs/ui/src/lib/ barrel files (index.ts) — k1-income-summary and nav-menu-group importable via `@ghostfolio/ui/k1-income-summary` and `@ghostfolio/ui/nav-menu-group`
 
 **Checkpoint**: Three reusable components ready for consumption by US1, US2, US3.
 
@@ -54,13 +54,13 @@
 
 ### Implementation for User Story 1
 
-- [X] T007 [US1] Inject `FamilyOfficeDataService` into apps/client/src/app/pages/portfolio/analysis/analysis-page.component.ts — add import, inject via constructor or `inject()`, add properties for `portfolioSummary: IPortfolioSummary`, `assetClassSummary: IAssetClassSummary`, `activityDetail: IActivityDetail`, and a `hasFamilyOfficeData: boolean` flag
-- [X] T008 [US1] Add data fetching in analysis-page.component.ts `ngOnInit` — call `FamilyOfficeDataService.fetchPortfolioSummary()`, `fetchAssetClassSummary()`, and `fetchActivity()`. Subscribe and assign results. Set `hasFamilyOfficeData = true` when any data is non-empty. Use `takeUntilDestroyed` for cleanup.
-- [X] T009 [US1] Add FO performance metrics section to analysis page template in apps/client/src/app/pages/portfolio/analysis/analysis-page.component.html — insert after the benchmark comparator section: `<gf-performance-metrics-card>` bound to `portfolioSummary?.totals`, gated by `hasFamilyOfficeData`
-- [X] T010 [US1] Add entity breakdown table to analysis page template — after the performance metrics card: a Material table showing each entity from `portfolioSummary.entities` with columns: Entity Name, Original Commitment, % Called, Unfunded, Paid-In, Distributions, IRR, TVPI, DPI. Gated by `portfolioSummary?.entities?.length > 0`.
-- [X] T011 [US1] Add K1 income summary section to analysis page template — insert `<gf-k1-income-summary>` bound to `activityDetail?.rows`, positioned after the entity table per contracts/analysis-page.md section ordering
-- [X] T012 [US1] Add asset class breakdown table to analysis page template — after the performance breakdown section: a Material table showing each asset class from `assetClassSummary.assetClasses` with columns: Asset Class, Original Commitment, Paid-In, Distributions, IRR, TVPI, DPI. Hidden if no data.
-- [X] T013 [US1] Add empty state card to analysis page template — when `!hasFamilyOfficeData && !isLoading`: show a `mat-card` with message "No K-1 data available. Import a K-1 to get started." and a `routerLink` button to `/k1-import` per FR-004
+- [x] T007 [US1] Inject `FamilyOfficeDataService` into apps/client/src/app/pages/portfolio/analysis/analysis-page.component.ts — add import, inject via constructor or `inject()`, add properties for `portfolioSummary: IPortfolioSummary`, `assetClassSummary: IAssetClassSummary`, `activityDetail: IActivityDetail`, and a `hasFamilyOfficeData: boolean` flag
+- [x] T008 [US1] Add data fetching in analysis-page.component.ts `ngOnInit` — call `FamilyOfficeDataService.fetchPortfolioSummary()`, `fetchAssetClassSummary()`, and `fetchActivity()`. Subscribe and assign results. Set `hasFamilyOfficeData = true` when any data is non-empty. Use `takeUntilDestroyed` for cleanup.
+- [x] T009 [US1] Add FO performance metrics section to analysis page template in apps/client/src/app/pages/portfolio/analysis/analysis-page.component.html — insert after the benchmark comparator section: `<gf-performance-metrics-card>` bound to `portfolioSummary?.totals`, gated by `hasFamilyOfficeData`
+- [x] T010 [US1] Add entity breakdown table to analysis page template — after the performance metrics card: a Material table showing each entity from `portfolioSummary.entities` with columns: Entity Name, Original Commitment, % Called, Unfunded, Paid-In, Distributions, IRR, TVPI, DPI. Gated by `portfolioSummary?.entities?.length > 0`.
+- [x] T011 [US1] Add K1 income summary section to analysis page template — insert `<gf-k1-income-summary>` bound to `activityDetail?.rows`, positioned after the entity table per contracts/analysis-page.md section ordering
+- [x] T012 [US1] Add asset class breakdown table to analysis page template — after the performance breakdown section: a Material table showing each asset class from `assetClassSummary.assetClasses` with columns: Asset Class, Original Commitment, Paid-In, Distributions, IRR, TVPI, DPI. Hidden if no data.
+- [x] T013 [US1] Add empty state card to analysis page template — when `!hasFamilyOfficeData && !isLoading`: show a `mat-card` with message "No K-1 data available. Import a K-1 to get started." and a `routerLink` button to `/k1-import` per FR-004
 
 **Checkpoint**: Portfolio analysis page shows K1 data from parsed documents. US1 independently verifiable.
 
@@ -74,9 +74,9 @@
 
 ### Implementation for User Story 2
 
-- [X] T014 [US2] Refactor desktop navigation in apps/client/src/app/components/header/header.component.html — replace the 11+ `<li>` nav items in the desktop toolbar `<ul>` with 5 items: (1) Dashboard direct link to `/family-office`, (2) Partnerships `<gf-nav-menu-group>` with items for Entities, Partnerships, Distributions, Portfolio Views, (3) K-1 Center `<gf-nav-menu-group>` with items for K-1 Import, K-1 Documents, Cell Mapping, (4) Analysis direct link to existing portfolio route, (5) Admin `<gf-nav-menu-group>` (conditional on `hasPermissionToAccessAdminControl`) with items for Admin Control, Accounts, Resources, Pricing (conditional), and a Legacy sub-section with Overview, Holdings, Summary, Markets, Watchlist, FIRE, X-Ray
-- [X] T015 [US2] Update header.component.ts in apps/client/src/app/components/header/header.component.ts — add imports for `GfNavMenuGroupComponent`, define nav group data structures as properties (partnershipsMenuItems, k1CenterMenuItems, adminMenuItems with routes per contracts/navigation.md), add `isActiveRoute()` helper to highlight the correct nav group based on current URL
-- [X] T016 [US2] Refactor mobile navigation in header.component.html — update the `d-flex d-sm-none` section in the account `mat-menu` to mirror the 5-group structure with flat sub-items. Group items under dividers/headers labeled "Partnerships", "K-1 Center", "Admin", "Legacy" instead of listing all 11+ flat items.
+- [x] T014 [US2] Refactor desktop navigation in apps/client/src/app/components/header/header.component.html — replace the 11+ `<li>` nav items in the desktop toolbar `<ul>` with 5 items: (1) Dashboard direct link to `/family-office`, (2) Partnerships `<gf-nav-menu-group>` with items for Entities, Partnerships, Distributions, Portfolio Views, (3) K-1 Center `<gf-nav-menu-group>` with items for K-1 Import, K-1 Documents, Cell Mapping, (4) Analysis direct link to existing portfolio route, (5) Admin `<gf-nav-menu-group>` (conditional on `hasPermissionToAccessAdminControl`) with items for Admin Control, Accounts, Resources, Pricing (conditional), and a Legacy sub-section with Overview, Holdings, Summary, Markets, Watchlist, FIRE, X-Ray
+- [x] T015 [US2] Update header.component.ts in apps/client/src/app/components/header/header.component.ts — add imports for `GfNavMenuGroupComponent`, define nav group data structures as properties (partnershipsMenuItems, k1CenterMenuItems, adminMenuItems with routes per contracts/navigation.md), add `isActiveRoute()` helper to highlight the correct nav group based on current URL
+- [x] T016 [US2] Refactor mobile navigation in header.component.html — update the `d-flex d-sm-none` section in the account `mat-menu` to mirror the 5-group structure with flat sub-items. Group items under dividers/headers labeled "Partnerships", "K-1 Center", "Admin", "Legacy" instead of listing all 11+ flat items.
 
 **Checkpoint**: Navigation shows 5 grouped items. All existing URLs still work (no route changes). US2 independently verifiable.
 
@@ -90,11 +90,11 @@
 
 ### Implementation for User Story 3
 
-- [X] T017 [US3] Add portfolio summary data fetching to dashboard in apps/client/src/app/pages/family-dashboard/dashboard-page.component.ts — inject additional calls to `FamilyOfficeDataService.fetchPortfolioSummary()` and `fetchActivity()` alongside the existing `fetchDashboard()`. Store results in new component properties.
-- [X] T018 [US3] Add performance metrics section to dashboard template — insert `<gf-performance-metrics-card>` bound to `portfolioSummary?.totals` between the allocation charts section and the recent distributions section
-- [X] T019 [US3] Add K1 income summary section to dashboard template — insert `<gf-k1-income-summary>` bound to `activityDetail?.rows` after the performance metrics card, displaying current tax year K1 income breakdown
-- [X] T020 [US3] Add onboarding guide to dashboard template — when `dashboard?.entitiesCount === 0 && dashboard?.partnershipsCount === 0`: display a `mat-card` with 3 steps: (1) Create an Entity → link to `/entities`, (2) Add a Partnership → link to `/partnerships`, (3) Import a K-1 → link to `/k1-import`. Per FR-016.
-- [X] T021 [US3] Change default route to family-office dashboard in apps/client/src/app/app.routes.ts — update the wildcard redirect from `redirectTo: 'home'` to `redirectTo: 'family-office'` per contracts/navigation.md
+- [x] T017 [US3] Add portfolio summary data fetching to dashboard in apps/client/src/app/pages/family-dashboard/dashboard-page.component.ts — inject additional calls to `FamilyOfficeDataService.fetchPortfolioSummary()` and `fetchActivity()` alongside the existing `fetchDashboard()`. Store results in new component properties.
+- [x] T018 [US3] Add performance metrics section to dashboard template — insert `<gf-performance-metrics-card>` bound to `portfolioSummary?.totals` between the allocation charts section and the recent distributions section
+- [x] T019 [US3] Add K1 income summary section to dashboard template — insert `<gf-k1-income-summary>` bound to `activityDetail?.rows` after the performance metrics card, displaying current tax year K1 income breakdown
+- [x] T020 [US3] Add onboarding guide to dashboard template — when `dashboard?.entitiesCount === 0 && dashboard?.partnershipsCount === 0`: display a `mat-card` with 3 steps: (1) Create an Entity → link to `/entities`, (2) Add a Partnership → link to `/partnerships`, (3) Import a K-1 → link to `/k1-import`. Per FR-016.
+- [x] T021 [US3] Change default route to family-office dashboard in apps/client/src/app/app.routes.ts — update the wildcard redirect from `redirectTo: 'home'` to `redirectTo: 'family-office'` per contracts/navigation.md
 
 **Checkpoint**: Dashboard is the landing page with full FO data. US3 independently verifiable.
 
@@ -108,8 +108,8 @@
 
 ### Implementation for User Story 4
 
-- [X] T022 [US4] Verify all legacy routes remain in apps/client/src/app/app.routes.ts — confirm no routes were removed during US2 navigation refactor. All paths must remain: `home`, `home/holdings`, `home/summary`, `home/markets`, `home/watchlist`, `portfolio/fire`, `portfolio/x-ray`. This is a verification task, no code change expected if US2 was done correctly per FR-010/SC-004.
-- [X] T023 [US4] Verify legacy pages render correctly — manually navigate to each of the 7 legacy URLs and confirm they load with original functionality intact per spec acceptance scenario 1 for US4
+- [x] T022 [US4] Verify all legacy routes remain in apps/client/src/app/app.routes.ts — confirm no routes were removed during US2 navigation refactor. All paths must remain: `home`, `home/holdings`, `home/summary`, `home/markets`, `home/watchlist`, `portfolio/fire`, `portfolio/x-ray`. This is a verification task, no code change expected if US2 was done correctly per FR-010/SC-004.
+- [x] T023 [US4] Verify legacy pages render correctly — manually navigate to each of the 7 legacy URLs and confirm they load with original functionality intact per spec acceptance scenario 1 for US4
 
 **Checkpoint**: All legacy pages accessible and functional. US4 independently verifiable.
 
@@ -119,11 +119,11 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [X] T024 [P] Add SCSS styling for new K1 income summary and performance metrics card components — ensure consistent spacing, typography, and responsive behavior matching existing `libs/ui` component patterns
-- [X] T025 [P] Add responsive/mobile styling for nav-menu-group component — ensure grouped navigation works correctly on mobile viewports, including proper touch targets and menu positioning
-- [X] T026 Run full quickstart.md verification workflow — execute all 4 verification sections (P1-P4) from specs/008-fo-ui-redesign/quickstart.md, documenting any issues
-- [X] T027 Verify SC-001 performance: analysis page with K1 data loads within 3 seconds
-- [X] T028 Verify SC-003 click count: login → Dashboard → K-1 Center → K-1 Import → Upload achievable in ≤4 clicks
+- [x] T024 [P] Add SCSS styling for new K1 income summary and performance metrics card components — ensure consistent spacing, typography, and responsive behavior matching existing `libs/ui` component patterns
+- [x] T025 [P] Add responsive/mobile styling for nav-menu-group component — ensure grouped navigation works correctly on mobile viewports, including proper touch targets and menu positioning
+- [x] T026 Run full quickstart.md verification workflow — execute all 4 verification sections (P1-P4) from specs/008-fo-ui-redesign/quickstart.md, documenting any issues
+- [x] T027 Verify SC-001 performance: analysis page with K1 data loads within 3 seconds
+- [x] T028 Verify SC-003 click count: login → Dashboard → K-1 Center → K-1 Import → Upload achievable in ≤4 clicks
 
 ---
 

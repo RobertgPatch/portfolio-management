@@ -22,8 +22,11 @@ export class K1MaterializedViewService {
 
   async refreshAll() {
     try {
-      await this.prismaService.$executeRaw`REFRESH MATERIALIZED VIEW CONCURRENTLY mv_k1_partnership_year_summary`;
-      this.logger.log('Materialized view mv_k1_partnership_year_summary refreshed.');
+      await this.prismaService
+        .$executeRaw`REFRESH MATERIALIZED VIEW CONCURRENTLY mv_k1_partnership_year_summary`;
+      this.logger.log(
+        'Materialized view mv_k1_partnership_year_summary refreshed.'
+      );
     } catch (error) {
       this.logger.error(
         'Failed to refresh materialized view mv_k1_partnership_year_summary',
@@ -37,7 +40,7 @@ export class K1MaterializedViewService {
     partnershipId: string,
     taxYear: number
   ): Promise<
-    Array<{
+    {
       partnership_id: string;
       tax_year: number;
       box_key: string;
@@ -45,7 +48,7 @@ export class K1MaterializedViewService {
       section: string | null;
       total_amount: string | null;
       line_count: bigint;
-    }>
+    }[]
   > {
     return this.prismaService.$queryRaw`
       SELECT *

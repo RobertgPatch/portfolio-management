@@ -186,9 +186,7 @@ export const routes: Routes = [
   {
     path: 'k1-import',
     loadChildren: () =>
-      import('./pages/k1-import/k1-import-page.routes').then(
-        (m) => m.routes
-      )
+      import('./pages/k1-import/k1-import-page.routes').then((m) => m.routes)
   },
   {
     path: 'cell-mapping',

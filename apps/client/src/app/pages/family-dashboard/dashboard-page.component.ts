@@ -1,9 +1,11 @@
 import { FamilyOfficeDataService } from '@ghostfolio/client/services/family-office-data.service';
+import { UserService } from '@ghostfolio/client/services/user/user.service';
 import type {
   IActivityDetail,
   IFamilyOfficeDashboard,
   IPortfolioSummary
 } from '@ghostfolio/common/interfaces';
+import { hasPermission, permissions } from '@ghostfolio/common/permissions';
 import { GfK1IncomeSummaryComponent } from '@ghostfolio/ui/k1-income-summary';
 import { GfPerformanceMetricsComponent } from '@ghostfolio/ui/performance-metrics';
 import { AdminService } from '@ghostfolio/ui/services';
@@ -233,9 +235,7 @@ import { RouterModule } from '@angular/router';
       </mat-card>
 
       <!-- Onboarding Guide (T020) -->
-      @if (
-        dashboard.entitiesCount === 0 && dashboard.partnershipsCount === 0
-      ) {
+      @if (dashboard.entitiesCount === 0 && dashboard.partnershipsCount === 0) {
         <mat-card style="margin-bottom: 1.5rem; padding: 1.5rem">
           <mat-card-header>
             <mat-card-title>
@@ -522,34 +522,37 @@ import { RouterModule } from '@angular/router';
       </div>
 
       <!-- Data Management -->
-      <section class="mgmt-section">
-        <h2>
-          <mat-icon style="vertical-align: middle; margin-right: 0.25rem; font-size: 1.2rem; height: 1.2rem; width: 1.2rem"
-            >settings</mat-icon
-          >
-          Data Management
-        </h2>
-        <div class="mgmt-buttons">
-          <button
-            mat-stroked-button
-            color="primary"
-            [disabled]="isSeedingOrClearing"
-            (click)="onPopulateDummyData()"
-          >
-            <mat-icon>auto_awesome</mat-icon>
-            Populate Demo Data
-          </button>
-          <button
-            mat-stroked-button
-            color="warn"
-            [disabled]="isSeedingOrClearing"
-            (click)="onClearDatabase()"
-          >
-            <mat-icon>delete_sweep</mat-icon>
-            Clear All Data
-          </button>
-        </div>
-      </section>
+      @if (hasPermissionToAccessAdminControl) {
+        <section class="mgmt-section">
+          <h2>
+            <mat-icon
+              style="vertical-align: middle; margin-right: 0.25rem; font-size: 1.2rem; height: 1.2rem; width: 1.2rem"
+              >settings</mat-icon
+            >
+            Data Management
+          </h2>
+          <div class="mgmt-buttons">
+            <button
+              color="primary"
+              mat-stroked-button
+              [disabled]="isSeedingOrClearing"
+              (click)="onPopulateDummyData()"
+            >
+              <mat-icon>auto_awesome</mat-icon>
+              Populate Demo Data
+            </button>
+            <button
+              color="warn"
+              mat-stroked-button
+              [disabled]="isSeedingOrClearing"
+              (click)="onClearDatabase()"
+            >
+              <mat-icon>delete_sweep</mat-icon>
+              Clear All Data
+            </button>
+          </div>
+        </section>
+      }
     }
   `
 })
@@ -557,6 +560,7 @@ export class DashboardPageComponent implements OnInit {
   public activityDetail: IActivityDetail | null = null;
   public dashboard: IFamilyOfficeDashboard | null = null;
   public distributionColumns = ['partnership', 'amount', 'date', 'type'];
+  public hasPermissionToAccessAdminControl = false;
   public isLoading = true;
   public isSeedingOrClearing = false;
   public k1ProgressPercent = 0;
@@ -567,10 +571,22 @@ export class DashboardPageComponent implements OnInit {
     private readonly changeDetectorRef: ChangeDetectorRef,
     private readonly destroyRef: DestroyRef,
     private readonly familyOfficeDataService: FamilyOfficeDataService,
-    private readonly snackBar: MatSnackBar
+    private readonly snackBar: MatSnackBar,
+    private readonly userService: UserService
   ) {}
 
   public ngOnInit() {
+    this.userService.stateChanged
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((state) => {
+        if (state?.user) {
+          this.hasPermissionToAccessAdminControl = hasPermission(
+            state.user.permissions,
+            permissions.accessAdminControl
+          );
+          this.changeDetectorRef.markForCheck();
+        }
+      });
     this.familyOfficeDataService
       .fetchDashboard()
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -698,11 +714,6 @@ export class DashboardPageComponent implements OnInit {
   }
 
   private refreshDashboard() {
-    this.isLoading = true;
-    this.dashboard = null;
-    this.portfolioSummary = null;
-    this.activityDetail = null;
-    this.changeDetectorRef.markForCheck();
-    this.ngOnInit();
+    window.location.reload();
   }
 }
