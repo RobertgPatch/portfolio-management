@@ -578,9 +578,7 @@ export class UserService {
     }
 
     if (!data.role) {
-      const hasAdmin = await this.hasAdmin();
-
-      data.role = hasAdmin ? 'USER' : 'ADMIN';
+      data.role = 'USER';
     }
 
     const user = await this.prismaService.user.create({

@@ -16,6 +16,34 @@ async function main() {
     ],
     skipDuplicates: true
   });
+
+  // Bootstrap super admin mapped to Authentik admin account
+  const authentikAdminSub = process.env.AUTHENTIK_ADMIN_SUB;
+
+  if (authentikAdminSub) {
+    await prisma.user.upsert({
+      where: {
+        provider_thirdPartyId: {
+          provider: 'OIDC',
+          thirdPartyId: authentikAdminSub
+        }
+      },
+      update: {},
+      create: {
+        provider: 'OIDC',
+        thirdPartyId: authentikAdminSub,
+        role: 'ADMIN'
+      }
+    });
+
+    console.log(
+      `Upserted bootstrap super admin with thirdPartyId: ${authentikAdminSub}`
+    );
+  } else {
+    console.log(
+      'AUTHENTIK_ADMIN_SUB not set — skipping bootstrap super admin seed'
+    );
+  }
 }
 
 main()

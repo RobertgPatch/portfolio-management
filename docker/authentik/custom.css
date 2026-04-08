@@ -1,0 +1,153 @@
+/* Ghostfolio – Authentik Custom Branding
+ * Colors: Primary #36cfcc, Secondary #3686cf, Warn #dc3545
+ * Font: Inter, Roboto, Helvetica Neue, sans-serif
+ */
+
+/* ── Global Font ─────────────────────────────────────────── */
+body,
+.pf-c-title,
+.pf-c-form__label,
+.pf-c-form-control,
+.pf-c-button,
+.pf-c-login__main-header-desc,
+.pf-v5-c-title,
+.pf-v5-c-form__label,
+.pf-v5-c-form-control,
+.pf-v5-c-button {
+  font-family: 'Inter', 'Roboto', 'Helvetica Neue', sans-serif !important;
+}
+
+/* ── Login Background ────────────────────────────────────── */
+:root {
+  --ak-flow-background: none !important;
+  --pf-c-background-image--BackgroundImage: none !important;
+  --pf-c-background-image--BackgroundImage-2x: none !important;
+  --pf-c-background-image--BackgroundImage--sm: none !important;
+  --pf-c-background-image--BackgroundImage--sm-2x: none !important;
+  --pf-c-background-image--BackgroundImage--lg: none !important;
+}
+
+.pf-c-background-image {
+  display: none !important;
+}
+
+.pf-c-login,
+.pf-v5-c-login {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  min-height: 100vh !important;
+}
+
+/* ── Login Container — center the card vertically ────────── */
+.ak-login-container {
+  flex: 1 1 auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* ── Footer — pin to bottom, don't stretch ───────────────── */
+.pf-c-login__footer,
+.pf-v5-c-login__footer {
+  flex: 0 0 auto !important;
+  padding: 1rem 0 !important;
+}
+
+/* ── Login Card ──────────────────────────────────────────── */
+.pf-c-login__main,
+.pf-v5-c-login__main {
+  max-width: 450px !important;
+  width: 100% !important;
+  border-top: 3px solid #36cfcc !important;
+  border-radius: 8px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+  margin: auto !important;
+}
+
+/* ── Primary Buttons ─────────────────────────────────────── */
+.pf-c-button.pf-m-primary,
+.pf-v5-c-button.pf-m-primary {
+  background-color: #36cfcc !important;
+  border-color: #36cfcc !important;
+  color: #1a1a2e !important;
+  font-weight: 600 !important;
+  border-radius: 4px !important;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+.pf-c-button.pf-m-primary:hover,
+.pf-v5-c-button.pf-m-primary:hover {
+  background-color: #2eb8b5 !important;
+  border-color: #2eb8b5 !important;
+  box-shadow: 0 2px 8px rgba(54, 207, 204, 0.4) !important;
+}
+
+/* ── Form Input Focus ────────────────────────────────────── */
+.pf-c-form-control:focus,
+.pf-v5-c-form-control:focus {
+  border-bottom-color: #36cfcc !important;
+  box-shadow: 0 1px 0 0 #36cfcc !important;
+}
+
+/* ── Login Header Title ──────────────────────────────────── */
+.pf-c-login__main-header .pf-c-title,
+.pf-v5-c-login__main-header .pf-v5-c-title {
+  color: #36cfcc !important;
+}
+
+/* ── Brand Logo Sizing ───────────────────────────────────── */
+.pf-c-brand,
+.pf-v5-c-brand {
+  max-height: 56px !important;
+}
+
+/* ── Links ───────────────────────────────────────────────── */
+.pf-c-login__main-footer-links a,
+.pf-c-login__main a,
+.pf-v5-c-login__main a {
+  color: #36cfcc !important;
+}
+
+.pf-c-login__main-footer-links a:hover,
+.pf-c-login__main a:hover,
+.pf-v5-c-login__main a:hover {
+  color: #2eb8b5 !important;
+}
+
+/* ── Footer Text ─────────────────────────────────────────── */
+.pf-c-login__footer,
+.pf-v5-c-login__footer {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* ── "Powered by" Footer ─────────────────────────────────── */
+.pf-c-login__footer a,
+.pf-v5-c-login__footer a {
+  color: rgba(255, 255, 255, 0.4) !important;
+}
+
+/* ── Danger / Error Buttons ──────────────────────────────── */
+.pf-c-button.pf-m-danger,
+.pf-v5-c-button.pf-m-danger {
+  background-color: #dc3545 !important;
+  border-color: #dc3545 !important;
+}
+
+/* ── Secondary / Link Buttons ────────────────────────────── */
+.pf-c-button.pf-m-secondary,
+.pf-v5-c-button.pf-m-secondary,
+.pf-c-button.pf-m-link,
+.pf-v5-c-button.pf-m-link {
+  color: #36cfcc !important;
+  border-color: #36cfcc !important;
+}
+
+.pf-c-button.pf-m-secondary:hover,
+.pf-v5-c-button.pf-m-secondary:hover,
+.pf-c-button.pf-m-link:hover,
+.pf-v5-c-button.pf-m-link:hover {
+  color: #2eb8b5 !important;
+  border-color: #2eb8b5 !important;
+}

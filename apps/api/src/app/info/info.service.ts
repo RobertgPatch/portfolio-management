@@ -49,16 +49,8 @@ export class InfoService {
 
     const globalPermissions: string[] = [];
 
-    if (this.configurationService.get('ENABLE_FEATURE_AUTH_GOOGLE')) {
-      globalPermissions.push(permissions.enableAuthGoogle);
-    }
-
     if (this.configurationService.get('ENABLE_FEATURE_AUTH_OIDC')) {
       globalPermissions.push(permissions.enableAuthOidc);
-    }
-
-    if (this.configurationService.get('ENABLE_FEATURE_AUTH_TOKEN')) {
-      globalPermissions.push(permissions.enableAuthToken);
     }
 
     if (this.configurationService.get('ENABLE_FEATURE_FEAR_AND_GREED_INDEX')) {
@@ -100,20 +92,14 @@ export class InfoService {
     const [
       benchmarks,
       demoAuthToken,
-      isUserSignupEnabled,
       statistics,
       subscriptionOffer
     ] = await Promise.all([
       this.benchmarkService.getBenchmarkAssetProfiles(),
       this.getDemoAuthToken(),
-      this.propertyService.isUserSignupEnabled(),
       this.getStatistics(),
       this.subscriptionService.getSubscriptionOffer({ key: 'default' })
     ]);
-
-    if (isUserSignupEnabled) {
-      globalPermissions.push(permissions.createUserAccount);
-    }
 
     return {
       ...info,

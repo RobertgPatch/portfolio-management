@@ -87,11 +87,10 @@ We provide official container images hosted on [Docker Hub](https://hub.docker.c
 
 | Name                        | Type                  | Default Value         | Description                                                                                                                         |
 | --------------------------- | --------------------- | --------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| `ACCESS_TOKEN_SALT`         | `string`              |                       | A random string used as salt for access tokens                                                                                      |
+| `ACCESS_TOKEN_SALT`         | `string` (optional)   |                       | A random string used as salt for legacy access tokens (deprecated)                                                                  |
 | `API_KEY_COINGECKO_DEMO`    | `string` (optional)   |                       | The _CoinGecko_ Demo API key                                                                                                        |
 | `API_KEY_COINGECKO_PRO`     | `string` (optional)   |                       | The _CoinGecko_ Pro API key                                                                                                         |
 | `DATABASE_URL`              | `string`              |                       | The database connection URL, e.g. `postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost:5432/${POSTGRES_DB}?sslmode=prefer` |
-| `ENABLE_FEATURE_AUTH_TOKEN` | `boolean` (optional)  | `true`                | Enables authentication via security token                                                                                           |
 | `HOST`                      | `string` (optional)   | `0.0.0.0`             | The host where the Ghostfolio application will run on                                                                               |
 | `JWT_SECRET_KEY`            | `string`              |                       | A random string used for _JSON Web Tokens_ (JWT)                                                                                    |
 | `LOG_LEVELS`                | `string[]` (optional) |                       | The logging levels for the Ghostfolio application, e.g. `["debug","error","log","warn"]`                                            |
@@ -106,7 +105,9 @@ We provide official container images hosted on [Docker Hub](https://hub.docker.c
 | `REQUEST_TIMEOUT`           | `number` (optional)   | `2000`                | The timeout of network requests to data providers in milliseconds                                                                   |
 | `ROOT_URL`                  | `string` (optional)   | `http://0.0.0.0:3333` | The root URL of the Ghostfolio application, used for generating callback URLs and external links.                                   |
 
-#### OpenID Connect OIDC (Experimental)
+#### OpenID Connect (OIDC) — Authentik
+
+Authentication is handled via [Authentik](https://goauthentik.io) using the OpenID Connect protocol. See [DEVELOPMENT.md](DEVELOPMENT.md) for local setup instructions.
 
 | Name                       | Type                  | Default Value                        | Description                                                                                          |
 | -------------------------- | --------------------- | ------------------------------------ | ---------------------------------------------------------------------------------------------------- |

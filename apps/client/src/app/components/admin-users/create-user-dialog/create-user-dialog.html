@@ -1,0 +1,36 @@
+<h2 mat-dialog-title i18n>Create User</h2>
+
+<div mat-dialog-content>
+  <form [formGroup]="form">
+    <mat-form-field appearance="outline" class="w-100">
+      <mat-label i18n>Authentik User ID</mat-label>
+      <input
+        matInput
+        formControlName="thirdPartyId"
+        placeholder="authentik-user-uuid"
+      />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="w-100">
+      <mat-label i18n>Role</mat-label>
+      <mat-select formControlName="role">
+        @for (role of roles; track role) {
+          <mat-option [value]="role">{{ role }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </form>
+</div>
+
+<div mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()" i18n>Cancel</button>
+  <button
+    color="primary"
+    mat-flat-button
+    [disabled]="!form.valid"
+    (click)="onSubmit()"
+    i18n
+  >
+    Create
+  </button>
+</div>

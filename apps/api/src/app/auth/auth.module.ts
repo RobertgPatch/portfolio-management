@@ -1,5 +1,3 @@
-import { AuthDeviceService } from '@ghostfolio/api/app/auth-device/auth-device.service';
-import { WebAuthService } from '@ghostfolio/api/app/auth/web-auth.service';
 import { SubscriptionModule } from '@ghostfolio/api/app/subscription/subscription.module';
 import { UserModule } from '@ghostfolio/api/app/user/user.module';
 import { ApiKeyService } from '@ghostfolio/api/services/api-key/api-key.service';
@@ -15,7 +13,6 @@ import type { StrategyOptions } from 'passport-openidconnect';
 import { ApiKeyStrategy } from './api-key.strategy';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { GoogleStrategy } from './google.strategy';
 import { JwtStrategy } from './jwt.strategy';
 import { OidcStrategy } from './oidc.strategy';
 
@@ -35,9 +32,7 @@ import { OidcStrategy } from './oidc.strategy';
   providers: [
     ApiKeyService,
     ApiKeyStrategy,
-    AuthDeviceService,
     AuthService,
-    GoogleStrategy,
     JwtStrategy,
     {
       inject: [AuthService, ConfigurationService],
@@ -55,7 +50,10 @@ import { OidcStrategy } from './oidc.strategy';
         }
 
         const issuer = configurationService.get('OIDC_ISSUER');
-        const scope = configurationService.get('OIDC_SCOPE');
+        // passport-openidconnect adds 'openid' automatically; filter it to avoid duplicates
+        const scope = (configurationService.get('OIDC_SCOPE') || ['openid']).filter(
+          (s: string) => s !== 'openid'
+        );
 
         const callbackUrl =
           configurationService.get('OIDC_CALLBACK_URL') ||
@@ -115,8 +113,7 @@ import { OidcStrategy } from './oidc.strategy';
 
         return new OidcStrategy(authService, options);
       }
-    },
-    WebAuthService
+    }
   ]
 })
 export class AuthModule {}

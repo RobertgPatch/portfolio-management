@@ -239,7 +239,9 @@ export class GfAppComponent implements OnInit {
   public onSignOut() {
     this.userService.signOut();
 
-    document.location.href = `/${document.documentElement.lang}`;
+    // Redirect to the server logout endpoint which terminates the Authentik
+    // SSO session and redirects back to the Ghostfolio homepage.
+    document.location.href = '/api/auth/logout';
   }
 
   private initializeTheme(userPreferredColorScheme?: ColorScheme) {

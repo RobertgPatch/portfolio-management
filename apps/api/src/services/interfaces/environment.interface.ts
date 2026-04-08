@@ -2,6 +2,7 @@ import { CleanedEnvAccessors } from 'envalid';
 
 export interface Environment extends CleanedEnvAccessors {
   ACCESS_TOKEN_SALT: string;
+  AUTHENTIK_ADMIN_SUB: string;
   API_KEY_ALPHA_VANTAGE: string;
   AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT: string;
   AZURE_DOCUMENT_INTELLIGENCE_KEY: string;
@@ -19,9 +20,7 @@ export interface Environment extends CleanedEnvAccessors {
   DATA_SOURCE_IMPORT: string;
   DATA_SOURCES: string[];
   DATA_SOURCES_GHOSTFOLIO_DATA_PROVIDER: string[];
-  ENABLE_FEATURE_AUTH_GOOGLE: boolean;
   ENABLE_FEATURE_AUTH_OIDC: boolean;
-  ENABLE_FEATURE_AUTH_TOKEN: boolean;
   ENABLE_FEATURE_BULL_BOARD: boolean;
   ENABLE_FEATURE_FEAR_AND_GREED_INDEX: boolean;
   ENABLE_FEATURE_GATHER_NEW_EXCHANGE_RATES: boolean;
@@ -30,8 +29,6 @@ export interface Environment extends CleanedEnvAccessors {
   ENABLE_FEATURE_SUBSCRIPTION: boolean;
   ENABLE_FEATURE_PLAID: boolean;
   ENABLE_FEATURE_SYSTEM_MESSAGE: boolean;
-  GOOGLE_CLIENT_ID: string;
-  GOOGLE_SECRET: string;
   GOOGLE_SHEETS_ACCOUNT: string;
   GOOGLE_SHEETS_ID: string;
   GOOGLE_SHEETS_PRIVATE_KEY: string;
@@ -42,6 +39,7 @@ export interface Environment extends CleanedEnvAccessors {
   PLAID_ENCRYPTION_KEY: string;
   PLAID_ENV: string;
   PLAID_SECRET: string;
+  AUTHENTIK_API_TOKEN: string;
   OIDC_AUTHORIZATION_URL: string;
   OIDC_CALLBACK_URL: string;
   OIDC_CLIENT_ID: string;

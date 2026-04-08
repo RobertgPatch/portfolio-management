@@ -27,7 +27,6 @@ export const permissions = {
   deleteAccount: 'deleteAccount',
   deleteAccountBalance: 'deleteAccountBalance',
   deleteActivity: 'deleteActivity',
-  deleteAuthDevice: 'deleteAuthDevice',
   deleteDistribution: 'deleteDistribution',
   deleteEntity: 'deleteEntity',
   deleteOwnUser: 'deleteOwnUser',
@@ -36,9 +35,7 @@ export const permissions = {
   deleteTag: 'deleteTag',
   deleteUser: 'deleteUser',
   deleteWatchlistItem: 'deleteWatchlistItem',
-  enableAuthGoogle: 'enableAuthGoogle',
   enableAuthOidc: 'enableAuthOidc',
-  enableAuthToken: 'enableAuthToken',
   enableDataProviderGhostfolio: 'enableDataProviderGhostfolio',
   enableFearAndGreedIndex: 'enableFearAndGreedIndex',
   enableImport: 'enableImport',
@@ -109,7 +106,6 @@ export function getPermissions(aRole: Role): string[] {
         permissions.deleteAccess,
         permissions.deleteAccount,
         permissions.deleteActivity,
-        permissions.deleteAuthDevice,
         permissions.deleteDistribution,
         permissions.deleteEntity,
         permissions.deletePartnership,
@@ -150,7 +146,6 @@ export function getPermissions(aRole: Role): string[] {
       return [
         permissions.accessAssistant,
         permissions.accessHoldingsChart,
-        permissions.createUserAccount,
         permissions.readAiPrompt,
         permissions.readWatchlist
       ];
@@ -174,7 +169,6 @@ export function getPermissions(aRole: Role): string[] {
         permissions.deleteAccount,
         permissions.deleteAccountBalance,
         permissions.deleteActivity,
-        permissions.deleteAuthDevice,
         permissions.deleteDistribution,
         permissions.deleteEntity,
         permissions.deletePartnership,
@@ -217,7 +211,6 @@ export function filterGlobalPermissions(
   if (aUtmSource === 'ios') {
     return globalPermissions.filter((permission) => {
       return (
-        permission !== permissions.enableAuthGoogle &&
         permission !== permissions.enableAuthOidc &&
         permission !== permissions.enableSubscription
       );

@@ -1,10 +1,4 @@
-import { AuthDeviceDto } from '@ghostfolio/common/dtos';
-
 import { Provider } from '@prisma/client';
-
-export interface AuthDeviceDialogParams {
-  authDevice: AuthDeviceDto;
-}
 
 export interface OidcContext {
   claims?: {
@@ -17,6 +11,7 @@ export interface OidcIdToken {
 }
 
 export interface OidcParams {
+  id_token?: string;
   sub?: string;
 }
 
@@ -28,4 +23,5 @@ export interface OidcProfile {
 export interface ValidateOAuthLoginParams {
   provider: Provider;
   thirdPartyId: string;
+  groups?: string[];
 }
