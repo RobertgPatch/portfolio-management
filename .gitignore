@@ -25,6 +25,13 @@ npm-debug.log
 
 # misc
 /.angular/cache
+.agents/
+.claude/
+.codex/
+.gemini/
+.opencode/
+CLAUDE.md
+opencode.json
 .playwright-mcp/
 .cursor/rules/nx-rules.mdc
 .env
