@@ -240,7 +240,7 @@ Total ESLint issues found: **1,117 warnings, 91 errors** across the codebase.
 
 | Rule | Count | Description |
 |------|------:|-------------|
-| `@typescript-eslint/prefer-nullish-coalescing` | 377 | Use `??` instead of `\|\|` |
+| `@typescript-eslint/prefer-nullish-coalescing` | 377 | Use `??` instead of `||` |
 | `@typescript-eslint/no-unsafe-member-access` | 130 | Unsafe `any` member access |
 | `@typescript-eslint/no-unsafe-assignment` | 130 | Unsafe `any` assignment |
 | `@typescript-eslint/member-ordering` | 128 | Class member ordering |
