@@ -1,153 +1,544 @@
-/* Ghostfolio – Authentik Custom Branding
- * Colors: Primary #36cfcc, Secondary #3686cf, Warn #dc3545
- * Font: Inter, Roboto, Helvetica Neue, sans-serif
- */
+/* ═══════════════════════════════════════════════════════════════════════
+ *  Ghostfolio – Authentik Login Page
+ *  Matches the Ghostfolio app theme (light, clean, modern)
+ *
+ *  Design tokens:
+ *    Primary   #36cfcc   rgb(54, 207, 204)
+ *    Secondary #3686cf   rgb(54, 134, 207)
+ *    Warn      #dc3545
+ *    BG Light  #fafafa
+ *    BG Card   #ffffff
+ *    Text      rgba(0,0,0,0.87)
+ *    Text Sec  rgba(0,0,0,0.54)
+ *    Font      'Inter', 'Roboto', 'Helvetica Neue', sans-serif
+ * ═══════════════════════════════════════════════════════════════════════ */
 
-/* ── Global Font ─────────────────────────────────────────── */
-body,
-.pf-c-title,
-.pf-c-form__label,
-.pf-c-form-control,
-.pf-c-button,
-.pf-c-login__main-header-desc,
-.pf-v5-c-title,
-.pf-v5-c-form__label,
-.pf-v5-c-form-control,
-.pf-v5-c-button {
-  font-family: 'Inter', 'Roboto', 'Helvetica Neue', sans-serif !important;
-}
+/* ── 1. Font Import ──────────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-/* ── Login Background ────────────────────────────────────── */
-:root {
+/* ── 2. CSS Variables — Override Authentik + PatternFly Deep ─────────── */
+:root,
+:host {
+  /* Kill every background-image variant PF exposes */
   --ak-flow-background: none !important;
   --pf-c-background-image--BackgroundImage: none !important;
   --pf-c-background-image--BackgroundImage-2x: none !important;
   --pf-c-background-image--BackgroundImage--sm: none !important;
   --pf-c-background-image--BackgroundImage--sm-2x: none !important;
   --pf-c-background-image--BackgroundImage--lg: none !important;
+  --pf-c-background-image--Filter: none !important;
+  --pf-c-background-image--BackgroundColor: transparent !important;
+
+  /* Override the accent color */
+  --ak-accent: #36cfcc !important;
+
+  /* PF global overrides */
+  --pf-global--primary-color--100: #36cfcc !important;
+  --pf-global--primary-color--200: #2eb8b5 !important;
+  --pf-global--link--Color: #36cfcc !important;
+  --pf-global--link--Color--hover: #2eb8b5 !important;
+  --pf-global--BackgroundColor--100: #fafafa !important;
+  --pf-global--Color--100: rgba(0, 0, 0, 0.87) !important;
+  --pf-global--Color--200: rgba(0, 0, 0, 0.54) !important;
+  --pf-global--FontFamily--sans-serif: 'Inter', 'Roboto', 'Helvetica Neue', sans-serif !important;
 }
 
-.pf-c-background-image {
+/* ── 3. Global Typography ────────────────────────────────────────────── */
+/* Apply font to text elements only — never override icon font families
+   (.pf-icon, .fa, .fas, .far, .fab, [class^="pf-v5-pficon"], etc.) */
+body,
+h1, h2, h3, h4, h5, h6,
+p, span, a, li, td, th, label, legend,
+input, select, textarea, button,
+.pf-c-title,
+.pf-v5-c-title,
+.pf-c-form__label,
+.pf-v5-c-form__label,
+.pf-c-form-control,
+.pf-v5-c-form-control,
+.pf-c-button,
+.pf-v5-c-button,
+.pf-c-login__main-header-desc,
+.pf-v5-c-login__main-header-desc,
+.pf-c-content,
+.pf-v5-c-content {
+  font-family: 'Inter', 'Roboto', 'Helvetica Neue', sans-serif !important;
+}
+
+/* ── 4. Background — Nuclear Override ────────────────────────────────── */
+/* Kill the PF background-image element (mountain SVG filter → green) */
+.pf-c-background-image,
+.pf-v5-c-background-image {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+
+.pf-c-background-image::before,
+.pf-c-background-image::after,
+.pf-v5-c-background-image::before,
+.pf-v5-c-background-image::after {
+  display: none !important;
+  background-image: none !important;
+  filter: none !important;
+}
+
+/* SVG filter used by PF to tint the background green */
+.pf-c-background-image svg,
+.pf-v5-c-background-image svg {
   display: none !important;
 }
 
-.pf-c-login,
-.pf-v5-c-login {
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%) !important;
-  display: flex !important;
-  flex-direction: column !important;
+/* Page-level background — catch everything */
+html,
+body {
+  background: #fafafa !important;
+  background-image: none !important;
   min-height: 100vh !important;
 }
 
-/* ── Login Container — center the card vertically ────────── */
+/* ── 5. Login Page Layout ────────────────────────────────────────────── */
+.pf-c-login,
+.pf-v5-c-login {
+  background: #fafafa !important;
+  background-image: none !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 100vh !important;
+}
+
+/* ── 6. Login Container — center the card ────────────────────────────── */
 .ak-login-container {
   flex: 1 1 auto !important;
   display: flex !important;
   flex-direction: column !important;
   align-items: center !important;
   justify-content: center !important;
+  width: 100% !important;
+  max-width: 460px !important;
+  padding: 2rem 1.5rem !important;
 }
 
-/* ── Footer — pin to bottom, don't stretch ───────────────── */
-.pf-c-login__footer,
-.pf-v5-c-login__footer {
-  flex: 0 0 auto !important;
-  padding: 1rem 0 !important;
+/* ── 7. Login Header (Logo Area) ─────────────────────────────────────── */
+.pf-c-login__header,
+.pf-v5-c-login__header {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  padding-bottom: 2rem !important;
+  flex-grow: 0 !important;
 }
 
-/* ── Login Card ──────────────────────────────────────────── */
+/* Brand / Logo */
+.pf-c-brand,
+.pf-v5-c-brand {
+  max-height: 64px !important;
+  height: 64px !important;
+  width: auto !important;
+  filter: drop-shadow(0 2px 8px rgba(54, 207, 204, 0.15)) !important;
+  transition: filter 0.3s ease !important;
+}
+
+.pf-c-brand:hover,
+.pf-v5-c-brand:hover {
+  filter: drop-shadow(0 4px 16px rgba(54, 207, 204, 0.25)) !important;
+}
+
+/* ── 8. Login Card ───────────────────────────────────────────────────── */
 .pf-c-login__main,
 .pf-v5-c-login__main {
-  max-width: 450px !important;
+  max-width: 420px !important;
   width: 100% !important;
-  border-top: 3px solid #36cfcc !important;
-  border-radius: 8px !important;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
-  margin: auto !important;
+  background: #ffffff !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  border-top: none !important;
+  border-radius: 16px !important;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.04),
+    0 4px 12px rgba(0, 0, 0, 0.06),
+    0 12px 32px rgba(0, 0, 0, 0.04) !important;
+  overflow: hidden !important;
+  position: relative !important;
+  margin: 0 auto !important;
+  transition: box-shadow 0.3s ease !important;
 }
 
-/* ── Primary Buttons ─────────────────────────────────────── */
-.pf-c-button.pf-m-primary,
-.pf-v5-c-button.pf-m-primary {
-  background-color: #36cfcc !important;
+.pf-c-login__main:hover,
+.pf-v5-c-login__main:hover {
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.06),
+    0 6px 16px rgba(0, 0, 0, 0.08),
+    0 16px 40px rgba(0, 0, 0, 0.06) !important;
+}
+
+/* Subtle teal top accent line */
+.pf-c-login__main::before,
+.pf-v5-c-login__main::before {
+  content: '' !important;
+  display: block !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 3px !important;
+  background: linear-gradient(90deg, #36cfcc, #3686cf) !important;
+  border-radius: 16px 16px 0 0 !important;
+}
+
+/* ── 9. Card Header ──────────────────────────────────────────────────── */
+.pf-c-login__main-header,
+.pf-v5-c-login__main-header {
+  padding: 2.5rem 2.5rem 0.5rem !important;
+  text-align: left !important;
+}
+
+/* Title: "Welcome to Ghostfolio!" */
+.pf-c-login__main-header .pf-c-title,
+.pf-v5-c-login__main-header .pf-v5-c-title,
+.pf-c-title,
+.pf-v5-c-title {
+  color: rgba(0, 0, 0, 0.87) !important;
+  font-size: 1.5rem !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  line-height: 1.3 !important;
+  margin: 0 0 0.25rem 0 !important;
+}
+
+/* Subtitle: "Login to continue to Ghostfolio." */
+.pf-c-login__main-header-desc,
+.pf-v5-c-login__main-header-desc {
+  color: rgba(0, 0, 0, 0.54) !important;
+  font-size: 0.9rem !important;
+  font-weight: 400 !important;
+  margin-top: 0.25rem !important;
+}
+
+/* ── 10. Card Body (Form Area) ───────────────────────────────────────── */
+.pf-c-login__main-body,
+.pf-v5-c-login__main-body {
+  padding: 1.5rem 2.5rem 2rem !important;
+}
+
+/* Form Group */
+.pf-c-form__group,
+.pf-v5-c-form__group {
+  margin-bottom: 1.25rem !important;
+}
+
+/* Form Labels */
+.pf-c-form__label,
+.pf-v5-c-form__label {
+  font-size: 0.8125rem !important;
+  font-weight: 500 !important;
+  color: rgba(0, 0, 0, 0.6) !important;
+  margin-bottom: 0.375rem !important;
+  letter-spacing: 0.01em !important;
+}
+
+/* Required asterisk */
+.pf-c-form__label-required,
+.pf-v5-c-form__label-required {
+  color: #dc3545 !important;
+}
+
+/* Form Inputs */
+.pf-c-form-control,
+.pf-v5-c-form-control,
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+  background: #ffffff !important;
+  border: 1.5px solid rgba(0, 0, 0, 0.15) !important;
+  border-radius: 10px !important;
+  padding: 0.75rem 1rem !important;
+  font-size: 0.9375rem !important;
+  color: rgba(0, 0, 0, 0.87) !important;
+  outline: none !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+  height: auto !important;
+  line-height: 1.5 !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  -webkit-appearance: none !important;
+}
+
+.pf-c-form-control::placeholder,
+.pf-v5-c-form-control::placeholder,
+input::placeholder {
+  color: rgba(0, 0, 0, 0.3) !important;
+  font-weight: 400 !important;
+}
+
+.pf-c-form-control:hover,
+.pf-v5-c-form-control:hover,
+input[type="text"]:hover,
+input[type="email"]:hover,
+input[type="password"]:hover {
+  border-color: rgba(0, 0, 0, 0.3) !important;
+}
+
+.pf-c-form-control:focus,
+.pf-v5-c-form-control:focus,
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus {
   border-color: #36cfcc !important;
-  color: #1a1a2e !important;
+  box-shadow: 0 0 0 3px rgba(54, 207, 204, 0.15) !important;
+}
+
+/* ── 11. Primary Button (Log In) ─────────────────────────────────────── */
+.pf-c-button.pf-m-primary,
+.pf-v5-c-button.pf-m-primary,
+button[type="submit"] {
+  background: linear-gradient(135deg, #36cfcc 0%, #2eb8b5 100%) !important;
+  border: none !important;
+  border-radius: 10px !important;
+  color: #ffffff !important;
+  font-size: 0.9375rem !important;
   font-weight: 600 !important;
-  border-radius: 4px !important;
-  transition: background-color 0.2s ease, box-shadow 0.2s ease !important;
+  padding: 0.75rem 1.5rem !important;
+  width: 100% !important;
+  cursor: pointer !important;
+  transition: all 0.25s ease !important;
+  box-shadow: 0 2px 8px rgba(54, 207, 204, 0.25) !important;
+  letter-spacing: 0.01em !important;
+  line-height: 1.5 !important;
+  text-transform: none !important;
+  position: relative !important;
+  overflow: hidden !important;
+  margin-top: 0.5rem !important;
 }
 
 .pf-c-button.pf-m-primary:hover,
-.pf-v5-c-button.pf-m-primary:hover {
-  background-color: #2eb8b5 !important;
-  border-color: #2eb8b5 !important;
-  box-shadow: 0 2px 8px rgba(54, 207, 204, 0.4) !important;
+.pf-v5-c-button.pf-m-primary:hover,
+button[type="submit"]:hover {
+  background: linear-gradient(135deg, #2eb8b5 0%, #28a5a2 100%) !important;
+  box-shadow: 0 4px 16px rgba(54, 207, 204, 0.35) !important;
+  transform: translateY(-1px) !important;
 }
 
-/* ── Form Input Focus ────────────────────────────────────── */
-.pf-c-form-control:focus,
-.pf-v5-c-form-control:focus {
-  border-bottom-color: #36cfcc !important;
-  box-shadow: 0 1px 0 0 #36cfcc !important;
+.pf-c-button.pf-m-primary:active,
+.pf-v5-c-button.pf-m-primary:active,
+button[type="submit"]:active {
+  transform: translateY(0) !important;
+  box-shadow: 0 1px 4px rgba(54, 207, 204, 0.3) !important;
 }
 
-/* ── Login Header Title ──────────────────────────────────── */
-.pf-c-login__main-header .pf-c-title,
-.pf-v5-c-login__main-header .pf-v5-c-title {
-  color: #36cfcc !important;
+.pf-c-button.pf-m-primary:focus,
+.pf-v5-c-button.pf-m-primary:focus,
+button[type="submit"]:focus {
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(54, 207, 204, 0.3), 0 2px 8px rgba(54, 207, 204, 0.25) !important;
 }
 
-/* ── Brand Logo Sizing ───────────────────────────────────── */
-.pf-c-brand,
-.pf-v5-c-brand {
-  max-height: 56px !important;
-}
-
-/* ── Links ───────────────────────────────────────────────── */
-.pf-c-login__main-footer-links a,
-.pf-c-login__main a,
-.pf-v5-c-login__main a {
-  color: #36cfcc !important;
-}
-
-.pf-c-login__main-footer-links a:hover,
-.pf-c-login__main a:hover,
-.pf-v5-c-login__main a:hover {
-  color: #2eb8b5 !important;
-}
-
-/* ── Footer Text ─────────────────────────────────────────── */
-.pf-c-login__footer,
-.pf-v5-c-login__footer {
-  color: rgba(255, 255, 255, 0.6) !important;
-}
-
-/* ── "Powered by" Footer ─────────────────────────────────── */
-.pf-c-login__footer a,
-.pf-v5-c-login__footer a {
-  color: rgba(255, 255, 255, 0.4) !important;
-}
-
-/* ── Danger / Error Buttons ──────────────────────────────── */
-.pf-c-button.pf-m-danger,
-.pf-v5-c-button.pf-m-danger {
-  background-color: #dc3545 !important;
-  border-color: #dc3545 !important;
-}
-
-/* ── Secondary / Link Buttons ────────────────────────────── */
+/* ── 12. Secondary & Link Buttons ────────────────────────────────────── */
 .pf-c-button.pf-m-secondary,
-.pf-v5-c-button.pf-m-secondary,
-.pf-c-button.pf-m-link,
-.pf-v5-c-button.pf-m-link {
+.pf-v5-c-button.pf-m-secondary {
   color: #36cfcc !important;
-  border-color: #36cfcc !important;
+  border: 1.5px solid #36cfcc !important;
+  border-radius: 10px !important;
+  background: transparent !important;
+  font-weight: 500 !important;
+  transition: all 0.2s ease !important;
 }
 
 .pf-c-button.pf-m-secondary:hover,
-.pf-v5-c-button.pf-m-secondary:hover,
+.pf-v5-c-button.pf-m-secondary:hover {
+  background: rgba(54, 207, 204, 0.06) !important;
+  border-color: #2eb8b5 !important;
+  color: #2eb8b5 !important;
+}
+
+.pf-c-button.pf-m-link,
+.pf-v5-c-button.pf-m-link {
+  color: #36cfcc !important;
+  background: transparent !important;
+  border: none !important;
+  padding: 0.5rem !important;
+  font-weight: 500 !important;
+}
+
 .pf-c-button.pf-m-link:hover,
 .pf-v5-c-button.pf-m-link:hover {
   color: #2eb8b5 !important;
-  border-color: #2eb8b5 !important;
+  text-decoration: underline !important;
+}
+
+/* ── 13. Danger Button ───────────────────────────────────────────────── */
+.pf-c-button.pf-m-danger,
+.pf-v5-c-button.pf-m-danger {
+  background: #dc3545 !important;
+  border: none !important;
+  border-radius: 10px !important;
+  color: #ffffff !important;
+}
+
+.pf-c-button.pf-m-danger:hover,
+.pf-v5-c-button.pf-m-danger:hover {
+  background: #c82333 !important;
+}
+
+/* ── 14. Links ───────────────────────────────────────────────────────── */
+a,
+.pf-c-login__main a,
+.pf-v5-c-login__main a,
+.pf-c-login__main-footer-links a {
+  color: #36cfcc !important;
+  text-decoration: none !important;
+  transition: color 0.2s ease !important;
+}
+
+a:hover,
+.pf-c-login__main a:hover,
+.pf-v5-c-login__main a:hover,
+.pf-c-login__main-footer-links a:hover {
+  color: #2eb8b5 !important;
+  text-decoration: underline !important;
+}
+
+/* ── 15. Card Footer ─────────────────────────────────────────────────── */
+.pf-c-login__main-footer,
+.pf-v5-c-login__main-footer {
+  padding: 0 2.5rem 2rem !important;
+}
+
+.pf-c-login__main-footer-links,
+.pf-v5-c-login__main-footer-links {
+  padding: 0 !important;
+}
+
+/* ── 16. Page Footer ("Powered by authentik") ────────────────────────── */
+.pf-c-login__footer,
+.pf-v5-c-login__footer {
+  flex: 0 0 auto !important;
+  padding: 1.5rem 0 !important;
+  text-align: center !important;
+  color: rgba(0, 0, 0, 0.3) !important;
+  font-size: 0.75rem !important;
+  font-weight: 400 !important;
+  letter-spacing: 0.02em !important;
+}
+
+.pf-c-login__footer a,
+.pf-v5-c-login__footer a {
+  color: rgba(0, 0, 0, 0.3) !important;
+}
+
+.pf-c-login__footer a:hover,
+.pf-v5-c-login__footer a:hover {
+  color: rgba(0, 0, 0, 0.5) !important;
+}
+
+/* The footer ul */
+.pf-c-login__footer ul.pf-c-list.pf-m-inline,
+.pf-v5-c-login__footer ul {
+  justify-content: center !important;
+  padding: 0.5rem 0 !important;
+  font-size: 0.75rem !important;
+}
+
+/* ── 17. Alerts / Notifications ──────────────────────────────────────── */
+.pf-c-alert,
+.pf-v5-c-alert {
+  border-radius: 10px !important;
+  margin-bottom: 1rem !important;
+}
+
+.pf-c-alert.pf-m-danger,
+.pf-v5-c-alert.pf-m-danger {
+  background: rgba(220, 53, 69, 0.06) !important;
+  border-left: 3px solid #dc3545 !important;
+}
+
+.pf-c-alert.pf-m-success,
+.pf-v5-c-alert.pf-m-success {
+  background: rgba(54, 207, 204, 0.06) !important;
+  border-left: 3px solid #36cfcc !important;
+}
+
+/* ── 18. Checkbox & Radio ────────────────────────────────────────────── */
+.pf-c-check__input:checked,
+.pf-v5-c-check__input:checked {
+  accent-color: #36cfcc !important;
+}
+
+/* ── 19. Password Visibility Toggle ──────────────────────────────────── */
+.pf-c-form-control + .pf-c-button,
+.pf-v5-c-form-control + .pf-v5-c-button {
+  color: rgba(0, 0, 0, 0.4) !important;
+}
+
+.pf-c-form-control + .pf-c-button:hover,
+.pf-v5-c-form-control + .pf-v5-c-button:hover {
+  color: #36cfcc !important;
+}
+
+/* ── 20. Loading Spinner ─────────────────────────────────────────────── */
+.pf-c-spinner,
+.pf-v5-c-spinner {
+  --pf-c-spinner--Color: #36cfcc !important;
+}
+
+/* ── 21. Selection / Autofill Styling ────────────────────────────────── */
+::selection {
+  background: rgba(54, 207, 204, 0.2) !important;
+  color: rgba(0, 0, 0, 0.87) !important;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+  -webkit-text-fill-color: rgba(0, 0, 0, 0.87) !important;
+  border-color: rgba(0, 0, 0, 0.15) !important;
+  transition: background-color 9999s ease-in-out 0s !important;
+}
+
+/* ── 22. Responsive ──────────────────────────────────────────────────── */
+@media (max-width: 576px) {
+  .ak-login-container {
+    padding: 1rem !important;
+    max-width: 100% !important;
+  }
+
+  .pf-c-login__main,
+  .pf-v5-c-login__main {
+    border-radius: 12px !important;
+    margin: 0 0.5rem !important;
+  }
+
+  .pf-c-login__main-header,
+  .pf-v5-c-login__main-header {
+    padding: 2rem 1.5rem 0.5rem !important;
+  }
+
+  .pf-c-login__main-body,
+  .pf-v5-c-login__main-body {
+    padding: 1rem 1.5rem 1.5rem !important;
+  }
+
+  .pf-c-login__main-footer,
+  .pf-v5-c-login__main-footer {
+    padding: 0 1.5rem 1.5rem !important;
+  }
+}
+
+/* ── 23. Smooth Entry Animation ──────────────────────────────────────── */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.pf-c-login__main,
+.pf-v5-c-login__main {
+  animation: fadeInUp 0.4s ease-out !important;
 }
