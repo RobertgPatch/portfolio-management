@@ -309,6 +309,7 @@ model User {
   SymbolProfile SymbolProfile[]
   k1ImportSessions K1ImportSession[]
 
+  @@unique([provider, thirdPartyId])
   @@index([accessToken])
   @@index([createdAt])
   @@index([provider])

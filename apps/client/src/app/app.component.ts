@@ -3,6 +3,7 @@ import { InfoItem, User } from '@ghostfolio/common/interfaces';
 import { hasPermission, permissions } from '@ghostfolio/common/permissions';
 import { internalRoutes, publicRoutes } from '@ghostfolio/common/routes/routes';
 import { ColorScheme } from '@ghostfolio/common/types';
+import { DEFAULT_LANGUAGE_CODE } from '@ghostfolio/common/config';
 import { NotificationService } from '@ghostfolio/ui/notifications';
 import { DataService } from '@ghostfolio/ui/services';
 
@@ -239,7 +240,11 @@ export class GfAppComponent implements OnInit {
   public onSignOut() {
     this.userService.signOut();
 
-    document.location.href = `/${document.documentElement.lang}`;
+    const currentLanguage = this.document.documentElement.lang || DEFAULT_LANGUAGE_CODE;
+
+    // Redirect to the server logout endpoint which terminates the Authentik
+    // SSO session and redirects back to the Ghostfolio homepage.
+    this.document.location.href = `/api/auth/logout?language=${encodeURIComponent(currentLanguage)}`;
   }
 
   private initializeTheme(userPreferredColorScheme?: ColorScheme) {

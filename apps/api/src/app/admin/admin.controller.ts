@@ -14,7 +14,8 @@ import {
 } from '@ghostfolio/common/config';
 import {
   UpdateAssetProfileDto,
-  UpdatePropertyDto
+  UpdatePropertyDto,
+  CreateAdminUserDto
 } from '@ghostfolio/common/dtos';
 import { getAssetProfileIdentifier } from '@ghostfolio/common/helper';
 import {
@@ -74,6 +75,16 @@ export class AdminController {
   @UseGuards(AuthGuard('jwt'), HasPermissionGuard)
   public async getAdminData(): Promise<AdminData> {
     return this.adminService.get();
+  }
+
+  @HasPermission(permissions.accessAdminControl)
+  @Post('user')
+  @UseGuards(AuthGuard('jwt'), HasPermissionGuard)
+  public async createUser(@Body() body: CreateAdminUserDto) {
+    return this.adminService.createUserByAdmin({
+      thirdPartyId: body.thirdPartyId,
+      role: body.role
+    });
   }
 
   @Get('demo-user/sync')

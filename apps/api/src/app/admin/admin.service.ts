@@ -34,6 +34,7 @@ import { MarketDataPreset } from '@ghostfolio/common/types';
 
 import {
   BadRequestException,
+  ConflictException,
   HttpException,
   Injectable,
   Logger,
@@ -46,6 +47,7 @@ import {
   Prisma,
   PrismaClient,
   Property,
+  Role,
   SymbolProfile
 } from '@prisma/client';
 import { differenceInDays } from 'date-fns';
@@ -938,5 +940,45 @@ export class AdminService {
         };
       }
     );
+  }
+
+  public async createUserByAdmin({
+    thirdPartyId,
+    role = Role.USER
+  }: {
+    thirdPartyId: string;
+    role?: Role;
+  }) {
+    if (!thirdPartyId) {
+      throw new BadRequestException('thirdPartyId is required');
+    }
+
+    // Check for duplicate thirdPartyId
+    const existingUser = await this.prismaService.user.findFirst({
+      where: { provider: 'OIDC', thirdPartyId }
+    });
+
+    if (existingUser) {
+      throw new ConflictException(
+        'User with this thirdPartyId already exists'
+      );
+    }
+
+    const user = await this.prismaService.user.create({
+      data: {
+        provider: 'OIDC',
+        thirdPartyId,
+        role
+      },
+      select: {
+        id: true,
+        provider: true,
+        thirdPartyId: true,
+        role: true,
+        createdAt: true
+      }
+    });
+
+    return user;
   }
 }

@@ -33,7 +33,6 @@ import { ActivitiesModule } from './activities/activities.module';
 import { AdminModule } from './admin/admin.module';
 import { AppController } from './app.controller';
 import { AssetModule } from './asset/asset.module';
-import { AuthDeviceModule } from './auth-device/auth-device.module';
 import { AuthModule } from './auth/auth.module';
 import { CacheModule } from './cache/cache.module';
 import { DistributionModule } from './distribution/distribution.module';
@@ -81,7 +80,6 @@ import { UserModule } from './user/user.module';
     ApiKeysModule,
     AssetModule,
     AssetsModule,
-    AuthDeviceModule,
     AuthModule,
     BenchmarksModule,
     ...(process.env.ENABLE_FEATURE_BULL_BOARD === 'true'

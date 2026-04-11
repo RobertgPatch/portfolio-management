@@ -12,11 +12,35 @@
 ### Setup
 
 1. Run `npm install`
-1. Run `docker compose -f docker/docker-compose.dev.yml up -d` to start [PostgreSQL](https://www.postgresql.org) and [Redis](https://redis.io)
+1. Run `docker compose -f docker/docker-compose.dev.yml up -d` to start [PostgreSQL](https://www.postgresql.org), [Redis](https://redis.io), and [Authentik](https://goauthentik.io) (identity provider)
 1. Run `npm run database:setup` to initialize the database schema
+1. Configure Authentik (see [Authentik Setup](#authentik-setup) below)
 1. Start the [server](#start-server) and the [client](#start-client)
 1. Open https://localhost:4200/en in your browser
-1. Create a new user via _Get Started_ (this first user will get the role `ADMIN`)
+1. Sign in via Authentik OIDC
+
+### Authentik Setup
+
+After starting Docker containers, configure Authentik at `http://localhost:9000/if/flow/initial-setup/`:
+
+1. Create the initial admin account (akadmin)
+2. Create an **OAuth2/OpenID Provider** named `ghostfolio`:
+   - Client type: Confidential
+   - Redirect URI: `http://localhost:4200/api/auth/oidc/callback`
+   - Scopes: `openid`, `profile`, `email`
+   - Note the **Client ID** and **Client Secret**
+3. Create an **Application** named `ghostfolio` linked to the provider
+4. Create a **Group** named `ghostfolio-admin` and assign your user to it
+5. Add the following to your `.env` file:
+   ```
+   ENABLE_FEATURE_AUTH_OIDC=true
+   OIDC_CLIENT_ID=<client-id>
+   OIDC_CLIENT_SECRET=<client-secret>
+   OIDC_ISSUER=http://localhost:9000/application/o/ghostfolio/
+   OIDC_SCOPE=["openid","profile","email","groups"]
+   ```
+6. Set `AUTHENTIK_ADMIN_SUB` in `.env` to your Authentik user's sub claim, then run `npm run database:setup` to seed the bootstrap admin user
+7. New users must be created through the Admin panel (Admin > Users > Create User)
 
 ### Start Server
 

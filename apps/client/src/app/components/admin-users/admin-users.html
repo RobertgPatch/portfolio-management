@@ -1,6 +1,16 @@
 <div class="container">
   <div class="row">
     <div class="col">
+      <div class="d-flex justify-content-end mb-3">
+        <button
+          color="primary"
+          mat-flat-button
+          (click)="onCreateUser()"
+        >
+          <ion-icon class="mr-1" name="person-add-outline" />
+          <ng-container i18n>Create User</ng-container>
+        </button>
+      </div>
       <div class="overflow-x-auto">
         <table class="gf-table" mat-table [dataSource]="dataSource">
           <ng-container matColumnDef="user">

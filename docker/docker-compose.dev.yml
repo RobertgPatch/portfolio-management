@@ -20,5 +20,59 @@ services:
   # UPLOAD_DIR: Directory for document uploads (default: ./uploads in project root)
   # MAX_UPLOAD_SIZE: Maximum upload file size in bytes (default: 10485760 = 10MB)
 
+  authentik-server:
+    image: ghcr.io/goauthentik/server:2024.12
+    command: server
+    container_name: gf-authentik-server
+    restart: unless-stopped
+    environment:
+      AUTHENTIK_SECRET_KEY: ${AUTHENTIK_SECRET_KEY}
+      AUTHENTIK_POSTGRESQL__HOST: gf-postgres-dev
+      AUTHENTIK_POSTGRESQL__PORT: 5432
+      AUTHENTIK_POSTGRESQL__NAME: authentik
+      AUTHENTIK_POSTGRESQL__USER: ${POSTGRES_USER}
+      AUTHENTIK_POSTGRESQL__PASSWORD: ${POSTGRES_PASSWORD}
+      AUTHENTIK_REDIS__HOST: gf-redis-dev
+      AUTHENTIK_REDIS__PORT: 6379
+      AUTHENTIK_REDIS__PASSWORD: ${REDIS_PASSWORD}
+      AUTHENTIK_REDIS__DB: 1
+      AUTHENTIK_BOOTSTRAP_PASSWORD: ${AUTHENTIK_BOOTSTRAP_PASSWORD}
+      AUTHENTIK_BOOTSTRAP_EMAIL: ${AUTHENTIK_BOOTSTRAP_EMAIL}
+    volumes:
+      - ./authentik/custom.css:/web/dist/custom.css:ro
+      - ./authentik/logo.svg:/web/dist/assets/icons/ghostfolio-logo.svg:ro
+      - ./authentik/flow_background.jpg:/web/dist/assets/images/flow_background.jpg:ro
+    ports:
+      - "${AUTHENTIK_PORT:-9000}:9000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  authentik-worker:
+    image: ghcr.io/goauthentik/server:2024.12
+    command: worker
+    container_name: gf-authentik-worker
+    restart: unless-stopped
+    environment:
+      AUTHENTIK_SECRET_KEY: ${AUTHENTIK_SECRET_KEY}
+      AUTHENTIK_POSTGRESQL__HOST: gf-postgres-dev
+      AUTHENTIK_POSTGRESQL__PORT: 5432
+      AUTHENTIK_POSTGRESQL__NAME: authentik
+      AUTHENTIK_POSTGRESQL__USER: ${POSTGRES_USER}
+      AUTHENTIK_POSTGRESQL__PASSWORD: ${POSTGRES_PASSWORD}
+      AUTHENTIK_REDIS__HOST: gf-redis-dev
+      AUTHENTIK_REDIS__PORT: 6379
+      AUTHENTIK_REDIS__PASSWORD: ${REDIS_PASSWORD}
+      AUTHENTIK_REDIS__DB: 1
+      AUTHENTIK_BOOTSTRAP_PASSWORD: ${AUTHENTIK_BOOTSTRAP_PASSWORD}
+      AUTHENTIK_BOOTSTRAP_EMAIL: ${AUTHENTIK_BOOTSTRAP_EMAIL}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
 volumes:
   postgres:

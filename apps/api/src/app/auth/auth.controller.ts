@@ -1,20 +1,11 @@
-import { WebAuthService } from '@ghostfolio/api/app/auth/web-auth.service';
-import { HasPermissionGuard } from '@ghostfolio/api/guards/has-permission.guard';
 import { ConfigurationService } from '@ghostfolio/api/services/configuration/configuration.service';
 import { DEFAULT_LANGUAGE_CODE } from '@ghostfolio/common/config';
-import {
-  AssertionCredentialJSON,
-  AttestationCredentialJSON,
-  OAuthResponse
-} from '@ghostfolio/common/interfaces';
+import type { RequestWithUser } from '@ghostfolio/common/types';
 
 import {
-  Body,
   Controller,
   Get,
-  HttpException,
-  Param,
-  Post,
+  Query,
   Req,
   Res,
   UseGuards,
@@ -23,64 +14,24 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Request, Response } from 'express';
-import { getReasonPhrase, StatusCodes } from 'http-status-codes';
-
-import { AuthService } from './auth.service';
 
 @Controller('auth')
 export class AuthController {
   public constructor(
-    private readonly authService: AuthService,
-    private readonly configurationService: ConfigurationService,
-    private readonly webAuthService: WebAuthService
+    private readonly configurationService: ConfigurationService
   ) {}
 
-  /**
-   * @deprecated
-   */
-  @Get('anonymous/:accessToken')
-  public async accessTokenLoginGet(
-    @Param('accessToken') accessToken: string
-  ): Promise<OAuthResponse> {
-    try {
-      const authToken =
-        await this.authService.validateAnonymousLogin(accessToken);
-      return { authToken };
-    } catch {
-      throw new HttpException(
-        getReasonPhrase(StatusCodes.FORBIDDEN),
-        StatusCodes.FORBIDDEN
-      );
-    }
-  }
-
-  @Post('anonymous')
-  public async accessTokenLogin(
-    @Body() body: { accessToken: string }
-  ): Promise<OAuthResponse> {
-    try {
-      const authToken = await this.authService.validateAnonymousLogin(
-        body.accessToken
-      );
-      return { authToken };
-    } catch {
-      throw new HttpException(
-        getReasonPhrase(StatusCodes.FORBIDDEN),
-        StatusCodes.FORBIDDEN
-      );
-    }
-  }
-
-  @Get('google')
-  @UseGuards(AuthGuard('google'))
-  public googleLogin() {
-    // Initiates the Google OAuth2 login flow
-  }
-
-  @Get('google/callback')
-  @UseGuards(AuthGuard('google'))
+  @Get('oidc')
+  @UseGuards(AuthGuard('oidc'))
   @Version(VERSION_NEUTRAL)
-  public googleLoginCallback(
+  public oidcLogin() {
+    // OIDC is now the primary auth method — no feature flag guard
+  }
+
+  @Get('oidc/callback')
+  @UseGuards(AuthGuard('oidc'))
+  @Version(VERSION_NEUTRAL)
+  public oidcLoginCallback(
     @Req() request: Request,
     @Res() response: Response
   ) {
@@ -101,75 +52,64 @@ export class AuthController {
     }
   }
 
-  @Get('oidc')
-  @UseGuards(AuthGuard('oidc'))
+  @Get('logout')
+  @UseGuards(AuthGuard('jwt'))
   @Version(VERSION_NEUTRAL)
-  public oidcLogin() {
-    if (!this.configurationService.get('ENABLE_FEATURE_AUTH_OIDC')) {
-      throw new HttpException(
-        getReasonPhrase(StatusCodes.FORBIDDEN),
-        StatusCodes.FORBIDDEN
-      );
-    }
-  }
-
-  @Get('oidc/callback')
-  @UseGuards(AuthGuard('oidc'))
-  @Version(VERSION_NEUTRAL)
-  public oidcLoginCallback(@Req() request: Request, @Res() response: Response) {
-    const jwt: string = (request.user as any).jwt;
-
-    if (jwt) {
-      response.redirect(
-        `${this.configurationService.get(
-          'ROOT_URL'
-        )}/${DEFAULT_LANGUAGE_CODE}/auth/${jwt}`
-      );
-    } else {
-      response.redirect(
-        `${this.configurationService.get(
-          'ROOT_URL'
-        )}/${DEFAULT_LANGUAGE_CODE}/auth`
-      );
-    }
-  }
-
-  @Post('webauthn/generate-authentication-options')
-  public async generateAuthenticationOptions(
-    @Body() body: { deviceId: string }
+  public async logout(
+    @Req() request: RequestWithUser,
+    @Query('language') language: string,
+    @Res() response: Response
   ) {
-    return this.webAuthService.generateAuthenticationOptions(body.deviceId);
-  }
+    const issuer = this.configurationService.get('OIDC_ISSUER');
+    const rootUrl = this.configurationService.get('ROOT_URL');
+    const apiToken = this.configurationService.get('AUTHENTIK_API_TOKEN');
+    const languageCode = language || DEFAULT_LANGUAGE_CODE;
+    const postLogoutRedirectUri = `${rootUrl}/${languageCode}/start`;
 
-  @Get('webauthn/generate-registration-options')
-  @UseGuards(AuthGuard('jwt'), HasPermissionGuard)
-  public async generateRegistrationOptions() {
-    return this.webAuthService.generateRegistrationOptions();
-  }
+    // Revoke only the current user's Authentik sessions server-to-server,
+    // so the browser never visits Authentik and sees "My Applications".
+    if (apiToken) {
+      const oidcSub = request.user?.thirdPartyId;
 
-  @Post('webauthn/verify-attestation')
-  @UseGuards(AuthGuard('jwt'), HasPermissionGuard)
-  public async verifyAttestation(
-    @Body() body: { deviceName: string; credential: AttestationCredentialJSON }
-  ) {
-    return this.webAuthService.verifyAttestation(body.credential);
-  }
+      if (oidcSub) {
+        try {
+          const authentikBase = new URL(issuer).origin;
 
-  @Post('webauthn/verify-authentication')
-  public async verifyAuthentication(
-    @Body() body: { deviceId: string; credential: AssertionCredentialJSON }
-  ) {
-    try {
-      const authToken = await this.webAuthService.verifyAuthentication(
-        body.deviceId,
-        body.credential
-      );
-      return { authToken };
-    } catch {
-      throw new HttpException(
-        getReasonPhrase(StatusCodes.FORBIDDEN),
-        StatusCodes.FORBIDDEN
-      );
+          // Fetch all sessions and filter to those belonging to this user
+          const sessionsResp = await fetch(
+            `${authentikBase}/api/v3/core/authenticated_sessions/`,
+            { headers: { Authorization: `Bearer ${apiToken}` } }
+          );
+
+          if (sessionsResp.ok) {
+            const sessions = (await sessionsResp.json()) as {
+              results: Array<{ uuid: string; user: { uid: string } }>;
+            };
+
+            const userSessions = sessions.results.filter(
+              (s) => s.user?.uid === oidcSub
+            );
+
+            await Promise.all(
+              userSessions.map((s) =>
+                fetch(
+                  `${authentikBase}/api/v3/core/authenticated_sessions/${s.uuid}/`,
+                  {
+                    method: 'DELETE',
+                    headers: { Authorization: `Bearer ${apiToken}` }
+                  }
+                )
+              )
+            );
+          }
+        } catch {
+          // Best-effort: if the API call fails the user is still logged
+          // out of Ghostfolio; they will simply need to re-authenticate on
+          // the next Sign In click.
+        }
+      }
     }
+
+    response.redirect(postLogoutRedirectUri);
   }
 }

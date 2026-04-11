@@ -21,6 +21,9 @@ import { GfPremiumIndicatorComponent } from '@ghostfolio/ui/premium-indicator';
 import { AdminService, DataService } from '@ghostfolio/ui/services';
 import { GfValueComponent } from '@ghostfolio/ui/value';
 
+import { GfCreateUserDialogComponent } from './create-user-dialog/create-user-dialog.component';
+import { CreateUserDialogResult } from './create-user-dialog/interfaces/interfaces';
+
 import { CommonModule } from '@angular/common';
 import {
   ChangeDetectorRef,
@@ -51,6 +54,7 @@ import {
   contractOutline,
   ellipsisHorizontal,
   keyOutline,
+  personAddOutline,
   personOutline,
   trashOutline
 } from 'ionicons/icons';
@@ -167,6 +171,7 @@ export class GfAdminUsersComponent implements OnInit {
       contractOutline,
       ellipsisHorizontal,
       keyOutline,
+      personAddOutline,
       personOutline,
       trashOutline
     });
@@ -196,6 +201,47 @@ export class GfAdminUsersComponent implements OnInit {
     this.fetchUsers({
       pageIndex: page.pageIndex
     });
+  }
+
+  public onCreateUser() {
+    const dialogRef = this.dialog.open<
+      GfCreateUserDialogComponent,
+      void,
+      CreateUserDialogResult
+    >(GfCreateUserDialogComponent, {
+      autoFocus: false,
+      width: '30rem'
+    });
+
+    dialogRef
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
+        if (result) {
+          this.dataService
+            .postAdminUser({
+              thirdPartyId: result.thirdPartyId,
+              role: result.role
+            })
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+              next: () => {
+                this.notificationService.alert({
+                  message: $localize`User created successfully`,
+                  title: $localize`Success`
+                });
+                this.fetchUsers();
+              },
+              error: (error) => {
+                this.notificationService.alert({
+                  message:
+                    error?.error?.message ?? $localize`Failed to create user`,
+                  title: $localize`Error`
+                });
+              }
+            });
+        }
+      });
   }
 
   public onDeleteUser(aId: string) {
