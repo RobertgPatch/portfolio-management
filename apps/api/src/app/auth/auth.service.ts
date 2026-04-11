@@ -43,15 +43,15 @@ export class AuthService {
         throw new ForbiddenException('User not provisioned');
       }
 
-      // Update role from groups claim on each login
-      if (groups?.length) {
-        const role = this.mapGroupsToRole(groups);
+      // Update role from groups claim on each login.
+      // Use `groups ?? []` so an empty or missing claim downgrades the user
+      // to USER instead of leaving a stale ADMIN/DEMO role intact.
+      const role = this.mapGroupsToRole(groups ?? []);
 
-        await this.userService.updateUser({
-          data: { role },
-          where: { id: user.id }
-        });
-      }
+      await this.userService.updateUser({
+        data: { role },
+        where: { id: user.id }
+      });
 
       return this.jwtService.sign({
         id: user.id

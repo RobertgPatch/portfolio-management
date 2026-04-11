@@ -14,7 +14,8 @@ import {
 } from '@ghostfolio/common/config';
 import {
   UpdateAssetProfileDto,
-  UpdatePropertyDto
+  UpdatePropertyDto,
+  CreateAdminUserDto
 } from '@ghostfolio/common/dtos';
 import { getAssetProfileIdentifier } from '@ghostfolio/common/helper';
 import {
@@ -50,7 +51,7 @@ import {
 } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
-import { DataSource, MarketData, Prisma, Role, SymbolProfile } from '@prisma/client';
+import { DataSource, MarketData, Prisma, SymbolProfile } from '@prisma/client';
 import { isDate, parseISO } from 'date-fns';
 import { StatusCodes, getReasonPhrase } from 'http-status-codes';
 
@@ -79,9 +80,7 @@ export class AdminController {
   @HasPermission(permissions.accessAdminControl)
   @Post('user')
   @UseGuards(AuthGuard('jwt'), HasPermissionGuard)
-  public async createUser(
-    @Body() body: { thirdPartyId: string; role?: Role }
-  ) {
+  public async createUser(@Body() body: CreateAdminUserDto) {
     return this.adminService.createUserByAdmin({
       thirdPartyId: body.thirdPartyId,
       role: body.role

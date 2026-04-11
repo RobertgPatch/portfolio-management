@@ -30,7 +30,7 @@ ENABLE_FEATURE_AUTH_OIDC=true
 OIDC_ISSUER=http://localhost:9000/application/o/ghostfolio/
 OIDC_CLIENT_ID=ghostfolio
 OIDC_CLIENT_SECRET=<generated-in-step-3>
-OIDC_SCOPE=openid profile email groups
+OIDC_SCOPE=["openid","profile","email","groups"]
 ```
 
 ### 2. Start Docker Services

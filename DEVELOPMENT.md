@@ -36,8 +36,8 @@ After starting Docker containers, configure Authentik at `http://localhost:9000/
    ENABLE_FEATURE_AUTH_OIDC=true
    OIDC_CLIENT_ID=<client-id>
    OIDC_CLIENT_SECRET=<client-secret>
-   OIDC_ISSUER=http://localhost:9000/application/o/ghostfolio
-   OIDC_SCOPE=["openid","profile","email"]
+   OIDC_ISSUER=http://localhost:9000/application/o/ghostfolio/
+   OIDC_SCOPE=["openid","profile","email","groups"]
    ```
 6. Set `AUTHENTIK_ADMIN_SUB` in `.env` to your Authentik user's sub claim, then run `npm run database:setup` to seed the bootstrap admin user
 7. New users must be created through the Admin panel (Admin > Users > Create User)

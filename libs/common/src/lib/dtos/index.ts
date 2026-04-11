@@ -1,5 +1,6 @@
 import { AuthDeviceDto } from './auth-device.dto';
 import { CreateAccessDto } from './create-access.dto';
+import { CreateAdminUserDto } from './create-admin-user.dto';
 import { CreateAccountBalanceDto } from './create-account-balance.dto';
 import { CreateAccountWithBalancesDto } from './create-account-with-balances.dto';
 import { CreateAccountDto } from './create-account.dto';
@@ -46,6 +47,7 @@ export {
   AuthDeviceDto,
   ConfirmK1ImportDto,
   CreateAccessDto,
+  CreateAdminUserDto,
   CreateAccountBalanceDto,
   CreateAccountDto,
   CreateAccountWithBalancesDto,
