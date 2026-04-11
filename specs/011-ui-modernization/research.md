@@ -1,181 +1,218 @@
 # 011 UI Modernization — Research
 
-## Current Technology Stack
+## Decision Log
 
-| Component | Version | Notes |
+### Decision 1: Navigation Pattern — Top Bar + Contextual Left Sidebar
+
+**Decision**: Replace all `mat-menu` dropdown submenus with a `mat-sidenav` left sidebar that shows section-specific sub-pages.
+
+**Rationale**: 
+- Dropdown menus are a legacy pattern for multi-level navigation. Modern financial dashboards (Stripe, Linear, Addepar, GitHub, Plaid Dashboard) universally use a persistent left sidebar for sub-navigation.
+- The current mobile nav dumps 25+ items into a flat `mat-menu` — unusable. A `mat-sidenav` drawer with grouped sections scales naturally.
+- Sidebar navigation provides persistent context ("where am I?") — the user always sees the section's available pages without hovering.
+
+**Alternatives considered**:
+- **Keep dropdowns, improve styling**: Rejected — dropdown UX is fundamentally inferior for apps with deep navigation. User explicitly dislikes this pattern.
+- **Always-visible sidebar (no top bar)**: Rejected — wastes horizontal space for single-page sections (Dashboard). The hybrid approach (top bar sections + contextual sidebar) is the best balance.
+- **Vertical tabs (like VS Code activity bar)**: Rejected — too technical/IDE-like for a financial application.
+
+---
+
+### Decision 2: Generalized Navigation Labels
+
+**Decision**: Rename top-level navigation labels to be broader and more professional.
+
+| Current Label | New Label | Rationale |
 |---|---|---|
-| Angular | 21.1.1 | Latest; M3 available |
-| Angular Material | 21.1.1 | Using **M2 API** (legacy) |
-| Bootstrap | 4.6.2 | Grid + utilities only (no components) |
-| Chart.js | 4.5.1 | + treemap, annotation, datalabels plugins |
-| Ionic | 8.8.1 | Icons only (ionicons 8.0.13) |
-| open-color | 1.9.1 | Color palette (may be replaced by tokens) |
-| ngx-skeleton-loader | 12.0.0 | Skeleton loading |
-| countup.js | 2.9.0 | Animated number counts |
+| FMV | **Valuations** | "Valuations" is the standard wealth management term. Covers FMV, account values, holdings, market prices. |
+| Partnerships | **Entities** | "Entities" is the legal/financial umbrella term for trusts, LLCs, LPs. Partnerships and distributions are attributes of entities. |
+| K-1 Center | **Documents** | Clean catch-all. Supports future document types (tax returns, statements). Avoids US-tax-specific jargon. |
+| Analysis | **Analytics** | More modern. Absorbs "Portfolio Views" which was a standalone orphan link. |
+| Portfolio Views | *(merged into Analytics)* | Not significant enough for its own top-level item. |
+| Dashboard | **Dashboard** | Keep as-is — universally understood. |
+| Admin | **Admin** | Keep as-is — standard label. |
 
-## Current SCSS Architecture
+**Alternatives considered**:
+- "Assets" instead of "Valuations": Rejected — too generic, could mean anything.
+- "Tax Center" instead of "Documents": Rejected — too narrow if we add non-tax documents later.
+- "Portfolio" instead of "Analytics": Rejected — overloaded term in a financial app.
 
-### File Map
+---
+
+### Decision 3: Sidebar Layout — Persistent on Desktop, Overlay on Mobile
+
+**Decision**: Use `mat-sidenav` with `mode="side"` on desktop (≥1024px) and `mode="over"` on mobile (<1024px).
+
+**Rationale**:
+- Desktop users have screen real estate — sidebar should push content, not overlay it.
+- Mobile users need the full viewport — sidebar should overlay with a backdrop.
+- Angular CDK `BreakpointObserver` provides reactive breakpoint detection.
+
+**Alternatives considered**:
+- Always `mode="over"`: Rejected — on desktop, constantly opening/closing a drawer is annoying.
+- Always `mode="side"`: Rejected — on mobile, a persistent 260px sidebar leaves no room for content.
+
+---
+
+### Decision 4: Sidebar Collapse to Icon-Only Mode
+
+**Decision**: Collapse toggle (bottom of sidebar) shrinks from 260px to 64px (icons + tooltips). State persists in `localStorage`.
+
+**Rationale**: Power users want maximum screen real estate for data tables and charts. Icon-only mode maintains spatial context.
+
+**Alternatives considered**:
+- No collapse option: Rejected — 260px is significant on a 1366px laptop.
+- Auto-collapse on narrow windows: Rejected — should be user-controlled.
+
+---
+
+### Decision 5: Angular Material M3 Migration
+
+**Decision**: Migrate from `mat.m2-define-light-theme()` to `mat.define-theme()` (M3 API).
+
+**Rationale**: Angular 21 ships M3 as default. M2 APIs deprecated. M3 provides built-in design tokens, improved accessibility, modern visual style.
+
+**Alternatives considered**:
+- Stay on M2: Rejected — accumulates debt.
+- Switch to PrimeNG/Tailwind: Rejected — too disruptive. Angular Material M3 already installed.
+
+---
+
+### Decision 6: Bootstrap Removal Strategy
+
+**Decision**: Replace Bootstrap classes incrementally with custom token-based utilities, then remove the package.
+
+**Rationale**: Bootstrap 4.6 only used for grid, display utilities, and a few text helpers — trivially replaceable.
+
+**Alternatives considered**:
+- Migrate to Bootstrap 5: Rejected — still dual frameworks.
+- Replace with Tailwind CSS: Rejected — conflicts with Angular Material's component model.
+
+---
+
+## Technical Research
+
+### Angular Material Sidenav Architecture
 
 ```
-apps/client/src/
-  styles.scss              → 650+ lines, master entry point
-  styles/
-    bootstrap.scss         → Cherry-picked BS4 imports (grid, utilities, badges, breadcrumbs)
-    variables.scss         → 2 Sass variables ($dark-primary-text, $light-primary-text)
-    theme.scss             → Angular Material M2 theme definition
+┌─────────────────────────────────────────────────┐
+│  mat-toolbar (fixed, full width, z-index above) │
+├────────┬────────────────────────────────────────┤
+│ mat-   │  mat-sidenav-content                   │
+│ sidenav│  (scrollable, holds <router-outlet>)   │
+│ (left) │                                        │
+│ 260px  │                                        │
+└────────┴────────────────────────────────────────┘
 ```
 
-### Key Patterns
+- `mat-toolbar` OUTSIDE and ABOVE `mat-sidenav-container`
+- Container height: `calc(100vh - toolbar-height)`
+- `mat-sidenav-content` handles its own scrollbar
 
-1. **CSS Custom Properties** — ~120 properties on `:root` for light mode, overridden by `.theme-dark`
-2. **M2 Theme** — Uses `mat.m2-define-light-theme` with `mat.m2-define-palette` for primary/secondary/warn
-3. **Density** — Set to `-3` (very compact)
-4. **Bootstrap Usage** — Grid (`row`, `col-*`), display (`d-flex`, `d-none`, `d-sm-block`), text (`text-muted`, `font-weight-bold`), spacing (`mx-1`, `p-2`), list (`list-inline`), badges (`badge`)
+### NavigationService Design
+
+```typescript
+@Injectable({ providedIn: 'root' })
+export class NavigationService {
+  activeSection$: Observable<NavSection>;
+  sidebarItems$: Observable<NavItem[]>;
+  isSidebarVisible$: Observable<boolean>;  // false for Dashboard
+
+  sections: NavSection[] = [
+    { id: 'dashboard', label: 'Dashboard', icon: 'dashboard',
+      route: '/family-office', children: [] },
+    { id: 'valuations', label: 'Valuations', icon: 'account_balance',
+      route: '/fmv', children: [
+        { label: 'FMV Dashboard', icon: 'trending_up', route: '/fmv' },
+        { label: 'Accounts', icon: 'account_balance_wallet', route: '/accounts' }
+    ]},
+    { id: 'entities', label: 'Entities', icon: 'business',
+      route: '/entities', children: [
+        { label: 'Entities', icon: 'business', route: '/entities' },
+        { label: 'Partnerships', icon: 'handshake', route: '/partnerships' },
+        { label: 'Distributions', icon: 'payments', route: '/distributions' }
+    ]},
+    { id: 'documents', label: 'Documents', icon: 'description',
+      route: '/k1-import', children: [
+        { label: 'K-1 Import', icon: 'upload_file', route: '/k1-import' },
+        { label: 'K-1 Documents', icon: 'article', route: '/k-documents' },
+        { label: 'Cell Mapping', icon: 'grid_on', route: '/cell-mapping' }
+    ]},
+    { id: 'analytics', label: 'Analytics', icon: 'analytics',
+      route: '/home', children: [
+        { label: 'Overview', icon: 'dashboard', route: '/home' },
+        { label: 'Holdings', icon: 'pie_chart', route: '/home/holdings' },
+        { label: 'Summary', icon: 'summarize', route: '/home/summary' },
+        { label: 'Markets', icon: 'show_chart', route: '/home/markets' },
+        { label: 'Watchlist', icon: 'visibility', route: '/home/watchlist' },
+        { label: 'Portfolio Views', icon: 'view_module', route: '/portfolio-views' },
+        { label: 'FIRE Calculator', icon: 'local_fire_department', route: '/portfolio/fire' },
+        { label: 'X-Ray', icon: 'radar', route: '/portfolio/x-ray' }
+    ]},
+    { id: 'admin', label: 'Admin', icon: 'settings',
+      route: '/admin', children: [...], visible: 'hasPermissionToAccessAdminControl' }
+  ];
+}
+```
+
+### Sidebar Responsive Rules
+
+| Breakpoint | Sidebar Mode | Default State |
+|---|---|---|
+| ≥1280px (xl) | `mode="side"` | Expanded (260px) |
+| 1024–1279px (lg) | `mode="side"` | Collapsed (64px icons) |
+| <1024px | `mode="over"` | Hidden; toggle from header |
+
+### CSS Tokens for Sidebar
+
+```scss
+:root {
+  --sidebar-width-expanded: 260px;
+  --sidebar-width-collapsed: 64px;
+  --sidebar-transition: width 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --sidebar-bg: var(--color-surface);
+  --sidebar-border: 1px solid var(--color-divider);
+  --sidebar-item-height: 40px;
+  --sidebar-item-active-bg: rgba(var(--color-primary-rgb), 0.12);
+  --sidebar-item-hover-bg: rgba(var(--color-primary-rgb), 0.06);
+}
+```
 
 ### Bootstrap Class Audit
 
-Grep results for Bootstrap usage patterns:
-
-| Class Pattern | Approx Usage | Replacement Strategy |
+| Class Pattern | ~Count | Replacement |
 |---|---|---|
-| `col-*`, `row` | ~200 instances | CSS Grid `auto-fit minmax()` or custom grid utils |
-| `d-flex`, `d-block`, `d-none` | ~150 instances | Flexbox utils or `@media` queries |
-| `d-*-none/block/flex` (responsive) | ~80 instances | `@media` breakpoint queries |
-| `text-muted` | ~30 instances | `color: var(--color-text-secondary)` |
-| `font-weight-bold` | ~25 instances | `font-weight: var(--font-weight-bold)` |
-| `mx-*`, `my-*`, `p-*`, `m-*` | ~100 instances | Token-based spacing utils |
-| `badge` | ~10 instances | Custom badge component or token-styled |
-| `list-inline` | ~5 instances | Flexbox list |
+| `col-*`, `row` | ~200 | CSS Grid `auto-fit minmax()` or custom grid |
+| `d-flex`, `d-inline-flex` | ~150 | `.flex`, `.inline-flex` utility |
+| `d-none`, `d-*-none/block/flex` | ~80 | `@media` queries or `.hidden-*` |
+| `text-muted` | ~30 | `color: var(--color-text-muted)` |
+| `font-weight-bold` | ~25 | `font-weight: var(--font-weight-bold)` |
+| `mx-*`, `my-*`, `p-*`, `m-*` | ~100 | Token-based spacing utilities |
+| `badge` | ~10 | Material chip or custom badge |
+| `list-inline` | ~5 | Flexbox list |
+| `align-items-center` | ~60 | `.items-center` utility |
+| `justify-content-*` | ~40 | `.justify-*` utility |
 
-## Angular Material M3 Migration
+### M3 Theme API Changes
 
-### API Changes (M2 → M3)
+| M2 API (Current) | M3 API (Target) |
+|---|---|
+| `mat.m2-define-light-theme()` | `mat.define-theme()` |
+| `mat.m2-define-palette($palette)` | Hex seed in `mat.define-colors()` |
+| `mat.m2-define-typography-config()` | `mat.define-typography()` |
+| `mat.all-component-themes($theme)` | `@include mat.theme($theme)` |
+| Density: `-3` | Density: `-1` or `0` |
 
-| M2 API | M3 API | Notes |
-|---|---|---|
-| `mat.m2-define-light-theme()` | `mat.define-theme()` | Single function for light/dark |
-| `mat.m2-define-palette($palette)` | Hex color in `mat.define-colors()` | No more palette maps |
-| `mat.m2-define-typography-config()` | `mat.define-typography()` | Uses M3 type scale |
-| `mat.all-component-themes($theme)` | `@include mat.theme($theme)` | Simplified inclusion |
-| `mat.all-component-typographies($theme)` | Included in `mat.theme()` | Merged |
-| Density: `-3` | `mat.define-density()` | M3 density is 0 (default) or -1 |
-
-### M3 Theme Definition (Target)
-
-```scss
-@use '@angular/material' as mat;
-
-$theme: mat.define-theme((
-  color: (
-    theme-type: light,
-    primary: mat.$cyan-palette,     // closest to #36CFCC
-    tertiary: mat.$blue-palette,    // closest to #3686CF
-  ),
-  typography: (
-    brand-family: 'Inter',
-    plain-family: 'Inter',
-  ),
-  density: (
-    scale: -1,  // slightly compact
-  ),
-));
-
-// Dark variant
-$dark-theme: mat.define-theme((
-  color: (
-    theme-type: dark,
-    primary: mat.$cyan-palette,
-    tertiary: mat.$blue-palette,
-  ),
-  typography: (
-    brand-family: 'Inter',
-    plain-family: 'Inter',
-  ),
-  density: (
-    scale: -1,
-  ),
-));
-```
-
-### Custom Palette Approach
-
-Since `#36CFCC` doesn't exactly match any Material palette, we may need a custom palette:
-
-```scss
-$gf-primary: mat.define-colors((
-  // M3 uses a single seed color; Material will generate tonal palette
-  theme-type: light,
-  primary: #36CFCC,
-  tertiary: #3686CF,
-));
-```
-
-## Navigation Research
-
-### Current Structure
-
-**Desktop** (7 top-level items + assistant + user menu):
-- Dashboard → `/family-office`
-- FMV → dropdown [Dashboard, Accounts]
-- Partnerships → dropdown [Entities, Partnerships, Distributions, Accounts]
-- Portfolio Views → `/portfolio-views`
-- K-1 Center → dropdown [Import, Documents, Cell Mapping]
-- Analysis → dropdown [Overview, Holdings, Summary, Markets, Watchlist, FIRE Calculator, X-Ray]
-- Admin → dropdown [Control, Accounts, Resources, Pricing]
-
-**Mobile**: All items flattened into single mat-menu. No grouping, no hierarchy.
-
-### Issues
-
-1. **"Accounts" duplicated** in FMV and Partnerships dropdowns
-2. **Analysis dropdown too large** — 7 items mixing legacy and FO features
-3. **No icons** on dropdown items (text-only)
-4. **Active state** uses font-weight + underline — weak visual signal
-5. **Mobile nav** is unusable at scale
-
-### Proposed Navigation (Simplified)
-
-Desktop top bar with icon+label; mobile sidebar drawer:
-
-| Group | Icon | Items |
-|---|---|---|
-| **Dashboard** | `dashboard` | — (direct link to `/family-office`) |
-| **FMV** | `account_balance` | Overview (`/fmv`), Accounts (`/accounts`) |
-| **Partnerships** | `handshake` | Entities, Partnerships, Distributions |
-| **K-1 Center** | `description` | Import, Documents, Cell Mapping |
-| **Portfolio** | `pie_chart` | Views, Holdings, Summary |
-| **Analysis** | `analytics` | Overview, Markets, X-Ray, FIRE |
-| **Admin** | `settings` | Control, Accounts, Resources |
-
-## Component Audit — Inline Styles
-
-| Component | Inline CSS Lines | Action |
-|---|---|---|
-| `dashboard-page.component.ts` | ~200+ | Extract to `.scss` file |
-| `header.component.ts` | ~50 | Extract to `.scss` file |
-| Various UI lib components | 10-50 each | Extract where > 20 lines |
-
-## Design Inspiration
-
-Modern financial dashboard patterns:
-- **Card-based layouts** with subtle shadows and rounded corners (12-16px radius)
-- **Tonal surface hierarchy** — primary surface, elevated surfaces with shadow
-- **Data-dense but clean** — compact tables with alternating row tints
-- **Chart consistency** — shared color palette across all charts (primary teal, secondary blue, accent warm colors)
-- **Skeleton loading** — Card-shaped skeletons during data fetch
-- **Micro-interactions** — Hover elevation on cards, smooth transitions
-
-## Files To Modify (Estimated)
+### Files Impacted
 
 | Area | Files | Complexity |
 |---|---|---|
-| Design tokens | 3-4 new SCSS files | Medium |
-| Theme (M3 migration) | `theme.scss`, `styles.scss` | High |
-| Bootstrap removal | 30+ component files | High (tedious) |
-| Navigation | `header.component.ts/html` | High |
+| App shell layout | `app.component.html/ts/scss` | High |
+| Navigation service | New: `navigation.service.ts` | Medium |
+| Sidebar component | New: `app-sidenav.component.ts/html/scss` | Medium |
+| Header (top bar) | `header.component.html/ts` | High |
+| Design tokens | 4 new SCSS in `styles/tokens/` | Medium |
+| Theme migration | `styles/theme.scss`, `styles.scss` | High |
+| Bootstrap removal | 30+ component template files | High (tedious) |
 | Dashboard | `dashboard-page.component.ts` | Medium |
-| FMV page | `fmv-page.component.*` | Medium |
-| Entity/Partnership pages | 4-5 files | Medium |
-| K-1 pages | 2-3 files | Low |
-| UI lib components | 5-8 files | Medium |
+| Nav menu group | `libs/ui/src/lib/nav-menu-group/` — **DELETE** | Low |

@@ -4,7 +4,7 @@
 
 - [ ] 1.1 Create `apps/client/src/styles/tokens/_primitive.scss` with raw color values, spacing scale (4px base), border radii, shadow definitions, font sizes
 - [ ] 1.2 Create `apps/client/src/styles/tokens/_semantic.scss` with role-based tokens (surface, on-surface, primary, secondary, text-primary, text-secondary, text-muted, border, divider) for light and dark modes
-- [ ] 1.3 Create `apps/client/src/styles/tokens/_component.scss` with card, button, input, table, nav tokens
+- [ ] 1.3 Create `apps/client/src/styles/tokens/_component.scss` with card, button, input, table, nav, **sidebar** tokens
 - [ ] 1.4 Create `apps/client/src/styles/tokens/_index.scss` barrel file
 - [ ] 1.5 Create `apps/client/src/styles/_utilities.scss` with flexbox, display, spacing, typography, and responsive utility classes
 - [ ] 1.6 Create `apps/client/src/styles/_breakpoints.scss` with breakpoint map and `respond-to` mixin
@@ -39,14 +39,38 @@
 - [ ] 3.11 Remove `bootstrap` from `package.json` and run `pnpm install`
 - [ ] 3.12 Full build verification and visual regression check
 
-## Phase 4: Navigation Redesign
+## Phase 4: Navigation Redesign (Top Bar + Contextual Sidebar)
 
-- [ ] 4.1 Design final navigation structure with icons (reference research.md)
-- [ ] 4.2 Update desktop header — add Material icons to nav items, improve dropdown styling
-- [ ] 4.3 Implement desktop active state — bottom border accent (2px primary) replacing bold+underline
-- [ ] 4.4 Implement mobile sidebar drawer (`mat-sidenav`) with collapsible groups (`mat-expansion-panel`)
-- [ ] 4.5 Fix navigation issues: remove duplicate "Accounts", rename "My Ghostfolio" to "Family Office"
-- [ ] 4.6 Test responsive transitions and drawer behavior at all breakpoints
+### 4A: Interfaces & Service
+- [ ] 4.1 Create `libs/common/src/lib/interfaces/nav.interface.ts` with `NavSection`, `NavItem`, `SidebarState` types
+- [ ] 4.2 Export new interfaces from `libs/common/src/index.ts` barrel
+- [ ] 4.3 Create `apps/client/src/app/core/navigation.service.ts` with section definitions, URL→section mapping, sidebar state management
+- [ ] 4.4 Write unit tests for `NavigationService` — URL detection, sidebar items, state transitions
+
+### 4B: Sidebar Component
+- [ ] 4.5 Create `libs/ui/src/lib/sidenav/sidenav.component.ts` with `@Input() items`, `@Input() state`, `@Output() toggle`
+- [ ] 4.6 Create `libs/ui/src/lib/sidenav/sidenav.component.html` — `mat-nav-list` with `routerLinkActive`, icon + label, collapse support
+- [ ] 4.7 Create `libs/ui/src/lib/sidenav/sidenav.component.scss` — 260px expanded, 64px collapsed, transitions
+- [ ] 4.8 Export sidenav component from `libs/ui/src/index.ts`
+
+### 4C: App Shell Integration
+- [ ] 4.9 Update `apps/client/src/app/app.component.html` — wrap content in `mat-sidenav-container` with `mat-sidenav` + `gf-sidenav`
+- [ ] 4.10 Update `apps/client/src/app/app.component.ts` — inject `NavigationService`, manage sidebar mode/state signals
+- [ ] 4.11 Create or update `apps/client/src/app/app.component.scss` — sidebar layout, responsive media queries
+
+### 4D: Header Simplification
+- [ ] 4.12 Update `header.component.html` — remove all `mat-menu` and `gf-nav-menu-group` usage; render flat section links with `routerLinkActive`
+- [ ] 4.13 Update `header.component.ts` — remove `fmvMenuItems`, `partnershipsMenuItems`, `k1CenterMenuItems`, `legacyMenuItems` arrays; inject `NavigationService` for sections
+- [ ] 4.14 Add hamburger button for mobile (< 768px) that calls `NavigationService.toggleSidebar()`
+- [ ] 4.15 Update `header.component.scss` — active state styling (bottom border accent), remove dropdown styles
+
+### 4E: Cleanup
+- [ ] 4.16 Delete `libs/ui/src/lib/nav-menu-group/` directory (component, module, interface)
+- [ ] 4.17 Remove `GfNavMenuGroupComponent` from all imports
+- [ ] 4.18 Remove `NavMenuItem` interface references
+- [ ] 4.19 Test all 6 sections: top bar highlights, sidebar items, route navigation
+- [ ] 4.20 Test responsive behavior: ≥ 1200px (expanded), 768–1199px (collapsed), < 768px (overlay)
+- [ ] 4.21 Test sidebar toggle (expanded ↔ collapsed) and mobile hamburger open/close
 
 ## Phase 5: Dashboard Modernization
 
@@ -83,7 +107,12 @@
 - [ ] 7.2 Lint: `pnpm nx run client:lint` passes
 - [ ] 7.3 Zero `mat.m2-*` references in SCSS
 - [ ] 7.4 Zero `bootstrap` classes in templates/styles
-- [ ] 7.5 All pages verified in light mode
-- [ ] 7.6 All pages verified in dark mode
-- [ ] 7.7 Mobile navigation tested (375px, 768px)
-- [ ] 7.8 Lighthouse accessibility ≥ 90 on dashboard
+- [ ] 7.5 All 6 top-bar section links highlight correctly
+- [ ] 7.6 Sidebar shows correct items for each section
+- [ ] 7.7 Sidebar expand/collapse works at all breakpoints
+- [ ] 7.8 Mobile hamburger + overlay sidebar works
+- [ ] 7.9 Dashboard has no sidebar
+- [ ] 7.10 All pages verified in light mode
+- [ ] 7.11 All pages verified in dark mode
+- [ ] 7.12 Mobile navigation tested (375px, 768px, 1200px)
+- [ ] 7.13 Lighthouse accessibility ≥ 90 on dashboard

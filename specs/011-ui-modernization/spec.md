@@ -1,9 +1,9 @@
 # Feature Specification: UI Modernization & Redesign
 
 **Feature Branch**: `011-ui-modernization`
-**Created**: 2025-04-11
+**Created**: 2026-04-11
 **Status**: Draft
-**Input**: Modernize the Ghostfolio Family Office UI — migrate from Angular Material M2 to M3, eliminate Bootstrap dependency, establish a design-token system, and create a cohesive, modern visual identity.
+**Input**: Modernize the Ghostfolio Family Office UI — replace dropdown-submenu navigation with a top-bar + contextual left sidebar pattern, migrate from Angular Material M2 to M3, eliminate Bootstrap dependency, establish a design-token system, and create a cohesive, modern visual identity.
 
 ---
 
@@ -11,13 +11,14 @@
 
 The current UI suffers from accumulated technical debt across multiple dimensions:
 
-1. **Outdated theming** — Still on Angular Material M2 API (`mat.m2-define-light-theme`) despite running Angular 21, which ships M3 as default. M2 will eventually be removed.
-2. **Dual CSS frameworks** — Bootstrap 4.6 is imported for grid/utilities alongside Angular Material, creating conflicting paradigms (`d-flex`/`d-none` vs Material layout).
-3. **No design-token system** — Colors, spacing, and typography are hardcoded across components (e.g., `#1976d2`, `#4caf50`, `rgba(0,0,0,0.6)` literals in dashboard).
-4. **650+ line global stylesheet** — Monolithic `styles.scss` with specificity hacks and `!important` overrides.
-5. **Inconsistent component patterns** — Family dashboard has 200+ lines of inline CSS; navigation mixes Bootstrap utility classes with Material components.
-6. **Poor mobile experience** — Mobile nav dumps all items into a flat `mat-menu` with no structure.
-7. **Legacy branding** — "My Ghostfolio" still appears; no cohesive family-office visual identity.
+1. **Dropdown submenu navigation** — The top navbar uses `mat-menu` dropdowns for each section (FMV, Partnerships, K-1 Center, Analysis, Admin). This is not aligned with modern dashboard UIs (Stripe, GitHub, Linear, Addepar) which use a top bar + left sidebar pattern. Submenus are awkward on mobile and obscure available pages.
+2. **Flat mobile navigation** — Mobile dumps all ~25 navigation items into a single `mat-menu` with no grouping or hierarchy.
+3. **Outdated theming** — Still on Angular Material M2 API (`mat.m2-define-light-theme`) despite running Angular 21, which ships M3 as default. M2 will eventually be removed.
+4. **Dual CSS frameworks** — Bootstrap 4.6 is imported for grid/utilities alongside Angular Material, creating conflicting paradigms (`d-flex`/`d-none` vs Material layout).
+5. **No design-token system** — Colors, spacing, and typography are hardcoded across components (e.g., `#1976d2`, `#4caf50`, `rgba(0,0,0,0.6)` literals in dashboard).
+6. **650+ line global stylesheet** — Monolithic `styles.scss` with specificity hacks and `!important` overrides.
+7. **Inconsistent component patterns** — Family dashboard has 200+ lines of inline CSS; navigation mixes Bootstrap utility classes with Material components.
+8. **Legacy branding** — "My Ghostfolio" still appears; overly-specific nav labels (e.g., "K-1 Center", "FMV").
 
 ---
 
@@ -25,13 +26,14 @@ The current UI suffers from accumulated technical debt across multiple dimension
 
 | # | Goal | Measurable Outcome |
 |---|---|---|
-| G1 | Migrate to Angular Material M3 theming | Zero references to `mat.m2-*` APIs |
-| G2 | Remove Bootstrap dependency | `bootstrap` removed from `package.json`; no `d-*` utility classes |
-| G3 | Establish CSS custom property design tokens | Spacing scale, color palette, typography, border-radius, shadows defined as tokens |
-| G4 | Unify component styling | All page components use external SCSS files; no inline style arrays > 20 lines |
-| G5 | Modernize navigation | Responsive sidebar/drawer on mobile; grouped navigation with icons |
-| G6 | Apply family-office branding | Consistent brand identity across all pages — logo, colors, typography |
-| G7 | Improve dashboard UX | Card-based layout with clear hierarchy, data-viz consistency, loading states |
+| G1 | Replace dropdown submenus with top-bar + contextual left sidebar | Zero `mat-menu` navigation dropdowns; `mat-sidenav` used for section sub-navigation |
+| G2 | Generalize navigation labels | Top bar shows: Dashboard, Valuations, Entities, Documents, Analytics, Admin |
+| G3 | Migrate to Angular Material M3 theming | Zero references to `mat.m2-*` APIs |
+| G4 | Remove Bootstrap dependency | `bootstrap` removed from `package.json`; no `d-*` utility classes |
+| G5 | Establish CSS custom property design tokens | Spacing scale, color palette, typography, border-radius, shadows defined as tokens |
+| G6 | Unify component styling | All page components use external SCSS files; no inline style arrays > 20 lines |
+| G7 | Apply family-office branding | Consistent brand identity across all pages — logo, colors, typography |
+| G8 | Improve dashboard UX | Card-based layout with clear hierarchy, data-viz consistency, loading states |
 
 ---
 
@@ -48,12 +50,16 @@ As a family office administrator, I want the application to have a polished, con
 
 ### User Story 2 — Modern Navigation (Priority: P1)
 
-As a family office administrator, I want navigation that works well on both desktop and mobile devices with clear grouping and visual hierarchy.
+As a family office administrator, I want navigation that uses a clean top bar for sections and a left sidebar for sub-pages so that I never have to interact with dropdown menus and can always see where I am within a section.
 
 **Acceptance Scenarios**:
-1. **Given** the user is on desktop (≥1024px), **When** the header renders, **Then** the navigation shows grouped top-level items with dropdown submenus, each with an icon and label.
-2. **Given** the user is on mobile (<1024px), **When** they tap the menu icon, **Then** a slide-out drawer opens with grouped navigation sections (expandable/collapsible).
-3. **Given** the user is on any page, **When** they look at the navigation, **Then** the active section and page are visually highlighted with the primary brand color.
+1. **Given** the user is on desktop (≥1024px), **When** the header renders, **Then** the top bar shows generalized section labels (Dashboard, Valuations, Entities, Documents, Analytics, Admin) with NO dropdown submenus.
+2. **Given** the user clicks a top-bar section (e.g., "Entities"), **When** the page loads, **Then** a left sidebar (260px wide) appears showing that section's sub-pages (Entities, Partnerships, Distributions) with icons and labels.
+3. **Given** the user clicks "Dashboard" in the top bar, **When** the page loads, **Then** NO sidebar appears (Dashboard is a single page with no sub-navigation).
+4. **Given** the user clicks a different top-bar section while a sidebar is open, **When** the new section loads, **Then** the sidebar content swaps to the new section's items without closing and reopening.
+5. **Given** the user is on mobile (<1024px), **When** they tap the menu icon, **Then** a slide-out drawer opens over the content with grouped navigation sections.
+6. **Given** the user navigates between sub-pages within the sidebar, **When** they click a sidebar item, **Then** the active item is highlighted with the primary brand color and the sidebar remains open.
+7. **Given** the user clicks a collapse toggle at the bottom of the sidebar, **When** the sidebar collapses, **Then** it shrinks to 64px showing only icons with tooltips, and the collapse state persists across sessions.
 
 ### User Story 3 — Dashboard Modernization (Priority: P2)
 
@@ -121,17 +127,46 @@ tokens/
 3. Replace `text-muted`, `font-weight-bold`, `list-inline` with token-based classes
 4. Remove `bootstrap` from `package.json`
 
-### Phase 4: Navigation Redesign
+### Phase 4: Navigation Redesign — Top Bar + Contextual Left Sidebar
 
-**Desktop**: Keep top toolbar but with cleaner grouped dropdowns, icon+label pairs, active state indicator (bottom border accent).
+Eliminate all dropdown submenus. Replace with a two-tier navigation:
 
-**Mobile**: Replace flat mat-menu dump with `mat-sidenav` drawer containing collapsible `mat-expansion-panel` groups:
-- Dashboard
-- Fair Market Value → [Dashboard, Accounts]
-- Partnerships → [Entities, Partnerships, Distributions]
-- K-1 Center → [Import, Documents, Cell Mapping]
-- Analysis → [Overview, Holdings, Summary, Markets]
-- Admin → [Control, Accounts, Resources]
+**Top Bar** (`mat-toolbar`): Generalized section labels only — no dropdowns.
+
+| Top Bar Label | Routes Covered | Sidebar Items |
+|---|---|---|
+| **Dashboard** | `/family-office` | *(no sidebar — single page)* |
+| **Valuations** | `/fmv`, `/accounts` | FMV Dashboard, Accounts |
+| **Entities** | `/entities`, `/partnerships`, `/distributions` | Entities, Partnerships, Distributions |
+| **Documents** | `/k1-import`, `/k-documents`, `/cell-mapping` | K-1 Import, K-1 Documents, Cell Mapping |
+| **Analytics** | `/home/*`, `/portfolio/*`, `/portfolio-views` | Overview, Holdings, Summary, Markets, Watchlist, Portfolio Views, FIRE, X-Ray |
+| **Admin** | `/admin/*`, `/accounts`, `/resources`, `/pricing` | Admin Control, Accounts, Resources, Pricing |
+
+**Left Sidebar** (`mat-sidenav` with `mat-nav-list`):
+- Desktop ≥1024px: `mode="side"`, persistent, 260px expanded / 64px collapsed (icon-only)
+- Mobile <1024px: `mode="over"`, backdrop, full slide-out
+- Content is driven reactively by a `NavigationService` that maps URL segments to section + sidebar items
+- Active link highlighting uses `routerLinkActive` directive (replacing manual `ngClass` comparisons)
+- Collapse toggle at bottom of sidebar; state persisted in `localStorage`
+
+**Layout change** (`app.component.html`):
+```
+Before: <header> → <main><router-outlet></main> → <footer>
+After:  <header> → <mat-sidenav-container>
+                      <mat-sidenav>sidebar</mat-sidenav>
+                      <mat-sidenav-content>
+                        <main><router-outlet></main>
+                        <footer>...</footer>
+                      </mat-sidenav-content>
+                    </mat-sidenav-container>
+```
+
+**Components to create**:
+- `NavigationService` — reactive section detection from URL, sidebar item provider
+- `AppSidenavComponent` — contextual sidebar wrapper
+
+**Components to retire**:
+- `GfNavMenuGroupComponent` — the dropdown menu wrapper (no longer needed)
 
 ### Phase 5: Page-by-Page Modernization
 
@@ -177,7 +212,12 @@ Priority order:
 1. `bootstrap` removed from `package.json`
 2. Zero `mat.m2-*` references in SCSS
 3. All colors in components reference CSS custom properties (no hardcoded hex in templates/styles)
-4. Mobile navigation uses drawer pattern, not flat menu dump
-5. Family dashboard renders with consistent card styling and skeleton loaders
-6. Lighthouse accessibility score ≥ 90 on dashboard page
-7. Both light and dark themes work without visual artifacts
+4. Zero `mat-menu` dropdown navigation — top bar uses plain links, sub-nav uses `mat-sidenav`
+5. Left sidebar renders contextual items for each section (Valuations, Entities, Documents, Analytics, Admin)
+6. Dashboard page has no sidebar (single-page section)
+7. Mobile navigation uses `mat-sidenav` drawer with `mode="over"`, not `mat-menu`
+8. Sidebar collapse toggle works; collapsed state persists in `localStorage`
+9. Family dashboard renders with consistent card styling and skeleton loaders
+10. Lighthouse accessibility score ≥ 90 on dashboard page
+11. Both light and dark themes work without visual artifacts
+12. `GfNavMenuGroupComponent` removed from codebase
