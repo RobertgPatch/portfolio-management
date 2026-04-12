@@ -24,6 +24,7 @@ $gf-theme: mat.define-theme(
 // Apply the M3 theme
 html {
   @include mat.all-component-themes($gf-theme);
+  color-scheme: light;
 }
 
 // Define and apply the M3 dark theme
@@ -42,6 +43,7 @@ $gf-theme-dark: mat.define-theme(
 
 .theme-dark {
   @include mat.all-component-colors($gf-theme-dark);
+  color-scheme: dark;
 }
 
 @include mat.typography-hierarchy($gf-theme);

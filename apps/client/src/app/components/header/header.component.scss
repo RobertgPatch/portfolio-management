@@ -4,6 +4,7 @@
 
   .mat-toolbar {
     background-color: var(--light-background);
+    color: rgba(var(--palette-foreground-text), var(--palette-foreground-text-alpha));
 
     .logo-container {
       &.filled {
@@ -29,6 +30,7 @@
       .section-link {
         position: relative;
         background-color: transparent;
+        color: rgba(var(--palette-foreground-text), var(--palette-foreground-text-alpha));
         text-transform: none;
         letter-spacing: normal;
 
@@ -55,6 +57,7 @@
 
     .mdc-button {
       height: 100%;
+      color: rgba(var(--palette-foreground-text), var(--palette-foreground-text-alpha));
 
       &:not(.mat-primary) {
         background-color: transparent;
@@ -75,6 +78,7 @@
 
       ion-icon {
         font-size: 1.5rem;
+        color: rgba(var(--palette-foreground-icon), var(--palette-foreground-icon-alpha));
 
         &.rotate-90 {
           transform: rotate(90deg);
@@ -87,6 +91,7 @@
 :host-context(.theme-dark) {
   .mat-toolbar {
     background-color: var(--dark-background);
+    color: rgba(var(--palette-foreground-text-dark), var(--palette-foreground-text-dark-alpha));
 
     .logo-container {
       &.filled {
@@ -96,6 +101,14 @@
           rgba(var(--palette-foreground-base-dark), 0.02)
         );
       }
+    }
+
+    .mdc-button {
+      color: rgba(var(--palette-foreground-text-dark), var(--palette-foreground-text-dark-alpha));
+    }
+
+    ion-icon {
+      color: rgba(var(--palette-foreground-icon-dark), var(--palette-foreground-icon-dark-alpha));
     }
   }
 }
