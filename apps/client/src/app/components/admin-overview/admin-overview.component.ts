@@ -4,7 +4,6 @@ import {
   PROPERTY_COUPONS,
   PROPERTY_IS_DATA_GATHERING_ENABLED,
   PROPERTY_IS_READ_ONLY_MODE,
-  PROPERTY_IS_USER_SIGNUP_ENABLED,
   PROPERTY_SYSTEM_MESSAGE,
   ghostfolioPrefix
 } from '@ghostfolio/common/config';
@@ -280,13 +279,6 @@ export class GfAdminOverviewComponent implements OnDestroy, OnInit {
       },
       confirmType: ConfirmationDialogType.Warn,
       title: $localize`Do you really want to populate dummy family office data?`
-    });
-  }
-
-  public onEnableUserSignupModeChange(aEvent: MatSlideToggleChange) {
-    this.putAdminSetting({
-      key: PROPERTY_IS_USER_SIGNUP_ENABLED,
-      value: aEvent.checked ? undefined : false
     });
   }
 

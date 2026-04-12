@@ -257,9 +257,9 @@
         /></a>
       </li>
       <li class="list-inline-item">
-        <button class="d-sm-block" mat-flat-button (click)="openLoginDialog()">
+        <a class="d-sm-block" mat-flat-button href="/api/auth/oidc">
           <ng-container i18n>Sign in</ng-container>
-        </button>
+        </a>
       </li>
       @if (currentRoute !== 'register' && hasPermissionToCreateUser) {
         <li class="list-inline-item ml-1">

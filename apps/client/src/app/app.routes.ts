@@ -109,11 +109,6 @@ export const routes: Routes = [
       import('./pages/public/public-page.routes').then((m) => m.routes)
   },
   {
-    path: publicRoutes.register.path,
-    loadChildren: () =>
-      import('./pages/register/register-page.routes').then((m) => m.routes)
-  },
-  {
     path: publicRoutes.resources.path,
     loadChildren: () =>
       import('./pages/resources/resources-page.routes').then((m) => m.routes)

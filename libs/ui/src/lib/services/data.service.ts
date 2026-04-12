@@ -41,7 +41,6 @@ import {
   LookupResponse,
   MarketDataDetailsResponse,
   MarketDataOfMarketsResponse,
-  OAuthResponse,
   PlatformsResponse,
   PortfolioDetails,
   PortfolioDividendsResponse,
@@ -750,12 +749,6 @@ export class DataService {
     return this.http.get<WatchlistResponse>('/api/v1/watchlist');
   }
 
-  public loginAnonymous(accessToken: string) {
-    return this.http.post<OAuthResponse>('/api/v1/auth/anonymous', {
-      accessToken
-    });
-  }
-
   public postAccess(aAccess: CreateAccessDto) {
     return this.http.post<Access>('/api/v1/access', aAccess);
   }
@@ -799,6 +792,10 @@ export class DataService {
 
   public postTag(aTag: CreateTagDto) {
     return this.http.post<Tag>(`/api/v1/tags`, aTag);
+  }
+
+  public postAdminUser(aParams: { thirdPartyId: string; role?: string }) {
+    return this.http.post('/api/v1/admin/user', aParams);
   }
 
   public postUser() {

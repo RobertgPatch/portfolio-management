@@ -21,7 +21,8 @@ export class ConfigurationService {
 
   public constructor() {
     this.environmentConfiguration = cleanEnv(process.env, {
-      ACCESS_TOKEN_SALT: str(),
+      ACCESS_TOKEN_SALT: str({ default: '' }),
+      AUTHENTIK_ADMIN_SUB: str({ default: '' }),
       API_KEY_ALPHA_VANTAGE: str({ default: '' }),
       AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT: str({ default: '' }),
       AZURE_DOCUMENT_INTELLIGENCE_KEY: str({ default: '' }),
@@ -43,9 +44,7 @@ export class ConfigurationService {
       DATA_SOURCES_GHOSTFOLIO_DATA_PROVIDER: json({
         default: []
       }),
-      ENABLE_FEATURE_AUTH_GOOGLE: bool({ default: false }),
       ENABLE_FEATURE_AUTH_OIDC: bool({ default: false }),
-      ENABLE_FEATURE_AUTH_TOKEN: bool({ default: true }),
       ENABLE_FEATURE_BULL_BOARD: bool({ default: false }),
       ENABLE_FEATURE_FEAR_AND_GREED_INDEX: bool({ default: false }),
       ENABLE_FEATURE_GATHER_NEW_EXCHANGE_RATES: bool({ default: true }),
@@ -54,8 +53,6 @@ export class ConfigurationService {
       ENABLE_FEATURE_SUBSCRIPTION: bool({ default: false }),
       ENABLE_FEATURE_PLAID: bool({ default: false }),
       ENABLE_FEATURE_SYSTEM_MESSAGE: bool({ default: false }),
-      GOOGLE_CLIENT_ID: str({ default: 'dummyClientId' }),
-      GOOGLE_SECRET: str({ default: 'dummySecret' }),
       GOOGLE_SHEETS_ACCOUNT: str({ default: '' }),
       GOOGLE_SHEETS_ID: str({ default: '' }),
       GOOGLE_SHEETS_PRIVATE_KEY: str({ default: '' }),
@@ -67,6 +64,7 @@ export class ConfigurationService {
       PLAID_ENCRYPTION_KEY: str({ default: '' }),
       PLAID_ENV: str({ default: 'sandbox' }),
       PLAID_SECRET: str({ default: '' }),
+      AUTHENTIK_API_TOKEN: str({ default: '' }),
       OIDC_AUTHORIZATION_URL: str({ default: '' }),
       OIDC_CALLBACK_URL: str({ default: '' }),
       OIDC_CLIENT_ID: str({

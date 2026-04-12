@@ -1,19 +1,14 @@
 import { SettingsStorageService } from '@ghostfolio/client/services/settings-storage.service';
-import { AuthDeviceDto } from '@ghostfolio/common/dtos';
-import {
-  PublicKeyCredentialCreationOptionsJSON,
-  PublicKeyCredentialRequestOptionsJSON
-} from '@ghostfolio/common/interfaces';
 
-import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import {
-  startAuthentication,
-  startRegistration
-} from '@simplewebauthn/browser';
-import { of } from 'rxjs';
-import { catchError, switchMap, tap } from 'rxjs/operators';
+import { EMPTY, of } from 'rxjs';
 
+/**
+ * Stub WebAuthn service – WebAuthn authentication has been replaced by
+ * Authentik OIDC.  The service is kept as a no-op so that existing
+ * injection sites (UserService, UserAccountSettings, etc.) continue to
+ * compile without changes.
+ */
 @Injectable({
   providedIn: 'root'
 })
@@ -21,92 +16,29 @@ export class WebAuthnService {
   private static readonly WEB_AUTH_N_DEVICE_ID = 'WEB_AUTH_N_DEVICE_ID';
 
   public constructor(
-    private http: HttpClient,
     private settingsStorageService: SettingsStorageService
   ) {}
 
   public isSupported() {
-    return typeof PublicKeyCredential !== 'undefined';
+    return false;
   }
 
   public isEnabled() {
-    return !!this.getDeviceId();
+    return false;
   }
 
   public register() {
-    return this.http
-      .get<PublicKeyCredentialCreationOptionsJSON>(
-        `/api/v1/auth/webauthn/generate-registration-options`,
-        {}
-      )
-      .pipe(
-        catchError((error) => {
-          console.warn('Could not register device', error);
-          return of(null);
-        }),
-        switchMap((attOps) => {
-          return startRegistration({ optionsJSON: attOps });
-        }),
-        switchMap((credential) => {
-          return this.http.post<AuthDeviceDto>(
-            `/api/v1/auth/webauthn/verify-attestation`,
-            { credential }
-          );
-        }),
-        tap((authDevice) =>
-          this.settingsStorageService.setSetting(
-            WebAuthnService.WEB_AUTH_N_DEVICE_ID,
-            authDevice.id
-          )
-        )
-      );
+    return EMPTY;
   }
 
   public deregister() {
-    const deviceId = this.getDeviceId();
-
-    return this.http
-      .delete<AuthDeviceDto>(`/api/v1/auth-device/${deviceId}`)
-      .pipe(
-        catchError((error) => {
-          console.warn(`Could not deregister device ${deviceId}`, error);
-          return of(null);
-        }),
-        tap(() =>
-          this.settingsStorageService.removeSetting(
-            WebAuthnService.WEB_AUTH_N_DEVICE_ID
-          )
-        )
-      );
+    this.settingsStorageService.removeSetting(
+      WebAuthnService.WEB_AUTH_N_DEVICE_ID
+    );
+    return of(null);
   }
 
   public login() {
-    const deviceId = this.getDeviceId();
-
-    return this.http
-      .post<PublicKeyCredentialRequestOptionsJSON>(
-        '/api/v1/auth/webauthn/generate-authentication-options',
-        { deviceId }
-      )
-      .pipe(
-        switchMap((optionsJSON) => {
-          return startAuthentication({ optionsJSON });
-        }),
-        switchMap((credential) => {
-          return this.http.post<{ authToken: string }>(
-            '/api/v1/auth/webauthn/verify-authentication',
-            {
-              credential,
-              deviceId
-            }
-          );
-        })
-      );
-  }
-
-  private getDeviceId() {
-    return this.settingsStorageService.getSetting(
-      WebAuthnService.WEB_AUTH_N_DEVICE_ID
-    );
+    return EMPTY;
   }
 }

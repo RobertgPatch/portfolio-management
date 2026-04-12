@@ -1,6 +1,6 @@
 ﻿# portfolio-management Development Guidelines
 
-Auto-generated from all feature plans. Last updated: 2026-04-11
+Auto-generated from all feature plans. Last updated: 2026-04-07
 
 ## Active Technologies
 - TypeScript 5.9.2, Node.js >= 22.18.0 + Angular 21.1.1, NestJS 11.1.14, Angular Material 21.1.1, Prisma 6.19.0, big.js, date-fns 4.1.0 (003-portfolio-performance-views)
@@ -17,8 +17,10 @@ Auto-generated from all feature plans. Last updated: 2026-04-11
 - [if applicable, e.g., PostgreSQL, CoreData, files or N/A] (009-fmv-plaid-drilldown)
 - TypeScript 5.x (strict mode) + Angular 21+ (standalone components, signals), NestJS 11+ (module-based DI), Prisma ORM, `plaid` v41+ (Node SDK), `@plaid/link-initialize` (client), `@nestjs/bull` (BullMQ) (009-fmv-plaid-drilldown)
 - PostgreSQL (Docker port 5434→5432), Redis (Docker port 6379→6379) (009-fmv-plaid-drilldown)
-- TypeScript 5.9.2, Angular 21.1.1 + Angular Material 21.1.1, Chart.js 4.5.1, Ionic (icons only), RxJS 7.8.1 (011-ui-modernization)
-- N/A (no data model changes — purely visual/structural) (011-ui-modernization)
+- TypeScript 5.x (NestJS 11+ backend, Angular 21+ frontend) + `passport-openidconnect` (existing), `passport-jwt` (existing), `@nestjs/passport`, `@nestjs/jwt` (010-authentik-auth)
+- PostgreSQL 15 via Prisma ORM (shared instance, separate DB for Authentik) (010-authentik-auth)
+- TypeScript 5.x (Angular 21+ / NestJS 11+) + Angular Material, passport-openidconnect, Authentik 2024.12 (010-authentik-auth)
+- PostgreSQL via Prisma, Authentik Brand API (010-authentik-auth)
 
 - TypeScript 5.9.2, Node.js ≥22.18.0 + NestJS 11.1.14 (API), Angular 21.1.1 + Angular Material 21.1.1 (client), Prisma 6.19.0 (ORM), Nx 22.5.3 (monorepo), big.js (decimal math), date-fns 4.1.0, chart.js 4.5.1, Bull 4.16.5 (job queues), Redis (caching), yahoo-finance2 3.13.2 (001-family-office-transform)
 
@@ -39,9 +41,9 @@ npm test; npm run lint
 TypeScript 5.9.2, Node.js ≥22.18.0: Follow standard conventions
 
 ## Recent Changes
-- 011-ui-modernization: Added TypeScript 5.9.2, Angular 21.1.1 + Angular Material 21.1.1, Chart.js 4.5.1, Ionic (icons only), RxJS 7.8.1
+- 010-authentik-auth: Added TypeScript 5.x (Angular 21+ / NestJS 11+) + Angular Material, passport-openidconnect, Authentik 2024.12
+- 010-authentik-auth: Added TypeScript 5.x (NestJS 11+ backend, Angular 21+ frontend) + `passport-openidconnect` (existing), `passport-jwt` (existing), `@nestjs/passport`, `@nestjs/jwt`
 - 009-fmv-plaid-drilldown: Added TypeScript 5.x (strict mode) + Angular 21+ (standalone components, signals), NestJS 11+ (module-based DI), Prisma ORM, `plaid` v41+ (Node SDK), `@plaid/link-initialize` (client), `@nestjs/bull` (BullMQ)
-- 009-fmv-plaid-drilldown: Added [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION] + [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]
 
 
 <!-- MANUAL ADDITIONS START -->

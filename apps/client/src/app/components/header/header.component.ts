@@ -1,5 +1,3 @@
-import { LoginWithAccessTokenDialogParams } from '@ghostfolio/client/components/login-with-access-token-dialog/interfaces/interfaces';
-import { GfLoginWithAccessTokenDialogComponent } from '@ghostfolio/client/components/login-with-access-token-dialog/login-with-access-token-dialog.component';
 import { LayoutService } from '@ghostfolio/client/core/layout.service';
 import { NavigationService } from '@ghostfolio/client/core/navigation.service';
 import { ImpersonationStorageService } from '@ghostfolio/client/services/impersonation-storage.service';
@@ -16,7 +14,6 @@ import { internalRoutes, publicRoutes } from '@ghostfolio/common/routes/routes';
 import { DateRange } from '@ghostfolio/common/types';
 import { GfAssistantComponent } from '@ghostfolio/ui/assistant/assistant.component';
 import { GfLogoComponent } from '@ghostfolio/ui/logo';
-import { NotificationService } from '@ghostfolio/ui/notifications';
 import { GfPremiumIndicatorComponent } from '@ghostfolio/ui/premium-indicator';
 import { DataService } from '@ghostfolio/ui/services';
 
@@ -36,7 +33,6 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -52,8 +48,6 @@ import {
   radioButtonOffOutline,
   radioButtonOnOutline
 } from 'ionicons/icons';
-import { EMPTY } from 'rxjs';
-import { catchError } from 'rxjs/operators';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -109,9 +103,7 @@ export class GfHeaderComponent implements OnChanges {
 
   public hasFilters: boolean;
   public hasImpersonationId: boolean;
-  public hasPermissionForAuthGoogle: boolean;
   public hasPermissionForAuthOidc: boolean;
-  public hasPermissionForAuthToken: boolean;
   public hasPermissionForSubscription: boolean;
   public hasPermissionToAccessAdminControl: boolean;
   public hasPermissionToAccessAssistant: boolean;
@@ -142,11 +134,9 @@ export class GfHeaderComponent implements OnChanges {
   public constructor(
     private dataService: DataService,
     private destroyRef: DestroyRef,
-    private dialog: MatDialog,
     private impersonationStorageService: ImpersonationStorageService,
     private layoutService: LayoutService,
     public navigationService: NavigationService,
-    private notificationService: NotificationService,
     private router: Router,
     private settingsStorageService: SettingsStorageService,
     private tokenStorageService: TokenStorageService,
@@ -174,19 +164,9 @@ export class GfHeaderComponent implements OnChanges {
   public ngOnChanges() {
     this.hasFilters = this.userService.hasFilters();
 
-    this.hasPermissionForAuthGoogle = hasPermission(
-      this.info?.globalPermissions,
-      permissions.enableAuthGoogle
-    );
-
     this.hasPermissionForAuthOidc = hasPermission(
       this.info?.globalPermissions,
       permissions.enableAuthOidc
-    );
-
-    this.hasPermissionForAuthToken = hasPermission(
-      this.info?.globalPermissions,
-      permissions.enableAuthToken
     );
 
     this.hasPermissionForSubscription = hasPermission(
@@ -316,46 +296,6 @@ export class GfHeaderComponent implements OnChanges {
 
   public onSignOut() {
     this.signOut.next();
-  }
-
-  public openLoginDialog() {
-    const dialogRef = this.dialog.open<
-      GfLoginWithAccessTokenDialogComponent,
-      LoginWithAccessTokenDialogParams
-    >(GfLoginWithAccessTokenDialogComponent, {
-      autoFocus: false,
-      data: {
-        accessToken: '',
-        hasPermissionToUseAuthGoogle: this.hasPermissionForAuthGoogle,
-        hasPermissionToUseAuthOidc: this.hasPermissionForAuthOidc,
-        hasPermissionToUseAuthToken: this.hasPermissionForAuthToken,
-        title: $localize`Sign in`
-      },
-      width: '30rem'
-    });
-
-    dialogRef
-      .afterClosed()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((data) => {
-        if (data?.accessToken) {
-          this.dataService
-            .loginAnonymous(data?.accessToken)
-            .pipe(
-              catchError(() => {
-                this.notificationService.alert({
-                  title: $localize`Oops! Incorrect Security Token.`
-                });
-
-                return EMPTY;
-              }),
-              takeUntilDestroyed(this.destroyRef)
-            )
-            .subscribe(({ authToken }) => {
-              this.setToken(authToken);
-            });
-        }
-      });
   }
 
   public setToken(aToken: string) {

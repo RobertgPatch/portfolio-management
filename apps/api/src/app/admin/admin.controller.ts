@@ -50,7 +50,7 @@ import {
 } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
-import { DataSource, MarketData, Prisma, SymbolProfile } from '@prisma/client';
+import { DataSource, MarketData, Prisma, Role, SymbolProfile } from '@prisma/client';
 import { isDate, parseISO } from 'date-fns';
 import { StatusCodes, getReasonPhrase } from 'http-status-codes';
 
@@ -74,6 +74,18 @@ export class AdminController {
   @UseGuards(AuthGuard('jwt'), HasPermissionGuard)
   public async getAdminData(): Promise<AdminData> {
     return this.adminService.get();
+  }
+
+  @HasPermission(permissions.accessAdminControl)
+  @Post('user')
+  @UseGuards(AuthGuard('jwt'), HasPermissionGuard)
+  public async createUser(
+    @Body() body: { thirdPartyId: string; role?: Role }
+  ) {
+    return this.adminService.createUserByAdmin({
+      thirdPartyId: body.thirdPartyId,
+      role: body.role
+    });
   }
 
   @Get('demo-user/sync')

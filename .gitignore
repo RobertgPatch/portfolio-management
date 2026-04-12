@@ -54,3 +54,7 @@ testem.log
 # System Files
 .DS_Store
 Thumbs.db
+
+.nx/polygraph
+.claude/worktrees
+.claude/settings.local.json

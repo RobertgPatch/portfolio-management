@@ -4,7 +4,6 @@ import { RedactValuesInResponseInterceptor } from '@ghostfolio/api/interceptors/
 import { ConfigurationService } from '@ghostfolio/api/services/configuration/configuration.service';
 import { ImpersonationService } from '@ghostfolio/api/services/impersonation/impersonation.service';
 import { PrismaService } from '@ghostfolio/api/services/prisma/prisma.service';
-import { PropertyService } from '@ghostfolio/api/services/property/property.service';
 import { HEADER_KEY_IMPERSONATION } from '@ghostfolio/common/config';
 import {
   DeleteOwnUserDto,
@@ -35,7 +34,6 @@ import {
   UseInterceptors
 } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
-import { JwtService } from '@nestjs/jwt';
 import { AuthGuard } from '@nestjs/passport';
 import { User as UserModel } from '@prisma/client';
 import { StatusCodes, getReasonPhrase } from 'http-status-codes';
@@ -48,9 +46,7 @@ export class UserController {
   public constructor(
     private readonly configurationService: ConfigurationService,
     private readonly impersonationService: ImpersonationService,
-    private readonly jwtService: JwtService,
     private readonly prismaService: PrismaService,
-    private readonly propertyService: PropertyService,
     @Inject(REQUEST) private readonly request: RequestWithUser,
     private readonly userService: UserService
   ) {}
@@ -129,25 +125,11 @@ export class UserController {
 
   @Post()
   public async signupUser(): Promise<UserItem> {
-    const isUserSignupEnabled =
-      await this.propertyService.isUserSignupEnabled();
-
-    if (!isUserSignupEnabled) {
-      throw new HttpException(
-        getReasonPhrase(StatusCodes.FORBIDDEN),
-        StatusCodes.FORBIDDEN
-      );
-    }
-
-    const { accessToken, id, role } = await this.userService.createUser();
-
-    return {
-      accessToken,
-      role,
-      authToken: this.jwtService.sign({
-        id
-      })
-    };
+    // Public signup is permanently disabled — users are created by admins
+    throw new HttpException(
+      getReasonPhrase(StatusCodes.FORBIDDEN),
+      StatusCodes.FORBIDDEN
+    );
   }
 
   @Put('setting')
