@@ -111,7 +111,10 @@ export class HttpResponseInterceptor implements HttpInterceptor {
             });
           }
         } else if (error.status === StatusCodes.UNAUTHORIZED) {
-          if (!error.url.includes('/data-providers/ghostfolio/status')) {
+          if (
+            !error.url.includes('/data-providers/ghostfolio/status') &&
+            !this.router.url.includes('/auth')
+          ) {
             if (this.webAuthnService.isEnabled()) {
               this.router.navigate(internalRoutes.webauthn.routerLink);
             } else {

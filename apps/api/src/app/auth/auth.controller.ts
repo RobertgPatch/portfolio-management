@@ -45,15 +45,11 @@ export class AuthController {
 
     if (jwt) {
       response.redirect(
-        `${this.configurationService.get(
-          'ROOT_URL'
-        )}/${DEFAULT_LANGUAGE_CODE}/auth/${jwt}`
+        `${this.configurationService.get('ROOT_URL')}/auth/${jwt}`
       );
     } else {
       response.redirect(
-        `${this.configurationService.get(
-          'ROOT_URL'
-        )}/${DEFAULT_LANGUAGE_CODE}/auth`
+        `${this.configurationService.get('ROOT_URL')}/auth`
       );
     }
   }
