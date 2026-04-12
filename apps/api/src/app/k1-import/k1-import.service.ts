@@ -40,11 +40,13 @@ export class K1ImportService {
    */
   public async uploadAndExtract({
     file,
+    entityId,
     partnershipId,
     taxYear,
     userId
   }: {
     file: any;
+    entityId: string;
     partnershipId: string | null;
     taxYear: number;
     userId: string;
@@ -61,6 +63,17 @@ export class K1ImportService {
     if (file.size > MAX_FILE_SIZE) {
       throw new HttpException(
         'File exceeds 25 MB size limit',
+        StatusCodes.BAD_REQUEST
+      );
+    }
+
+    // Validate entity belongs to user
+    const entity = await this.prismaService.entity.findFirst({
+      where: { id: entityId, userId }
+    });
+    if (!entity) {
+      throw new HttpException(
+        'Entity not found or not owned by user',
         StatusCodes.BAD_REQUEST
       );
     }
@@ -131,7 +144,7 @@ export class K1ImportService {
     });
 
     // Run extraction asynchronously (don't block the response)
-    this.runExtraction(session.id, file, partnershipId, userId).catch((err) => {
+    this.runExtraction(session.id, file, partnershipId, entityId, userId).catch((err) => {
       this.logger.error(
         `Extraction failed for session ${session.id}: ${err.message}`,
         err.stack
@@ -187,6 +200,7 @@ export class K1ImportService {
     sessionId: string,
     file: any,
     partnershipId: string | null,
+    entityId?: string,
     userId?: string
   ) {
     try {
@@ -253,7 +267,8 @@ export class K1ImportService {
         resolvedPartnershipId = await this.resolvePartnershipFromMetadata(
           extractionResult,
           userId,
-          sessionId
+          sessionId,
+          entityId
         );
       }
 
@@ -539,6 +554,7 @@ export class K1ImportService {
       newSession.id,
       file,
       originalSession.partnershipId,
+      undefined,
       userId
     ).catch((err) => {
       this.logger.error(
@@ -1082,7 +1098,8 @@ export class K1ImportService {
   private async resolvePartnershipFromMetadata(
     extractionResult: K1ExtractionResult,
     userId: string,
-    sessionId: string
+    sessionId: string,
+    entityId?: string
   ): Promise<string | null> {
     const { partnershipEin, partnershipName } =
       extractionResult.metadata || {};
@@ -1094,10 +1111,9 @@ export class K1ImportService {
       return null;
     }
 
-    // Clean the partnership name: take only the first line (name, not address)
-    const cleanName = partnershipName
-      ? partnershipName.split(/\n/)[0].trim()
-      : null;
+    // partnershipName already contains only the first line (just the name,
+    // no address) thanks to extractTextMetadata storing matches[0].text.
+    const cleanName = partnershipName?.trim() || null;
 
     // 1. Try matching by EIN (exact)
     if (partnershipEin) {
@@ -1172,28 +1188,27 @@ export class K1ImportService {
       }
     });
 
-    // Auto-create a self-membership so the pipeline doesn't fail
-    // Look for the user's default entity
-    const defaultEntity = await this.prismaService.entity.findFirst({
+    // Create membership for the entity the user selected at upload time
+    const memberEntityId = entityId || (await this.prismaService.entity.findFirst({
       where: { userId },
       orderBy: { createdAt: 'asc' }
-    });
+    }))?.id;
 
-    if (defaultEntity) {
+    if (memberEntityId) {
       await this.prismaService.partnershipMembership.create({
         data: {
-          entityId: defaultEntity.id,
+          entityId: memberEntityId,
           partnershipId: newPartnership.id,
           ownershipPercent: 100,
           effectiveDate: new Date(taxYear, 0, 1)
         }
       });
       this.logger.log(
-        `Session ${sessionId}: Created membership for entity ${defaultEntity.id} in new partnership ${newPartnership.id}`
+        `Session ${sessionId}: Created membership for entity ${memberEntityId} in new partnership ${newPartnership.id}`
       );
     } else {
       this.logger.warn(
-        `Session ${sessionId}: No entity found for user — partnership ${newPartnership.id} has no members. ` +
+        `Session ${sessionId}: No entity found — partnership ${newPartnership.id} has no members. ` +
           'User will need to add a member manually before confirming.'
       );
     }

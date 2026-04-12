@@ -46,12 +46,14 @@ import {
   templateUrl: './k1-import-page.html'
 })
 export class K1ImportPageComponent implements OnDestroy, OnInit {
+  public entities: Array<{ id: string; name: string }> = [];
   public error: string | null = null;
   public extractionStatus: string | null = null;
   public historyColumns = ['createdAt', 'fileName', 'taxYear', 'status', 'kDocument', 'actions'];
   public importHistory: any[] = [];
   public isUploading = false;
   public partnerships: Array<{ id: string; name: string }> = [];
+  public selectedEntityId = '';
   public selectedFile: File | null = null;
   public selectedPartnershipId = '';
   public sessionId: string | null = null;
@@ -81,6 +83,7 @@ export class K1ImportPageComponent implements OnDestroy, OnInit {
   }
 
   public ngOnInit(): void {
+    this.fetchEntities();
     this.fetchPartnerships();
   }
 
@@ -166,8 +169,8 @@ export class K1ImportPageComponent implements OnDestroy, OnInit {
   }
 
   public uploadK1(): void {
-    if (!this.selectedFile || !this.taxYear) {
-      this.error = 'Please select a tax year and PDF file.';
+    if (!this.selectedFile || !this.selectedEntityId || !this.taxYear) {
+      this.error = 'Please select an entity, tax year, and PDF file.';
       this.changeDetectorRef.markForCheck();
       return;
     }
@@ -180,6 +183,7 @@ export class K1ImportPageComponent implements OnDestroy, OnInit {
     const formData = new FormData();
     formData.append('file', this.selectedFile);
     formData.append('taxYear', this.taxYear.toString());
+    formData.append('entityId', this.selectedEntityId);
 
     if (this.selectedPartnershipId) {
       formData.append('partnershipId', this.selectedPartnershipId);
@@ -215,6 +219,21 @@ export class K1ImportPageComponent implements OnDestroy, OnInit {
     this.error = null;
     this.stopPolling();
     this.changeDetectorRef.markForCheck();
+  }
+
+  private fetchEntities(): void {
+    this.familyOfficeDataService
+      .fetchEntities()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (entities) => {
+          this.entities = entities.map((e) => ({
+            id: e.id,
+            name: e.name
+          }));
+          this.changeDetectorRef.markForCheck();
+        }
+      });
   }
 
   private fetchPartnerships(): void {

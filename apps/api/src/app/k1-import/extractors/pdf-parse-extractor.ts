@@ -640,7 +640,12 @@ export class PdfParseExtractor implements K1Extractor {
       ) {
         (metadata as any)[metadataKey] = true;
       } else {
-        (metadata as any)[metadataKey] = combinedText;
+        // For name/address regions (B_NAME, F_NAME_ADDR), store only the
+        // first line (the name) in metadata.  The full combined text
+        // (including address lines) is still emitted into the fields array
+        // below so the UI can display it.
+        const metadataValue = matches[0].text.trim();
+        (metadata as any)[metadataKey] = metadataValue;
       }
     }
 

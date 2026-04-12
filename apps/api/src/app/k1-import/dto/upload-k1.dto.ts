@@ -1,6 +1,9 @@
 import { IsInt, IsOptional, IsString, Min } from 'class-validator';
 
 export class UploadK1Dto {
+  @IsString()
+  entityId: string;
+
   @IsOptional()
   @IsString()
   partnershipId?: string;

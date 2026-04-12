@@ -50,6 +50,7 @@ export class K1ImportController {
 
     return this.k1ImportService.uploadAndExtract({
       file,
+      entityId: body.entityId,
       partnershipId: body.partnershipId || null,
       taxYear,
       userId: this.request.user.id
