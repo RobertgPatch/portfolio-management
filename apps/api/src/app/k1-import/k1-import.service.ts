@@ -1129,7 +1129,17 @@ export class K1ImportService {
           `Session ${sessionId}: Matched partnership by EIN ${partnershipEin} → ${byEin.id} (${byEin.name})`
         );
 
-        // Backfill the name on the partnership if missing address info, etc.
+        // Backfill the clean name when the stored name contains address lines
+        if (cleanName && byEin.name !== cleanName && byEin.name.startsWith(cleanName)) {
+          await this.prismaService.partnership.update({
+            where: { id: byEin.id },
+            data: { name: cleanName }
+          });
+          this.logger.log(
+            `Session ${sessionId}: Updated partnership name from "${byEin.name}" → "${cleanName}"`
+          );
+        }
+
         return byEin.id;
       }
     }
