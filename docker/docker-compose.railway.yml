@@ -55,6 +55,7 @@ services:
       - "${POSTGRES_PORT:-5435}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./init-authentik-db.sql:/docker-entrypoint-initdb.d/init-authentik-db.sql
 
   redis:
     image: redis:alpine
@@ -73,6 +74,64 @@ services:
       retries: 5
     ports:
       - "${REDIS_PORT:-6379}:6379"
+
+  authentik-server:
+    image: ghcr.io/goauthentik/server:2024.12
+    command: server
+    container_name: gf-authentik-server-railway
+    restart: unless-stopped
+    env_file:
+      - ../.env.railway
+    environment:
+      AUTHENTIK_SECRET_KEY: ${AUTHENTIK_SECRET_KEY}
+      AUTHENTIK_POSTGRESQL__HOST: gf-postgres-railway
+      AUTHENTIK_POSTGRESQL__PORT: 5432
+      AUTHENTIK_POSTGRESQL__NAME: authentik
+      AUTHENTIK_POSTGRESQL__USER: ${POSTGRES_USER}
+      AUTHENTIK_POSTGRESQL__PASSWORD: ${POSTGRES_PASSWORD}
+      AUTHENTIK_REDIS__HOST: gf-redis-railway
+      AUTHENTIK_REDIS__PORT: 6379
+      AUTHENTIK_REDIS__PASSWORD: ${REDIS_PASSWORD}
+      AUTHENTIK_REDIS__DB: 1
+      AUTHENTIK_BOOTSTRAP_PASSWORD: ${AUTHENTIK_BOOTSTRAP_PASSWORD}
+      AUTHENTIK_BOOTSTRAP_EMAIL: ${AUTHENTIK_BOOTSTRAP_EMAIL}
+    volumes:
+      - ./authentik/custom.css:/web/dist/custom.css:ro
+      - ./authentik/logo.svg:/web/dist/assets/icons/ghostfolio-logo.svg:ro
+      - ./authentik/flow_background.jpg:/web/dist/assets/images/flow_background.jpg:ro
+    ports:
+      - "${AUTHENTIK_PORT:-9000}:9000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  authentik-worker:
+    image: ghcr.io/goauthentik/server:2024.12
+    command: worker
+    container_name: gf-authentik-worker-railway
+    restart: unless-stopped
+    env_file:
+      - ../.env.railway
+    environment:
+      AUTHENTIK_SECRET_KEY: ${AUTHENTIK_SECRET_KEY}
+      AUTHENTIK_POSTGRESQL__HOST: gf-postgres-railway
+      AUTHENTIK_POSTGRESQL__PORT: 5432
+      AUTHENTIK_POSTGRESQL__NAME: authentik
+      AUTHENTIK_POSTGRESQL__USER: ${POSTGRES_USER}
+      AUTHENTIK_POSTGRESQL__PASSWORD: ${POSTGRES_PASSWORD}
+      AUTHENTIK_REDIS__HOST: gf-redis-railway
+      AUTHENTIK_REDIS__PORT: 6379
+      AUTHENTIK_REDIS__PASSWORD: ${REDIS_PASSWORD}
+      AUTHENTIK_REDIS__DB: 1
+      AUTHENTIK_BOOTSTRAP_PASSWORD: ${AUTHENTIK_BOOTSTRAP_PASSWORD}
+      AUTHENTIK_BOOTSTRAP_EMAIL: ${AUTHENTIK_BOOTSTRAP_EMAIL}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
 volumes:
   postgres_data:
