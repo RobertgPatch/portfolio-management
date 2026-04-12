@@ -19,6 +19,36 @@
       }
     }
 
+    .hamburger-btn {
+      margin-left: 0.25rem;
+    }
+
+    .section-links {
+      gap: 0.25rem;
+
+      .section-link {
+        position: relative;
+        background-color: transparent;
+        text-transform: none;
+        letter-spacing: normal;
+
+        &.active {
+          font-weight: 700;
+
+          &::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0.5rem;
+            right: 0.5rem;
+            height: 2px;
+            background-color: rgba(var(--palette-primary-500), 1);
+            border-radius: 1px;
+          }
+        }
+      }
+    }
+
     .list-inline-item {
       margin: 0;
     }

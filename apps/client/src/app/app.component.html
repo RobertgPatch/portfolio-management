@@ -43,7 +43,27 @@
 </header>
 
 <main role="main">
-  <router-outlet />
+  <mat-sidenav-container class="sidenav-container">
+    @if (sidebarItems().length > 0) {
+      <mat-sidenav
+        [mode]="sidebarMode()"
+        [opened]="sidebarOpened()"
+        [style.width]="sidebarWidth()"
+        (closedStart)="navigationService.setSidebarState('hidden')"
+      >
+        <gf-sidenav
+          [items]="sidebarItems()"
+          [state]="sidebarState()"
+          [activeRoute]="currentRoute"
+          (toggle)="navigationService.toggleSidebar()"
+        />
+      </mat-sidenav>
+    }
+
+    <mat-sidenav-content>
+      <router-outlet />
+    </mat-sidenav-content>
+  </mat-sidenav-container>
 </main>
 
 @if (showFooter) {

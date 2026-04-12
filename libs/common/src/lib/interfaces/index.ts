@@ -54,6 +54,7 @@ import type {
   IKDocumentAllocation,
   K1Data
 } from './k-document.interface';
+import type { NavItem, NavSection, SidebarState } from './nav.interface';
 import type {
   K1BoxDataType,
   K1BoxDefinition,
@@ -262,6 +263,8 @@ export {
   LookupItem,
   LookupResponse,
   MarketData,
+  NavItem,
+  NavSection,
   MarketDataDetailsResponse,
   MarketDataOfMarketsResponse,
   OAuthResponse,
@@ -286,6 +289,7 @@ export {
   ResponseError,
   RuleSettings,
   ScraperConfiguration,
+  SidebarState,
   Statistics,
   SubscriptionOffer,
   SymbolItem,

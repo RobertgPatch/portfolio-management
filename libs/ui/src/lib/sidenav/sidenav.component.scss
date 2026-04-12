@@ -1,0 +1,108 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.sidenav {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: var(--sidebar-width-expanded, 260px);
+  transition: width 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  background: rgb(var(--color-surface, 255, 255, 255));
+  border-right: 1px solid rgba(var(--color-border, 0, 0, 0), var(--color-border-alpha, 0.12));
+
+  &.collapsed {
+    width: var(--sidebar-width-collapsed, 64px);
+
+    .mat-mdc-list-item {
+      padding: 0 20px;
+      justify-content: center;
+    }
+  }
+}
+
+mat-nav-list {
+  flex: 1;
+  padding-top: 0.5rem;
+}
+
+.mat-mdc-list-item {
+  border-radius: 0 24px 24px 0;
+  margin: 2px 8px 2px 0;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+
+  &:hover {
+    background-color: rgba(var(--color-hover, 0, 0, 0), 0.06);
+  }
+
+  &.active {
+    background-color: rgba(var(--color-primary, 0, 128, 128), 0.12);
+
+    mat-icon,
+    span {
+      color: rgb(var(--color-primary, 0, 128, 128));
+      font-weight: 600;
+    }
+  }
+
+  mat-icon {
+    color: rgba(var(--color-on-surface, 0, 0, 0), 0.65);
+    margin-right: 16px;
+  }
+
+  span {
+    color: rgba(var(--color-on-surface, 0, 0, 0), 0.87);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.collapsed .mat-mdc-list-item {
+  mat-icon {
+    margin-right: 0;
+  }
+}
+
+.toggle-area {
+  display: flex;
+  justify-content: flex-end;
+  padding: 8px;
+  border-top: 1px solid rgba(var(--color-border, 0, 0, 0), var(--color-border-alpha, 0.12));
+}
+
+.toggle-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: rgba(var(--color-on-surface, 0, 0, 0), 0.54);
+  transition: background-color 150ms ease;
+
+  &:hover {
+    background-color: rgba(var(--color-hover, 0, 0, 0), 0.06);
+  }
+
+  mat-icon {
+    font-size: 20px;
+    height: 20px;
+    width: 20px;
+  }
+}
+
+:host-context(.theme-dark) {
+  .sidenav {
+    background: rgb(var(--color-surface));
+    border-right-color: rgba(var(--color-border), var(--color-border-alpha));
+  }
+}

@@ -1,6 +1,7 @@
 import { LoginWithAccessTokenDialogParams } from '@ghostfolio/client/components/login-with-access-token-dialog/interfaces/interfaces';
 import { GfLoginWithAccessTokenDialogComponent } from '@ghostfolio/client/components/login-with-access-token-dialog/login-with-access-token-dialog.component';
 import { LayoutService } from '@ghostfolio/client/core/layout.service';
+import { NavigationService } from '@ghostfolio/client/core/navigation.service';
 import { ImpersonationStorageService } from '@ghostfolio/client/services/impersonation-storage.service';
 import {
   KEY_STAY_SIGNED_IN,
@@ -9,17 +10,13 @@ import {
 import { TokenStorageService } from '@ghostfolio/client/services/token-storage.service';
 import { UserService } from '@ghostfolio/client/services/user/user.service';
 import { UpdateUserSettingDto } from '@ghostfolio/common/dtos';
-import { Filter, InfoItem, User } from '@ghostfolio/common/interfaces';
+import { Filter, InfoItem, NavSection, User } from '@ghostfolio/common/interfaces';
 import { hasPermission, permissions } from '@ghostfolio/common/permissions';
 import { internalRoutes, publicRoutes } from '@ghostfolio/common/routes/routes';
 import { DateRange } from '@ghostfolio/common/types';
 import { GfAssistantComponent } from '@ghostfolio/ui/assistant/assistant.component';
 import { GfLogoComponent } from '@ghostfolio/ui/logo';
 import { NotificationService } from '@ghostfolio/ui/notifications';
-import {
-  GfNavMenuGroupComponent,
-  NavMenuItem
-} from '@ghostfolio/ui/nav-menu-group';
 import { GfPremiumIndicatorComponent } from '@ghostfolio/ui/premium-indicator';
 import { DataService } from '@ghostfolio/ui/services';
 
@@ -40,6 +37,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router, RouterModule } from '@angular/router';
@@ -63,11 +61,11 @@ import { catchError } from 'rxjs/operators';
     CommonModule,
     GfAssistantComponent,
     GfLogoComponent,
-    GfNavMenuGroupComponent,
     GfPremiumIndicatorComponent,
     IonIcon,
     MatBadgeModule,
     MatButtonModule,
+    MatIconModule,
     MatMenuModule,
     MatToolbarModule,
     RouterModule
@@ -138,49 +136,8 @@ export class GfHeaderComponent implements OnChanges {
   public routerLinkRegister = publicRoutes.register.routerLink;
   public routerLinkResources = publicRoutes.resources.routerLink;
 
-  // Navigation group items per contracts/navigation.md
-  public fmvMenuItems: NavMenuItem[] = [
-    { label: 'Dashboard', routerLink: '/fmv' },
-    { label: 'Accounts', routerLink: '/accounts' }
-  ];
-
-  public partnershipsMenuItems: NavMenuItem[] = [
-    { label: 'Entities', routerLink: '/entities' },
-    { label: 'Partnerships', routerLink: '/partnerships' },
-    { label: 'Distributions', routerLink: '/distributions' },
-    { label: 'Accounts', routerLink: '/accounts' }
-  ];
-
-  public k1CenterMenuItems: NavMenuItem[] = [
-    { label: 'K-1 Import', routerLink: '/k1-import' },
-    { label: 'K-1 Documents', routerLink: '/k-documents' },
-    { label: 'Cell Mapping', routerLink: '/cell-mapping' }
-  ];
-
-  public legacyMenuItems: NavMenuItem[] = [
-    { label: 'Overview', routerLink: '/home' },
-    { label: 'Holdings', routerLink: '/home/holdings' },
-    { label: 'Summary', routerLink: '/home/summary' },
-    { label: 'Markets', routerLink: '/home/markets' },
-    { label: 'Watchlist', routerLink: '/home/watchlist' },
-    { label: 'FIRE Calculator', routerLink: '/portfolio/fire' },
-    { label: 'X-Ray', routerLink: '/portfolio/x-ray' }
-  ];
-
-  public partnershipsRoutes = [
-    'entities',
-    'partnerships',
-    'distributions',
-    'accounts'
-  ];
-
-  public k1CenterRoutes = ['k1-import', 'k-documents', 'cell-mapping'];
-
-  public fmvRoutes = ['fmv'];
-
-  public analysisRoutes = ['home', 'portfolio'];
-
-  public adminGroupRoutes: string[] = [];
+  // Navigation sections from service
+  public sections: NavSection[] = [];
 
   public constructor(
     private dataService: DataService,
@@ -188,6 +145,7 @@ export class GfHeaderComponent implements OnChanges {
     private dialog: MatDialog,
     private impersonationStorageService: ImpersonationStorageService,
     private layoutService: LayoutService,
+    public navigationService: NavigationService,
     private notificationService: NotificationService,
     private router: Router,
     private settingsStorageService: SettingsStorageService,
@@ -256,12 +214,32 @@ export class GfHeaderComponent implements OnChanges {
       permissions.createUserAccount
     );
 
-    this.adminGroupRoutes = [
-      internalRoutes.adminControl.path,
-      internalRoutes.accounts.path,
-      this.routeResources,
-      this.routePricing
-    ];
+    // Filter sections based on permissions
+    this.sections = this.navigationService.sections.filter((section) => {
+      if (section.permission === 'accessAdminControl') {
+        return this.hasPermissionToAccessAdminControl;
+      }
+
+      return true;
+    });
+  }
+
+  public onHamburgerClick() {
+    this.navigationService.toggleSidebar();
+  }
+
+  public isActiveSection(sectionId: string): boolean {
+    const section = this.navigationService.sections.find(
+      (s) => s.id === sectionId
+    );
+
+    if (!section) {
+      return false;
+    }
+
+    return section.routePrefixes.some((prefix) =>
+      (`/${this.currentRoute}` ).startsWith(prefix)
+    );
   }
 
   public closeAssistant() {
@@ -316,10 +294,6 @@ export class GfHeaderComponent implements OnChanges {
           .pipe(takeUntilDestroyed(this.destroyRef))
           .subscribe();
       });
-  }
-
-  public isActiveInGroup(routes: string[]): boolean {
-    return routes.includes(this.currentRoute);
   }
 
   public onLogoClick() {

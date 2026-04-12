@@ -11,107 +11,34 @@
         <gf-logo class="px-2" [label]="pageTitle" />
       </a>
     </div>
+    <!-- Hamburger button for mobile -->
+    <button
+      class="hamburger-btn d-block d-md-none"
+      mat-icon-button
+      (click)="onHamburgerClick()"
+    >
+      <mat-icon>menu</mat-icon>
+    </button>
+
     <span class="gf-spacer"></span>
-    <ul class="align-items-center d-flex list-inline m-0 px-2">
-      <!-- Dashboard -->
-      <li class="list-inline-item">
+
+    <!-- Flat section links -->
+    <nav class="section-links d-none d-md-flex align-items-center">
+      @for (section of sections; track section.id) {
         <a
-          class="d-none d-sm-block"
-          i18n
-          mat-flat-button
-          routerLink="/family-office"
-          [ngClass]="{
-            'font-weight-bold': currentRoute === 'family-office',
-            'text-decoration-underline': currentRoute === 'family-office'
-          }"
-          >Dashboard</a
+          class="section-link"
+          mat-button
+          [routerLink]="section.route"
+          [class.active]="isActiveSection(section.id)"
         >
-      </li>
-      <!-- FMV Group -->
-      <li class="list-inline-item d-none d-sm-block">
-        <gf-nav-menu-group
-          label="FMV"
-          i18n-label
-          [isActive]="isActiveInGroup(fmvRoutes)"
-          [menuItems]="fmvMenuItems"
-        />
-      </li>
-      <!-- Partnerships Group -->
-      <li class="list-inline-item d-none d-sm-block">
-        <gf-nav-menu-group
-          label="Partnerships"
-          [isActive]="isActiveInGroup(partnershipsRoutes)"
-          [menuItems]="partnershipsMenuItems"
-        />
-      </li>
-      <!-- Portfolio Views -->
-      <li class="list-inline-item">
-        <a
-          class="d-none d-sm-block"
-          i18n
-          mat-flat-button
-          routerLink="/portfolio-views"
-          [ngClass]="{
-            'font-weight-bold': currentRoute === 'portfolio-views',
-            'text-decoration-underline': currentRoute === 'portfolio-views'
-          }"
-          >Portfolio Views</a
-        >
-      </li>
-      <!-- K-1 Center Group -->
-      <li class="list-inline-item d-none d-sm-block">
-        <gf-nav-menu-group
-          label="K-1 Center"
-          [isActive]="isActiveInGroup(k1CenterRoutes)"
-          [menuItems]="k1CenterMenuItems"
-        />
-      </li>
-      <!-- Analysis -->
-      <li class="list-inline-item">
-        <gf-nav-menu-group
-          class="d-none d-sm-block"
-          label="Analysis"
-          i18n-label
-          [isActive]="isActiveInGroup(analysisRoutes)"
-          [menuItems]="legacyMenuItems"
-        />
-      </li>
-      <!-- Admin Group -->
-      @if (hasPermissionToAccessAdminControl) {
-        <li class="list-inline-item d-none d-sm-block">
-          <button
-            mat-flat-button
-            [matMenuTriggerFor]="adminNavMenu"
-            [ngClass]="{
-              'font-weight-bold': isActiveInGroup(adminGroupRoutes),
-              'text-decoration-underline': isActiveInGroup(adminGroupRoutes)
-            }"
-          >
-            Admin
-          </button>
-          <mat-menu #adminNavMenu="matMenu" xPosition="after">
-            <a i18n mat-menu-item [routerLink]="routerLinkAdminControl"
-              >Admin Control</a
-            >
-            <a i18n mat-menu-item [routerLink]="routerLinkAccounts"
-              >Accounts</a
-            >
-            <a i18n mat-menu-item [routerLink]="routerLinkResources"
-              >Resources</a
-            >
-            @if (
-              hasPermissionForSubscription &&
-              user?.subscription?.type === 'Basic'
-            ) {
-              <a mat-menu-item [routerLink]="routerLinkPricing">
-                <span class="align-items-center d-flex">
-                  <span i18n>Pricing</span>
-                </span>
-              </a>
-            }
-          </mat-menu>
-        </li>
+          {{ section.label }}
+        </a>
       }
+    </nav>
+
+    <span class="gf-spacer"></span>
+
+    <ul class="align-items-center d-flex list-inline m-0 px-2">
       @if (hasPermissionToAccessAssistant) {
         <li class="list-inline-item">
           <button
@@ -224,126 +151,6 @@
             }
             <hr class="m-0" />
           }
-          <!-- Dashboard -->
-          <a
-            class="d-flex d-sm-none"
-            i18n
-            mat-menu-item
-            routerLink="/family-office"
-            [ngClass]="{ 'font-weight-bold': currentRoute === 'family-office' }"
-            >Dashboard</a
-          >
-          <hr class="d-flex d-sm-none m-0" />
-          <!-- FMV -->
-          <div class="d-flex d-sm-none px-4 py-1">
-            <small class="text-muted" i18n>FMV</small>
-          </div>
-          <a
-            class="d-flex d-sm-none"
-            i18n
-            mat-menu-item
-            routerLink="/fmv"
-            [ngClass]="{ 'font-weight-bold': currentRoute === 'fmv' }"
-            >Dashboard</a
-          >
-          <a
-            class="d-flex d-sm-none"
-            i18n
-            mat-menu-item
-            routerLink="/accounts"
-            [ngClass]="{ 'font-weight-bold': currentRoute === 'accounts' }"
-            >Accounts</a
-          >
-          <hr class="d-flex d-sm-none m-0" />
-          <!-- Partnerships -->
-          <div class="d-flex d-sm-none px-4 py-1">
-            <small class="text-muted" i18n>Partnerships</small>
-          </div>
-          <a
-            class="d-flex d-sm-none"
-            i18n
-            mat-menu-item
-            routerLink="/entities"
-            [ngClass]="{ 'font-weight-bold': currentRoute === 'entities' }"
-            >Entities</a
-          >
-          <a
-            class="d-flex d-sm-none"
-            i18n
-            mat-menu-item
-            routerLink="/partnerships"
-            [ngClass]="{ 'font-weight-bold': currentRoute === 'partnerships' }"
-            >Partnerships</a
-          >
-          <a
-            class="d-flex d-sm-none"
-            i18n
-            mat-menu-item
-            routerLink="/distributions"
-            [ngClass]="{ 'font-weight-bold': currentRoute === 'distributions' }"
-            >Distributions</a
-          >
-          <a
-            class="d-flex d-sm-none"
-            i18n
-            mat-menu-item
-            routerLink="/accounts"
-            [ngClass]="{ 'font-weight-bold': currentRoute === 'accounts' }"
-            >Accounts</a
-          >
-          <hr class="d-flex d-sm-none m-0" />
-          <!-- Portfolio Views -->
-          <a
-            class="d-flex d-sm-none"
-            i18n
-            mat-menu-item
-            routerLink="/portfolio-views"
-            [ngClass]="{ 'font-weight-bold': currentRoute === 'portfolio-views' }"
-            >Portfolio Views</a
-          >
-          <hr class="d-flex d-sm-none m-0" />
-          <!-- K-1 Center -->
-          <div class="d-flex d-sm-none px-4 py-1">
-            <small class="text-muted" i18n>K-1 Center</small>
-          </div>
-          <a
-            class="d-flex d-sm-none"
-            i18n
-            mat-menu-item
-            routerLink="/k1-import"
-            [ngClass]="{ 'font-weight-bold': currentRoute === 'k1-import' }"
-            >K-1 Import</a
-          >
-          <a
-            class="d-flex d-sm-none"
-            i18n
-            mat-menu-item
-            routerLink="/k-documents"
-            [ngClass]="{ 'font-weight-bold': currentRoute === 'k-documents' }"
-            >K-1 Documents</a
-          >
-          <a
-            class="d-flex d-sm-none"
-            i18n
-            mat-menu-item
-            routerLink="/cell-mapping"
-            [ngClass]="{ 'font-weight-bold': currentRoute === 'cell-mapping' }"
-            >Cell Mapping</a
-          >
-          <hr class="d-flex d-sm-none m-0" />
-          <!-- Analysis -->
-          <div class="d-flex d-sm-none px-4 py-1">
-            <small class="text-muted" i18n>Analysis</small>
-          </div>
-          @for (item of legacyMenuItems; track item.routerLink) {
-            <a
-              class="d-flex d-sm-none"
-              mat-menu-item
-              [routerLink]="item.routerLink"
-              >{{ item.label }}</a
-            >
-          }
-          <hr class="d-flex d-sm-none m-0" />
           <!-- Account Settings -->
           <a
             i18n
@@ -354,63 +161,7 @@
             [routerLink]="routerLinkAccount"
             >My Ghostfolio</a
           >
-          <!-- Admin -->
-          @if (hasPermissionToAccessAdminControl) {
-            <hr class="d-flex d-sm-none m-0" />
-            <div class="d-flex d-sm-none px-4 py-1">
-              <small class="text-muted" i18n>Admin</small>
-            </div>
-            <a
-              class="d-flex d-sm-none"
-              i18n
-              mat-menu-item
-              [ngClass]="{
-                'font-weight-bold':
-                  currentRoute === internalRoutes.adminControl.path
-              }"
-              [routerLink]="routerLinkAdminControl"
-              >Admin Control</a
-            >
-            <a
-              class="d-flex d-sm-none"
-              i18n
-              mat-menu-item
-              [ngClass]="{
-                'font-weight-bold':
-                  currentRoute === internalRoutes.accounts.path
-              }"
-              [routerLink]="routerLinkAccounts"
-              >Accounts</a
-            >
-            <a
-              class="d-flex d-sm-none"
-              i18n
-              mat-menu-item
-              [ngClass]="{
-                'font-weight-bold': currentRoute === routeResources
-              }"
-              [routerLink]="routerLinkResources"
-              >Resources</a
-            >
-            @if (
-              hasPermissionForSubscription &&
-              user?.subscription?.type === 'Basic'
-            ) {
-              <a
-                class="d-flex d-sm-none"
-                mat-menu-item
-                [ngClass]="{
-                  'font-weight-bold': currentRoute === routePricing
-                }"
-                [routerLink]="routerLinkPricing"
-              >
-                <span class="align-items-center d-flex">
-                  <span i18n>Pricing</span>
-                </span>
-              </a>
-            }
-          }
-          <hr class="d-flex d-sm-none m-0" />
+          <hr class="m-0" />
           <button i18n mat-menu-item (click)="onSignOut()">Log out</button>
         </mat-menu>
       </li>

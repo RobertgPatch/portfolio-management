@@ -1,23 +1,27 @@
 import { getCssVariable } from '@ghostfolio/common/helper';
-import { InfoItem, User } from '@ghostfolio/common/interfaces';
+import { InfoItem, NavItem, SidebarState, User } from '@ghostfolio/common/interfaces';
 import { hasPermission, permissions } from '@ghostfolio/common/permissions';
 import { internalRoutes, publicRoutes } from '@ghostfolio/common/routes/routes';
 import { ColorScheme } from '@ghostfolio/common/types';
 import { NotificationService } from '@ghostfolio/ui/notifications';
 import { DataService } from '@ghostfolio/ui/services';
+import { GfSidenavComponent } from '@ghostfolio/ui/sidenav';
 
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  computed,
   DestroyRef,
   DOCUMENT,
   HostBinding,
   Inject,
-  OnInit
+  OnInit,
+  signal
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
+import { MatSidenavModule } from '@angular/material/sidenav';
 import { Title } from '@angular/platform-browser';
 import {
   ActivatedRoute,
@@ -27,6 +31,7 @@ import {
   RouterLink,
   RouterOutlet
 } from '@angular/router';
+import { BreakpointObserver } from '@angular/cdk/layout';
 import { DataSource } from '@prisma/client';
 import { addIcons } from 'ionicons';
 import { openOutline } from 'ionicons/icons';
@@ -37,12 +42,13 @@ import { GfFooterComponent } from './components/footer/footer.component';
 import { GfHeaderComponent } from './components/header/header.component';
 import { GfHoldingDetailDialogComponent } from './components/holding-detail-dialog/holding-detail-dialog.component';
 import { HoldingDetailDialogParams } from './components/holding-detail-dialog/interfaces/interfaces';
+import { NavigationService } from './core/navigation.service';
 import { ImpersonationStorageService } from './services/impersonation-storage.service';
 import { UserService } from './services/user/user.service';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [GfFooterComponent, GfHeaderComponent, RouterLink, RouterOutlet],
+  imports: [GfFooterComponent, GfHeaderComponent, GfSidenavComponent, MatSidenavModule, RouterLink, RouterOutlet],
   selector: 'gf-root',
   styleUrls: ['./app.component.scss'],
   templateUrl: './app.component.html'
@@ -68,7 +74,27 @@ export class GfAppComponent implements OnInit {
   public showFooter = false;
   public user: User;
 
+  // Sidebar signals
+  public sidebarItems = signal<NavItem[]>([]);
+  public sidebarState = signal<SidebarState>('hidden');
+  public sidebarMode = signal<'side' | 'over'>('side');
+  public sidebarOpened = signal<boolean>(false);
+  public sidebarWidth = computed(() => {
+    const state = this.sidebarState();
+
+    if (state === 'expanded') {
+      return '260px';
+    }
+
+    if (state === 'collapsed') {
+      return '64px';
+    }
+
+    return '0px';
+  });
+
   public constructor(
+    private breakpointObserver: BreakpointObserver,
     private changeDetectorRef: ChangeDetectorRef,
     private dataService: DataService,
     private destroyRef: DestroyRef,
@@ -76,6 +102,7 @@ export class GfAppComponent implements OnInit {
     private dialog: MatDialog,
     @Inject(DOCUMENT) private document: Document,
     private impersonationStorageService: ImpersonationStorageService,
+    public navigationService: NavigationService,
     private notificationService: NotificationService,
     private route: ActivatedRoute,
     private router: Router,
@@ -112,6 +139,62 @@ export class GfAppComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((impersonationId) => {
         this.hasImpersonationId = !!impersonationId;
+      });
+
+    // Sidebar items subscription
+    this.navigationService.sidebarItems$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((items) => {
+        this.sidebarItems.set(items);
+        this.changeDetectorRef.markForCheck();
+      });
+
+    // Sidebar state subscription
+    this.navigationService.sidebarState$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((state) => {
+        this.sidebarState.set(state);
+        this.sidebarOpened.set(state !== 'hidden');
+        this.changeDetectorRef.markForCheck();
+      });
+
+    // Responsive breakpoint observer
+    this.breakpointObserver
+      .observe(['(min-width: 1200px)', '(min-width: 768px)'])
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
+        const isDesktop = result.breakpoints['(min-width: 1200px)'];
+        const isTablet = result.breakpoints['(min-width: 768px)'];
+
+        if (!isTablet) {
+          // Mobile: sidebar is overlay
+          this.sidebarMode.set('over');
+        } else {
+          // Tablet/Desktop: sidebar is persistent side panel
+          this.sidebarMode.set('side');
+
+          if (isDesktop) {
+            // Default expanded on desktop if not hidden
+            if (
+              this.sidebarState() !== 'hidden' &&
+              this.sidebarState() !== 'expanded' &&
+              this.sidebarState() !== 'collapsed'
+            ) {
+              this.navigationService.setSidebarState('expanded');
+            }
+          } else {
+            // Default collapsed on tablet if not hidden
+            if (
+              this.sidebarState() !== 'hidden' &&
+              this.sidebarState() !== 'expanded' &&
+              this.sidebarState() !== 'collapsed'
+            ) {
+              this.navigationService.setSidebarState('collapsed');
+            }
+          }
+        }
+
+        this.changeDetectorRef.markForCheck();
       });
 
     this.router.events

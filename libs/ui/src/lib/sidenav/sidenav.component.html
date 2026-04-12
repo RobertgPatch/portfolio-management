@@ -1,0 +1,25 @@
+<nav class="sidenav" [class.collapsed]="state === 'collapsed'">
+  <mat-nav-list>
+    @for (item of items; track item.route) {
+      <a
+        mat-list-item
+        [routerLink]="item.route"
+        routerLinkActive="active"
+        (click)="itemClick.emit(item)"
+      >
+        <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+        @if (state === 'expanded') {
+          <span matListItemTitle>{{ item.label }}</span>
+        }
+      </a>
+    }
+  </mat-nav-list>
+
+  <div class="toggle-area">
+    <button class="toggle-button" (click)="toggle.emit()">
+      <mat-icon>{{
+        state === 'expanded' ? 'chevron_left' : 'chevron_right'
+      }}</mat-icon>
+    </button>
+  </div>
+</nav>

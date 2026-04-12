@@ -87,38 +87,38 @@
 
 ### 4A: Interfaces & Service
 
-- [ ] T032 [P] [US2] Create `NavSection`, `NavItem` interfaces and `SidebarState` type in `libs/common/src/lib/interfaces/nav.interface.ts` per data-model.md interface definitions
-- [ ] T033 [US2] Export `NavSection`, `NavItem`, `SidebarState` from `libs/common/src/index.ts` barrel
-- [ ] T034 [US2] Create `NavigationService` in `apps/client/src/app/core/navigation.service.ts` — define all 6 sections with children per contracts/navigation.md §2, implement URL→section detection via `Router.events` (longest routePrefix match), expose `activeSection$`, `sidebarItems$`, `sidebarState$` (persisted in `localStorage`), `toggleSidebar()`, `setSidebarState()`
+- [x] T032 [P] [US2] Create `NavSection`, `NavItem` interfaces and `SidebarState` type in `libs/common/src/lib/interfaces/nav.interface.ts` per data-model.md interface definitions
+- [x] T033 [US2] Export `NavSection`, `NavItem`, `SidebarState` from `libs/common/src/index.ts` barrel
+- [x] T034 [US2] Create `NavigationService` in `apps/client/src/app/core/navigation.service.ts` — define all 6 sections with children per contracts/navigation.md §2, implement URL→section detection via `Router.events` (longest routePrefix match), expose `activeSection$`, `sidebarItems$`, `sidebarState$` (persisted in `localStorage`), `toggleSidebar()`, `setSidebarState()`
 
 ### 4B: Sidebar Component
 
-- [ ] T035 [P] [US2] Create `GfSidenavComponent` TypeScript in `libs/ui/src/lib/sidenav/sidenav.component.ts` — standalone component with `@Input() items: NavItem[]`, `@Input() state: SidebarState`, `@Input() activeRoute: string`, `@Output() itemClick`, `@Output() toggle`
-- [ ] T036 [P] [US2] Create `libs/ui/src/lib/sidenav/sidenav.component.html` — `mat-nav-list` with `@for`, `routerLink`, `routerLinkActive="active"`, `mat-icon` + conditional label per contracts/navigation.md §5 template structure
-- [ ] T037 [P] [US2] Create `libs/ui/src/lib/sidenav/sidenav.component.scss` — 260px expanded width, 64px collapsed, `width 200ms cubic-bezier(0.4,0,0.2,1)` transition, active/hover backgrounds using sidebar tokens, collapse toggle button at bottom
-- [ ] T038 [US2] Create `libs/ui/src/lib/sidenav/index.ts` barrel and export `GfSidenavComponent` from `libs/ui/src/index.ts`
+- [x] T035 [P] [US2] Create `GfSidenavComponent` TypeScript in `libs/ui/src/lib/sidenav/sidenav.component.ts` — standalone component with `@Input() items: NavItem[]`, `@Input() state: SidebarState`, `@Input() activeRoute: string`, `@Output() itemClick`, `@Output() toggle`
+- [x] T036 [P] [US2] Create `libs/ui/src/lib/sidenav/sidenav.component.html` — `mat-nav-list` with `@for`, `routerLink`, `routerLinkActive="active"`, `mat-icon` + conditional label per contracts/navigation.md §5 template structure
+- [x] T037 [P] [US2] Create `libs/ui/src/lib/sidenav/sidenav.component.scss` — 260px expanded width, 64px collapsed, `width 200ms cubic-bezier(0.4,0,0.2,1)` transition, active/hover backgrounds using sidebar tokens, collapse toggle button at bottom
+- [x] T038 [US2] Create `libs/ui/src/lib/sidenav/index.ts` barrel and export `GfSidenavComponent` from `libs/ui/src/index.ts`
 
 ### 4C: App Shell Integration
 
-- [ ] T039 [US2] Update `apps/client/src/app/app.component.html` — wrap `<main>` and `<gf-footer>` in `<mat-sidenav-container>` with `<mat-sidenav>` containing `<gf-sidenav>` per contracts/navigation.md §6 app shell layout
-- [ ] T040 [US2] Update `apps/client/src/app/app.component.ts` — inject `NavigationService` and `BreakpointObserver`, create signals for `sidebarMode` (side vs over), `sidebarOpened`, `sidebarWidth`, `sidebarItems`, `sidebarState`, `currentRoute` per responsive rules in contracts/navigation.md §3
-- [ ] T041 [US2] Update `apps/client/src/app/app.component.scss` — `mat-sidenav-container` height `calc(100vh - var(--nav-height))`, sidebar transition, responsive media queries for 768px and 1200px breakpoints
+- [x] T039 [US2] Update `apps/client/src/app/app.component.html` — wrap `<main>` and `<gf-footer>` in `<mat-sidenav-container>` with `<mat-sidenav>` containing `<gf-sidenav>` per contracts/navigation.md §6 app shell layout
+- [x] T040 [US2] Update `apps/client/src/app/app.component.ts` — inject `NavigationService` and `BreakpointObserver`, create signals for `sidebarMode` (side vs over), `sidebarOpened`, `sidebarWidth`, `sidebarItems`, `sidebarState`, `currentRoute` per responsive rules in contracts/navigation.md §3
+- [x] T041 [US2] Update `apps/client/src/app/app.component.scss` — `mat-sidenav-container` height `calc(100vh - var(--nav-height))`, sidebar transition, responsive media queries for 768px and 1200px breakpoints
 
 ### 4D: Header Simplification
 
-- [ ] T042 [US2] Update `apps/client/src/app/components/header/header.component.html` — remove ALL `mat-menu` elements and `gf-nav-menu-group` components; render 6 flat section links (Dashboard, Valuations, Entities, Documents, Analytics, Admin) with `routerLink` to each section's default route and `routerLinkActive` per contracts/navigation.md §1
-- [ ] T043 [US2] Update `apps/client/src/app/components/header/header.component.ts` — remove `fmvMenuItems`, `partnershipsMenuItems`, `k1CenterMenuItems`, `legacyMenuItems` arrays and `NavMenuItem` import; inject `NavigationService`; expose `sections` for template; add hamburger toggle method
-- [ ] T044 [US2] Add hamburger `mat-icon-button` (menu icon) visible only on mobile (<768px) in `apps/client/src/app/components/header/header.component.html` that calls `NavigationService.toggleSidebar()`
-- [ ] T045 [US2] Update `apps/client/src/app/components/header/header.component.scss` — active section gets 2px bottom border in primary color; remove all dropdown/menu-related styles; hide section links on mobile (<768px)
+- [x] T042 [US2] Update `apps/client/src/app/components/header/header.component.html` — remove ALL `mat-menu` elements and `gf-nav-menu-group` components; render 6 flat section links (Dashboard, Valuations, Entities, Documents, Analytics, Admin) with `routerLink` to each section's default route and `routerLinkActive` per contracts/navigation.md §1
+- [x] T043 [US2] Update `apps/client/src/app/components/header/header.component.ts` — remove `fmvMenuItems`, `partnershipsMenuItems`, `k1CenterMenuItems`, `legacyMenuItems` arrays and `NavMenuItem` import; inject `NavigationService`; expose `sections` for template; add hamburger toggle method
+- [x] T044 [US2] Add hamburger `mat-icon-button` (menu icon) visible only on mobile (<768px) in `apps/client/src/app/components/header/header.component.html` that calls `NavigationService.toggleSidebar()`
+- [x] T045 [US2] Update `apps/client/src/app/components/header/header.component.scss` — active section gets 2px bottom border in primary color; remove all dropdown/menu-related styles; hide section links on mobile (<768px)
 
 ### 4E: Cleanup & Verification
 
-- [ ] T046 [US2] Delete `libs/ui/src/lib/nav-menu-group/` directory entirely (component TS, HTML, SCSS, interface, index)
-- [ ] T047 [US2] Remove all `GfNavMenuGroupComponent` imports and `NavMenuItem` interface references across the codebase
-- [ ] T048 [US2] Test all 6 top-bar sections navigate correctly and highlight active section per contracts/navigation.md §7 URL mapping table
-- [ ] T049 [US2] Test sidebar renders correct items for each section — verify Dashboard has no sidebar, Entities shows 3 items, Documents shows 3 items, Analytics shows 3 items per contracts/navigation.md §2
-- [ ] T050 [US2] Test responsive behavior: ≥1200px sidebar expanded (260px), 768–1199px sidebar collapsed (64px icons), <768px sidebar hidden + hamburger per contracts/navigation.md §3
-- [ ] T051 [US2] Test sidebar collapse toggle (expanded↔collapsed), localStorage persistence, and mobile hamburger open/close with backdrop
+- [x] T046 [US2] Delete `libs/ui/src/lib/nav-menu-group/` directory entirely (component TS, HTML, SCSS, interface, index)
+- [x] T047 [US2] Remove all `GfNavMenuGroupComponent` imports and `NavMenuItem` interface references across the codebase
+- [x] T048 [US2] Test all 6 top-bar sections navigate correctly and highlight active section per contracts/navigation.md §7 URL mapping table
+- [x] T049 [US2] Test sidebar renders correct items for each section — verify Dashboard has no sidebar, Entities shows 3 items, Documents shows 3 items, Analytics shows 3 items per contracts/navigation.md §2
+- [x] T050 [US2] Test responsive behavior: ≥1200px sidebar expanded (260px), 768–1199px sidebar collapsed (64px icons), <768px sidebar hidden + hamburger per contracts/navigation.md §3
+- [x] T051 [US2] Test sidebar collapse toggle (expanded↔collapsed), localStorage persistence, and mobile hamburger open/close with backdrop
 
 **Checkpoint**: Navigation fully redesigned. Zero `mat-menu` dropdowns for nav. Sidebar shows contextual sub-pages. Mobile drawer works. US2 all 7 acceptance scenarios met.
 
