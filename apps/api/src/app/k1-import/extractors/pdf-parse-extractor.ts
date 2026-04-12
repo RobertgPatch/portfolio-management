@@ -571,13 +571,13 @@ export class PdfParseExtractor implements K1Extractor {
     }
 
     // Part I: Partnership info
-    this.extractTextMetadata(dataItems, 'A_EIN', metadata, 'partnershipEin');
-    this.extractTextMetadata(dataItems, 'B_NAME', metadata, 'partnershipName');
-    this.extractTextMetadata(dataItems, 'C_IRS_CENTER', metadata, null);
+    this.extractTextMetadata(dataItems, fields, 'A_EIN', metadata, 'partnershipEin');
+    this.extractTextMetadata(dataItems, fields, 'B_NAME', metadata, 'partnershipName');
+    this.extractTextMetadata(dataItems, fields, 'C_IRS_CENTER', metadata, null);
 
     // Part II: Partner info
-    this.extractTextMetadata(dataItems, 'E_TIN', metadata, 'partnerEin');
-    this.extractTextMetadata(dataItems, 'F_NAME_ADDR', metadata, 'partnerName');
+    this.extractTextMetadata(dataItems, fields, 'E_TIN', metadata, 'partnerEin');
+    this.extractTextMetadata(dataItems, fields, 'F_NAME_ADDR', metadata, 'partnerName');
 
     // Extract remaining metadata text fields into the fields array
     const metadataRegions = K1_POSITION_REGIONS.filter(
@@ -595,9 +595,11 @@ export class PdfParseExtractor implements K1Extractor {
    * Match data items to a metadata region and set the corresponding
    * metadata property. Collects multiple items in the same region
    * (e.g., multi-line names/addresses).
+   * Also emits into the fields array so the UI can display these values.
    */
   private extractTextMetadata(
     dataItems: DataItem[],
+    fields: K1ExtractedField[],
     regionFieldId: string,
     metadata: K1ExtractionResult['metadata'],
     metadataKey: keyof K1ExtractionResult['metadata'] | null
@@ -640,6 +642,32 @@ export class PdfParseExtractor implements K1Extractor {
       } else {
         (metadata as any)[metadataKey] = combinedText;
       }
+    }
+
+    // Emit into the fields array so the UI displays these values
+    if (combinedText) {
+      // Compute confidence from the first (closest to top) match
+      const refItem = matches[0];
+      const { confidence, confidenceLevel } = this.computeConfidence(
+        refItem.x,
+        refItem.y,
+        region
+      );
+
+      fields.push({
+        boxNumber: region.boxNumber,
+        label: region.label,
+        customLabel: null,
+        rawValue: combinedText,
+        numericValue: null,
+        confidence,
+        confidenceLevel,
+        isUserEdited: false,
+        isReviewed: false,
+        subtype: null,
+        fieldCategory: region.fieldCategory,
+        isCheckbox: false
+      });
     }
 
     for (const item of matches) {

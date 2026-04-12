@@ -45,7 +45,7 @@ export class K1ImportService {
     userId
   }: {
     file: any;
-    partnershipId: string;
+    partnershipId: string | null;
     taxYear: number;
     userId: string;
   }) {
@@ -65,50 +65,52 @@ export class K1ImportService {
       );
     }
 
-    // Validate partnership exists and belongs to user
-    const partnership = await this.prismaService.partnership.findFirst({
-      where: {
-        id: partnershipId,
-        userId
-      },
-      include: {
-        members: {
-          where: {
-            endDate: null
+    // If a partnershipId was provided, validate it
+    if (partnershipId) {
+      const partnership = await this.prismaService.partnership.findFirst({
+        where: {
+          id: partnershipId,
+          userId
+        },
+        include: {
+          members: {
+            where: {
+              endDate: null
+            }
           }
         }
-      }
-    });
+      });
 
-    if (!partnership) {
-      throw new HttpException(
-        'Partnership not found or not owned by user',
-        StatusCodes.BAD_REQUEST
-      );
-    }
-
-    if (!partnership.members || partnership.members.length === 0) {
-      throw new HttpException(
-        'Partnership has no active members',
-        StatusCodes.BAD_REQUEST
-      );
-    }
-
-    // Validate tax year >= partnership inception year
-    if (partnership.inceptionDate) {
-      const inceptionYear = new Date(partnership.inceptionDate).getFullYear();
-      if (taxYear < inceptionYear) {
+      if (!partnership) {
         throw new HttpException(
-          `Tax year must be >= partnership inception year (${inceptionYear})`,
+          'Partnership not found or not owned by user',
           StatusCodes.BAD_REQUEST
         );
+      }
+
+      if (!partnership.members || partnership.members.length === 0) {
+        throw new HttpException(
+          'Partnership has no active members',
+          StatusCodes.BAD_REQUEST
+        );
+      }
+
+      // Validate tax year >= partnership inception year
+      if (partnership.inceptionDate) {
+        const inceptionYear = new Date(partnership.inceptionDate).getFullYear();
+        if (taxYear < inceptionYear) {
+          throw new HttpException(
+            `Tax year must be >= partnership inception year (${inceptionYear})`,
+            StatusCodes.BAD_REQUEST
+          );
+        }
       }
     }
 
     // Create Document record for the uploaded PDF
     const document = await this.uploadService.createDocument({
       file,
-      partnershipId,
+      partnershipId: partnershipId || undefined,
       taxYear,
       type: 'K1',
       name: file.originalname
@@ -117,7 +119,7 @@ export class K1ImportService {
     // Create import session in PROCESSING status
     const session = await this.prismaService.k1ImportSession.create({
       data: {
-        partnershipId,
+        partnershipId: partnershipId || undefined,
         userId,
         status: K1ImportStatus.PROCESSING,
         taxYear,
@@ -129,7 +131,7 @@ export class K1ImportService {
     });
 
     // Run extraction asynchronously (don't block the response)
-    this.runExtraction(session.id, file, partnershipId).catch((err) => {
+    this.runExtraction(session.id, file, partnershipId, userId).catch((err) => {
       this.logger.error(
         `Extraction failed for session ${session.id}: ${err.message}`,
         err.stack
@@ -177,11 +179,15 @@ export class K1ImportService {
    * Run the two-tier extraction pipeline.
    * Tier 1: pdf-parse (for digital PDFs)
    * Tier 2: Azure DI or tesseract.js (for scanned PDFs)
+   *
+   * When partnershipId is null, auto-matches or creates a partnership
+   * from extracted metadata (Box A EIN, Box B name).
    */
   private async runExtraction(
     sessionId: string,
     file: any,
-    partnershipId: string
+    partnershipId: string | null,
+    userId?: string
   ) {
     try {
       // Read the file buffer
@@ -240,23 +246,34 @@ export class K1ImportService {
         }
       }
 
+      // ── Auto-match/create partnership when none was pre-selected ──────────
+      let resolvedPartnershipId = partnershipId;
+
+      if (!resolvedPartnershipId && userId) {
+        resolvedPartnershipId = await this.resolvePartnershipFromMetadata(
+          extractionResult,
+          userId,
+          sessionId
+        );
+      }
+
       // Map fields using cell mapping configuration
       const mappedResult = await this.fieldMapperService.mapFields(
         extractionResult,
-        partnershipId
+        resolvedPartnershipId || '__global__'
       );
 
       // Fill in missing boxes (empty values for unmapped IRS boxes)
       const completeResult = await this.fieldMapperService.fillMissingBoxes(
         mappedResult,
-        partnershipId
+        resolvedPartnershipId || '__global__'
       );
 
       // Generate edge case warnings (FR-029, Edge Cases 3-6)
       const warnings = await this.generateWarnings(
         sessionId,
         completeResult,
-        partnershipId,
+        resolvedPartnershipId,
         buffer
       );
 
@@ -266,17 +283,32 @@ export class K1ImportService {
         );
       }
 
-      // Update session with extraction results and warnings
+      // Update session with extraction results, warnings, and resolved partnership
+      const updateData: any = {
+        status: K1ImportStatus.EXTRACTED,
+        extractionMethod: method,
+        rawExtraction: {
+          ...completeResult,
+          warnings
+        } as any
+      };
+
+      // Link the resolved partnership to the session (and its document)
+      if (resolvedPartnershipId && resolvedPartnershipId !== partnershipId) {
+        updateData.partnershipId = resolvedPartnershipId;
+
+        // Also update the stored document's partnership link
+        if (doc?.documentId) {
+          await this.prismaService.document.update({
+            where: { id: doc.documentId },
+            data: { partnershipId: resolvedPartnershipId }
+          });
+        }
+      }
+
       await this.prismaService.k1ImportSession.update({
         where: { id: sessionId },
-        data: {
-          status: K1ImportStatus.EXTRACTED,
-          extractionMethod: method,
-          rawExtraction: {
-            ...completeResult,
-            warnings
-          } as any
-        }
+        data: updateData
       });
 
       this.logger.log(
@@ -506,7 +538,8 @@ export class K1ImportService {
     this.runExtraction(
       newSession.id,
       file,
-      originalSession.partnershipId
+      originalSession.partnershipId,
+      userId
     ).catch((err) => {
       this.logger.error(
         `Reprocess extraction failed for session ${newSession.id}: ${err.message}`,
@@ -558,6 +591,14 @@ export class K1ImportService {
     if (!verifiedData?.fields || verifiedData.fields.length === 0) {
       throw new HttpException(
         'No verified data available',
+        StatusCodes.BAD_REQUEST
+      );
+    }
+
+    if (!session.partnershipId) {
+      throw new HttpException(
+        'Partnership must be associated before confirming. ' +
+          'The K-1 extraction could not determine the partnership from the PDF metadata.',
         StatusCodes.BAD_REQUEST
       );
     }
@@ -1032,6 +1073,135 @@ export class K1ImportService {
   }
 
   /**
+   * Resolve a partnership from extracted K-1 metadata (Box A EIN, Box B name).
+   * 1. Match by EIN (exact match on Partnership.ein)
+   * 2. Match by name (case-insensitive exact match)
+   * 3. Auto-create a new partnership from the extracted data
+   * Returns the partnership ID or null if metadata is insufficient.
+   */
+  private async resolvePartnershipFromMetadata(
+    extractionResult: K1ExtractionResult,
+    userId: string,
+    sessionId: string
+  ): Promise<string | null> {
+    const { partnershipEin, partnershipName } =
+      extractionResult.metadata || {};
+
+    if (!partnershipName && !partnershipEin) {
+      this.logger.warn(
+        `Session ${sessionId}: No partnership name or EIN extracted — cannot auto-match`
+      );
+      return null;
+    }
+
+    // Clean the partnership name: take only the first line (name, not address)
+    const cleanName = partnershipName
+      ? partnershipName.split(/\n/)[0].trim()
+      : null;
+
+    // 1. Try matching by EIN (exact)
+    if (partnershipEin) {
+      const byEin = await this.prismaService.partnership.findFirst({
+        where: {
+          ein: partnershipEin,
+          userId
+        }
+      });
+
+      if (byEin) {
+        this.logger.log(
+          `Session ${sessionId}: Matched partnership by EIN ${partnershipEin} → ${byEin.id} (${byEin.name})`
+        );
+
+        // Backfill the name on the partnership if missing address info, etc.
+        return byEin.id;
+      }
+    }
+
+    // 2. Try matching by name (case-insensitive)
+    if (cleanName) {
+      const byName = await this.prismaService.partnership.findFirst({
+        where: {
+          name: {
+            equals: cleanName,
+            mode: 'insensitive'
+          },
+          userId
+        }
+      });
+
+      if (byName) {
+        this.logger.log(
+          `Session ${sessionId}: Matched partnership by name "${cleanName}" → ${byName.id}`
+        );
+
+        // Backfill the EIN if the matched partnership doesn't have one
+        if (partnershipEin && !byName.ein) {
+          await this.prismaService.partnership.update({
+            where: { id: byName.id },
+            data: { ein: partnershipEin }
+          });
+          this.logger.log(
+            `Session ${sessionId}: Backfilled EIN ${partnershipEin} on partnership ${byName.id}`
+          );
+        }
+
+        return byName.id;
+      }
+    }
+
+    // 3. Auto-create a new partnership
+    const taxYear =
+      extractionResult.metadata?.taxYear || new Date().getFullYear() - 1;
+    const newName = cleanName || `Partnership (EIN: ${partnershipEin})`;
+
+    this.logger.log(
+      `Session ${sessionId}: No match found, auto-creating partnership "${newName}" with EIN ${partnershipEin || 'N/A'}`
+    );
+
+    // Create the partnership with sensible defaults
+    const newPartnership = await this.prismaService.partnership.create({
+      data: {
+        name: newName,
+        ein: partnershipEin || undefined,
+        type: 'LP',
+        inceptionDate: new Date(taxYear, 0, 1), // Jan 1 of tax year
+        fiscalYearEnd: 12,
+        currency: 'USD',
+        userId
+      }
+    });
+
+    // Auto-create a self-membership so the pipeline doesn't fail
+    // Look for the user's default entity
+    const defaultEntity = await this.prismaService.entity.findFirst({
+      where: { userId },
+      orderBy: { createdAt: 'asc' }
+    });
+
+    if (defaultEntity) {
+      await this.prismaService.partnershipMembership.create({
+        data: {
+          entityId: defaultEntity.id,
+          partnershipId: newPartnership.id,
+          ownershipPercent: 100,
+          effectiveDate: new Date(taxYear, 0, 1)
+        }
+      });
+      this.logger.log(
+        `Session ${sessionId}: Created membership for entity ${defaultEntity.id} in new partnership ${newPartnership.id}`
+      );
+    } else {
+      this.logger.warn(
+        `Session ${sessionId}: No entity found for user — partnership ${newPartnership.id} has no members. ` +
+          'User will need to add a member manually before confirming.'
+      );
+    }
+
+    return newPartnership.id;
+  }
+
+  /**
    * Detect if a PDF contains multiple K-1 forms for different entities (Edge Case 5).
    * Counts occurrences of "Schedule K-1" headers and unique EINs to detect multi-entity PDFs.
    */
@@ -1073,7 +1243,7 @@ export class K1ImportService {
   private async generateWarnings(
     sessionId: string,
     extractionResult: K1ExtractionResult,
-    partnershipId: string,
+    partnershipId: string | null,
     buffer: Buffer
   ): Promise<string[]> {
     const warnings: string[] = [];
@@ -1102,22 +1272,18 @@ export class K1ImportService {
     const session = await this.prismaService.k1ImportSession.findUnique({
       where: { id: sessionId }
     });
-    if (session) {
+    if (session && partnershipId) {
       const partnership = await this.prismaService.partnership.findUnique({
         where: { id: partnershipId }
       });
-      if (partnership && (partnership as any).ein) {
-        const extractedEin = extractionResult.fields.find(
-          (f) =>
-            f.label?.toLowerCase().includes('ein') ||
-            f.boxNumber?.toLowerCase() === 'ein'
-        );
+      if (partnership && partnership.ein) {
+        const extractedEin = extractionResult.metadata?.partnershipEin;
         if (
-          extractedEin?.rawValue &&
-          extractedEin.rawValue !== (partnership as any).ein
+          extractedEin &&
+          extractedEin !== partnership.ein
         ) {
           warnings.push(
-            `Extracted EIN (${extractedEin.rawValue}) does not match partnership EIN (${(partnership as any).ein}). ` +
+            `Extracted EIN (${extractedEin}) does not match partnership EIN (${partnership.ein}). ` +
               'Verify you uploaded the correct K-1 for this partnership.'
           );
         }

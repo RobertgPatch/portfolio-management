@@ -34,6 +34,7 @@ export class PartnershipService {
     return partnerships.map((p) => ({
       id: p.id,
       name: p.name,
+      ein: p.ein,
       type: p.type,
       inceptionDate: p.inceptionDate.toISOString(),
       currency: p.currency,

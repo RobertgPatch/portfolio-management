@@ -483,6 +483,7 @@ model Entity {
 model Partnership {
   id            String                  @id @default(uuid())
   name          String
+  ein           String?                 @unique
   type          PartnershipType
   inceptionDate DateTime
   fiscalYearEnd Int                     @default(12)
@@ -670,8 +671,8 @@ enum K1ImportStatus {
 
 model K1ImportSession {
   id               String         @id @default(uuid())
-  partnershipId    String
-  partnership      Partnership    @relation(fields: [partnershipId], onDelete: Cascade, references: [id])
+  partnershipId    String?
+  partnership      Partnership?   @relation(fields: [partnershipId], onDelete: Cascade, references: [id])
   userId           String
   user             User           @relation(fields: [userId], onDelete: Cascade, references: [id])
   status           K1ImportStatus @default(PROCESSING)

@@ -12,6 +12,7 @@ import {
   IsObject,
   IsOptional,
   IsString,
+  Matches,
   Max,
   Min
 } from 'class-validator';
@@ -23,6 +24,11 @@ export class CreatePartnershipDto {
     isString(value) ? value.trim() : value
   )
   name: string;
+
+  @IsOptional()
+  @IsString()
+  @Matches(/^\d{2}-\d{7}$/, { message: 'EIN must be in XX-XXXXXXX format' })
+  ein?: string;
 
   @IsEnum(PartnershipType)
   type: PartnershipType;
@@ -47,6 +53,11 @@ export class UpdatePartnershipDto {
     isString(value) ? value.trim() : value
   )
   name?: string;
+
+  @IsOptional()
+  @IsString()
+  @Matches(/^\d{2}-\d{7}$/, { message: 'EIN must be in XX-XXXXXXX format' })
+  ein?: string;
 
   @IsOptional()
   @IsInt()

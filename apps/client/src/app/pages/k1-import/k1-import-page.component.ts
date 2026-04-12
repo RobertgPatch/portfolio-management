@@ -166,8 +166,8 @@ export class K1ImportPageComponent implements OnDestroy, OnInit {
   }
 
   public uploadK1(): void {
-    if (!this.selectedFile || !this.selectedPartnershipId || !this.taxYear) {
-      this.error = 'Please select a partnership, tax year, and PDF file.';
+    if (!this.selectedFile || !this.taxYear) {
+      this.error = 'Please select a tax year and PDF file.';
       this.changeDetectorRef.markForCheck();
       return;
     }
@@ -179,8 +179,11 @@ export class K1ImportPageComponent implements OnDestroy, OnInit {
 
     const formData = new FormData();
     formData.append('file', this.selectedFile);
-    formData.append('partnershipId', this.selectedPartnershipId);
     formData.append('taxYear', this.taxYear.toString());
+
+    if (this.selectedPartnershipId) {
+      formData.append('partnershipId', this.selectedPartnershipId);
+    }
 
     this.k1ImportDataService
       .uploadK1(formData)

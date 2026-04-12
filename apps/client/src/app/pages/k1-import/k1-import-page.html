@@ -14,8 +14,9 @@
         <div class="upload-form mx-auto">
           <div class="mb-3">
             <mat-form-field class="w-100">
-              <mat-label>Partnership</mat-label>
+              <mat-label>Partnership (optional — auto-detected from PDF)</mat-label>
               <mat-select [(ngModel)]="selectedPartnershipId" (selectionChange)="onPartnershipChange()">
+                <mat-option value="">Auto-detect from PDF</mat-option>
                 @for (p of partnerships; track p.id) {
                   <mat-option [value]="p.id">{{ p.name }}</mat-option>
                 }
@@ -58,7 +59,7 @@
           </div>
 
           <button
-            [disabled]="!selectedFile || !selectedPartnershipId || !taxYear || isUploading"
+            [disabled]="!selectedFile || !taxYear || isUploading"
             class="w-100"
             color="primary"
             mat-flat-button

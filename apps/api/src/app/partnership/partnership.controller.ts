@@ -42,6 +42,7 @@ export class PartnershipController {
   public async createPartnership(@Body() data: CreatePartnershipDto) {
     return this.partnershipService.createPartnership({
       name: data.name,
+      ein: data.ein || undefined,
       type: data.type as any,
       inceptionDate: new Date(data.inceptionDate),
       fiscalYearEnd: data.fiscalYearEnd ?? 12,
