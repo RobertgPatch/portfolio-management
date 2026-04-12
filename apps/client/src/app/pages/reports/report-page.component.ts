@@ -83,17 +83,17 @@ import { RouterModule } from '@angular/router';
       }
 
       .summary-card .label {
-        color: rgba(0, 0, 0, 0.6);
+        color: rgba(var(--palette-foreground-base), 0.6);
         font-size: 0.85rem;
         margin-top: 0.25rem;
       }
 
       .positive {
-        color: #4caf50;
+        color: rgb(var(--color-success));
       }
 
       .negative {
-        color: #f44336;
+        color: rgb(var(--color-error));
       }
 
       .section {
@@ -113,7 +113,7 @@ import { RouterModule } from '@angular/router';
 
       .allocation-bar .bar {
         height: 20px;
-        background-color: #1976d2;
+        background-color: rgba(var(--palette-primary-500), 1);
         border-radius: 4px;
         min-width: 4px;
       }
@@ -359,7 +359,7 @@ import { RouterModule } from '@angular/router';
                 <span class="label">{{ entry.type }}</span>
                 <div
                   class="bar"
-                  style="background-color: #ff9800"
+                  style="background-color: rgb(var(--color-warning-dark))"
                   [style.width.%]="entry.percentage"
                 ></div>
                 <span class="pct">{{ entry.amount | number: '1.0-0' }}</span>

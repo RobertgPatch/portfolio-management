@@ -149,22 +149,22 @@
 
 **Purpose**: Apply consistent token-based styling to all remaining pages. Each page task is independent and parallelizable.
 
-- [ ] T060 [P] [US1] FMV page (`apps/client/src/app/pages/fmv/`) — replace any remaining Bootstrap classes, apply token card pattern, verify responsive layout and dark mode
-- [ ] T061 [P] [US1] Entity detail page (`apps/client/src/app/pages/entities/`) — card styling with tokens, dark mode verification
-- [ ] T062 [P] [US1] Partnership detail page (`apps/client/src/app/pages/partnerships/`) — consistent card/table styling with tokens
-- [ ] T063 [P] [US1] Partnership performance page — chart styling consistency using token colors for Chart.js datasets
-- [ ] T064 [P] [US1] Distributions page (`apps/client/src/app/pages/distributions/`) — table styling with `var(--table-*)` tokens, card wrappers
-- [ ] T065 [P] [US1] K-1 Documents page (`apps/client/src/app/pages/k-documents/`) — list/table styling with tokens
-- [ ] T066 [P] [US1] K-1 Import page (`apps/client/src/app/pages/k1-import/`) — form styling, upload area UX, token colors
-- [ ] T067 [P] [US1] Cell Mapping page (`apps/client/src/app/pages/cell-mapping/`) — table styling with tokens
-- [ ] T068 [P] [US1] Accounts page — consistent cards and tables with tokens
-- [ ] T069 [P] [US1] Portfolio Views page (`apps/client/src/app/pages/portfolio-views/`) — card grid layout with tokens
-- [ ] T070 [P] [US1] Holdings page — table styling, token colors, dark mode
-- [ ] T071 [P] [US1] Analysis / Summary pages — chart consistency with token palette, dark mode
-- [ ] T072 [P] [US1] Markets page — token-based colors for market data display
-- [ ] T073 [P] [US1] Admin pages (`apps/client/src/app/pages/admin/`) — consistent form and table styling
-- [ ] T074 [P] [US1] User Account page (`apps/client/src/app/pages/account/`) — form styling with tokens
-- [ ] T075 Run `quickstart.md` validation checklist — all visual checks listed in quickstart.md Testing section
+- [x] T060 [P] [US1] FMV page (`apps/client/src/app/pages/fmv/`) — replace any remaining Bootstrap classes, apply token card pattern, verify responsive layout and dark mode
+- [x] T061 [P] [US1] Entity detail page (`apps/client/src/app/pages/entities/`) — card styling with tokens, dark mode verification
+- [x] T062 [P] [US1] Partnership detail page (`apps/client/src/app/pages/partnerships/`) — consistent card/table styling with tokens
+- [x] T063 [P] [US1] Partnership performance page — chart styling consistency using token colors for Chart.js datasets
+- [x] T064 [P] [US1] Distributions page (`apps/client/src/app/pages/distributions/`) — table styling with `var(--table-*)` tokens, card wrappers
+- [x] T065 [P] [US1] K-1 Documents page (`apps/client/src/app/pages/k-documents/`) — list/table styling with tokens
+- [x] T066 [P] [US1] K-1 Import page (`apps/client/src/app/pages/k1-import/`) — form styling, upload area UX, token colors
+- [x] T067 [P] [US1] Cell Mapping page (`apps/client/src/app/pages/cell-mapping/`) — table styling with tokens
+- [x] T068 [P] [US1] Accounts page — consistent cards and tables with tokens
+- [x] T069 [P] [US1] Portfolio Views page (`apps/client/src/app/pages/portfolio-views/`) — card grid layout with tokens
+- [x] T070 [P] [US1] Holdings page — table styling, token colors, dark mode
+- [x] T071 [P] [US1] Analysis / Summary pages — chart consistency with token palette, dark mode
+- [x] T072 [P] [US1] Markets page — token-based colors for market data display
+- [x] T073 [P] [US1] Admin pages (`apps/client/src/app/pages/admin/`) — consistent form and table styling
+- [x] T074 [P] [US1] User Account page (`apps/client/src/app/pages/account/`) — form styling with tokens
+- [x] T075 Run `quickstart.md` validation checklist — all visual checks listed in quickstart.md Testing section
 
 ---
 

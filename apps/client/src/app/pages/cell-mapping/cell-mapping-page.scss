@@ -55,8 +55,8 @@
 }
 
 .alert-danger {
-  background-color: rgba(244, 67, 54, 0.1);
-  border: 1px solid rgba(244, 67, 54, 0.3);
+  background-color: rgba(var(--color-error), 0.1);
+  border: 1px solid rgba(var(--color-error), 0.3);
   border-radius: 4px;
   color: rgb(var(--color-error));
   padding: 12px 16px;

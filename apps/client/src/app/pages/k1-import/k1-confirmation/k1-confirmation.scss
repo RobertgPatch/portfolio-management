@@ -7,12 +7,12 @@
 }
 
 .summary-card {
-  border: 1px solid var(--border-color, #e0e0e0);
+  border: 1px solid rgba(var(--color-border), var(--color-border-alpha));
   border-radius: 8px;
 
   > div {
     padding: 4px 0;
-    border-bottom: 1px solid var(--border-color, #f0f0f0);
+    border-bottom: 1px solid rgba(var(--color-border), 0.06);
 
     &:last-child {
       border-bottom: none;
@@ -25,8 +25,8 @@
 }
 
 .alert-danger {
-  background-color: rgba(244, 67, 54, 0.1);
-  border: 1px solid rgba(244, 67, 54, 0.3);
+  background-color: rgba(var(--color-error), 0.1);
+  border: 1px solid rgba(var(--color-error), 0.3);
   border-radius: 4px;
   color: rgb(var(--color-error));
   padding: 12px 16px;

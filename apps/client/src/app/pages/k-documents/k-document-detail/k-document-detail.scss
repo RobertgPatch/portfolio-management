@@ -17,7 +17,7 @@
   .label {
     font-weight: 500;
     min-width: 120px;
-    color: rgba(0, 0, 0, 0.6);
+    color: rgba(var(--palette-foreground-base), 0.6);
   }
 }
 
@@ -51,7 +51,7 @@
   }
 
   .breakdown {
-    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    border-top: 1px solid rgba(var(--palette-foreground-base), 0.08);
     padding-top: 0.5rem;
     font-size: 0.875rem;
   }
@@ -63,7 +63,7 @@
   }
 
   .box-label {
-    color: rgba(0, 0, 0, 0.6);
+    color: rgba(var(--palette-foreground-base), 0.6);
     font-family: monospace;
   }
 

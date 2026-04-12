@@ -18,12 +18,12 @@
 .fo-card {
   border-radius: var(--card-radius, 12px);
   padding: var(--card-padding, 1.25rem);
-  background: var(--card-bg, #fff);
-  box-shadow: var(--card-shadow, 0 1px 3px rgba(0, 0, 0, 0.08));
+  background: var(--card-bg, rgb(var(--color-surface)));
+  box-shadow: var(--card-shadow, 0 1px 3px rgba(var(--palette-foreground-base), 0.08));
   transition: box-shadow 200ms ease;
 
   &:hover {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 2px 8px rgba(var(--palette-foreground-base), 0.12);
   }
 }
 
@@ -94,7 +94,7 @@
 
   .step-number {
     background: rgba(var(--palette-primary-500), 1);
-    color: #fff;
+    color: rgb(var(--color-surface));
     border-radius: 50%;
     width: 32px;
     height: 32px;
@@ -216,7 +216,7 @@ table.mat-mdc-table {
 
   .mat-mdc-row {
     &:nth-child(even) {
-      background-color: var(--table-row-alt-bg, rgba(0, 0, 0, 0.02));
+      background-color: var(--table-row-alt-bg, rgba(var(--palette-foreground-base), 0.02));
     }
 
     &:hover {
@@ -311,20 +311,20 @@ table.mat-mdc-table {
 :host-context(.theme-dark) {
   .fo-card {
     background: var(--card-bg, var(--dark-background));
-    box-shadow: var(--card-shadow, 0 1px 3px rgba(255, 255, 255, 0.05));
+    box-shadow: var(--card-shadow, 0 1px 3px rgba(var(--palette-foreground-base-dark), 0.05));
 
     &:hover {
-      box-shadow: 0 2px 8px rgba(255, 255, 255, 0.08);
+      box-shadow: 0 2px 8px rgba(var(--palette-foreground-base-dark), 0.08);
     }
   }
 
   .onboarding-card .step-number {
-    color: #000;
+    color: rgb(var(--color-on-surface));
   }
 
   table.mat-mdc-table .mat-mdc-row {
     &:nth-child(even) {
-      background-color: var(--table-row-alt-bg, rgba(255, 255, 255, 0.03));
+      background-color: var(--table-row-alt-bg, rgba(var(--palette-foreground-base-dark), 0.03));
     }
 
     &:hover {
