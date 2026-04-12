@@ -1,0 +1,294 @@
+<div class="page-header">
+  <h1>Family Office Dashboard</h1>
+</div>
+
+@if (isLoading) {
+  <!-- Skeleton: Hero -->
+  <mat-card class="fo-card hero-card">
+    <ngx-skeleton-loader
+      appearance="line"
+      [theme]="{ height: '40px', width: '240px', margin: '0 auto 0.5rem' }"
+    />
+    <ngx-skeleton-loader
+      appearance="line"
+      [theme]="{ height: '16px', width: '200px', margin: '0 auto 0.75rem' }"
+    />
+    <div class="counts">
+      <div class="count-item">
+        <ngx-skeleton-loader appearance="line" [theme]="{ height: '28px', width: '48px' }" />
+        <ngx-skeleton-loader appearance="line" [theme]="{ height: '14px', width: '64px' }" />
+      </div>
+      <div class="count-item">
+        <ngx-skeleton-loader appearance="line" [theme]="{ height: '28px', width: '48px' }" />
+        <ngx-skeleton-loader appearance="line" [theme]="{ height: '14px', width: '80px' }" />
+      </div>
+    </div>
+  </mat-card>
+
+  <!-- Skeleton: Allocation Charts -->
+  <div class="skeleton-grid">
+    @for (i of [1, 2, 3]; track i) {
+      <mat-card class="fo-card skeleton-card">
+        <ngx-skeleton-loader appearance="line" [theme]="{ height: '20px', width: '160px', 'margin-bottom': '1rem' }" />
+        @for (j of [1, 2, 3]; track j) {
+          <ngx-skeleton-loader appearance="line" [theme]="{ height: '24px', width: '100%', 'margin-bottom': '0.75rem' }" />
+        }
+      </mat-card>
+    }
+  </div>
+
+  <!-- Skeleton: Bottom Grid -->
+  <div class="skeleton-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr))">
+    @for (i of [1, 2]; track i) {
+      <mat-card class="fo-card skeleton-card">
+        <ngx-skeleton-loader appearance="line" [theme]="{ height: '20px', width: '180px', 'margin-bottom': '1rem' }" />
+        @for (j of [1, 2, 3, 4]; track j) {
+          <ngx-skeleton-loader appearance="line" [theme]="{ height: '16px', width: '100%', 'margin-bottom': '0.5rem' }" />
+        }
+      </mat-card>
+    }
+  </div>
+}
+
+@if (dashboard) {
+  <!-- AUM Hero -->
+  <mat-card class="fo-card hero-card">
+    <div class="aum-value">
+      {{ dashboard.totalAum | number: '1.0-0' }}
+      <span class="currency">{{ dashboard.currency }}</span>
+    </div>
+    <div class="aum-label">Total Assets Under Management</div>
+    <div class="counts">
+      <div class="count-item">
+        <div class="count-value">{{ dashboard.entitiesCount }}</div>
+        <div class="count-label">Entities</div>
+      </div>
+      <div class="count-item">
+        <div class="count-value">{{ dashboard.partnershipsCount }}</div>
+        <div class="count-label">Partnerships</div>
+      </div>
+    </div>
+  </mat-card>
+
+  <!-- Onboarding Guide -->
+  @if (dashboard.entitiesCount === 0 && dashboard.partnershipsCount === 0) {
+    <mat-card class="fo-card onboarding-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon class="mr-2" style="vertical-align: middle">rocket_launch</mat-icon>
+          Get Started
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="onboarding-steps">
+          <div class="step">
+            <span class="step-number">1</span>
+            <a routerLink="/entities">Create an Entity</a>
+          </div>
+          <div class="step">
+            <span class="step-number">2</span>
+            <a routerLink="/partnerships">Add a Partnership</a>
+          </div>
+          <div class="step">
+            <span class="step-number">3</span>
+            <a routerLink="/k1-import">Import a K-1</a>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  <!-- Allocation Charts -->
+  <div class="charts-grid">
+    <!-- By Entity -->
+    <mat-card class="fo-card allocation-section">
+      <mat-card-header>
+        <mat-card-title>Allocation by Entity</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @for (item of dashboard.allocationByEntity; track item.entityId) {
+          <div class="allocation-bar" [matTooltip]="item.entityName + ': ' + (item.percentage | number: '1.1-1') + '%'">
+            <span class="label">{{ item.entityName }}</span>
+            <div class="bar-container">
+              <div class="bar entity-color" [style.width.%]="item.percentage"></div>
+            </div>
+            <span class="pct">{{ item.percentage | number: '1.1-1' }}%</span>
+          </div>
+        }
+        @if (dashboard.allocationByEntity.length === 0) {
+          <p class="empty-state">No allocation data</p>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <!-- By Asset Class -->
+    <mat-card class="fo-card allocation-section">
+      <mat-card-header>
+        <mat-card-title>Allocation by Asset Class</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @for (item of dashboard.allocationByAssetClass; track item.assetClass) {
+          <div class="allocation-bar" [matTooltip]="item.assetClass + ': ' + (item.percentage | number: '1.1-1') + '%'">
+            <span class="label">{{ item.assetClass }}</span>
+            <div class="bar-container">
+              <div class="bar asset-color" [style.width.%]="item.percentage"></div>
+            </div>
+            <span class="pct">{{ item.percentage | number: '1.1-1' }}%</span>
+          </div>
+        }
+        @if (dashboard.allocationByAssetClass.length === 0) {
+          <p class="empty-state">No asset data</p>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <!-- By Structure -->
+    <mat-card class="fo-card allocation-section">
+      <mat-card-header>
+        <mat-card-title>Allocation by Structure</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @for (item of dashboard.allocationByStructure; track item.structureType) {
+          <div class="allocation-bar" [matTooltip]="item.structureType + ': ' + (item.percentage | number: '1.1-1') + '%'">
+            <span class="label">{{ item.structureType }}</span>
+            <div class="bar-container">
+              <div class="bar structure-color" [style.width.%]="item.percentage"></div>
+            </div>
+            <span class="pct">{{ item.percentage | number: '1.1-1' }}%</span>
+          </div>
+        }
+        @if (dashboard.allocationByStructure.length === 0) {
+          <p class="empty-state">No structure data</p>
+        }
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Performance Metrics -->
+  @if (portfolioSummary?.totals) {
+    <section class="mb-4">
+      <h2 class="section-header">Performance Metrics</h2>
+      <gf-performance-metrics
+        [dpi]="portfolioSummary.totals.dpi"
+        [irr]="portfolioSummary.totals.irr"
+        [rvpi]="portfolioSummary.totals.rvpi"
+        [tvpi]="portfolioSummary.totals.tvpi"
+      />
+    </section>
+  }
+
+  <!-- K-1 Income Summary -->
+  @if (activityDetail?.rows?.length) {
+    <section class="mb-4">
+      <h2 class="section-header">K-1 Income Summary</h2>
+      <gf-k1-income-summary [rows]="activityDetail.rows" />
+    </section>
+  }
+
+  <!-- Bottom row: Recent Distributions + K-1 Status -->
+  <div class="bottom-grid">
+    <!-- Recent Distributions -->
+    <mat-card class="fo-card">
+      <mat-card-header>
+        <mat-card-title>Recent Distributions</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @if (dashboard.recentDistributions.length > 0) {
+          <table
+            class="mat-elevation-z0"
+            mat-table
+            [dataSource]="dashboard.recentDistributions"
+          >
+            <ng-container matColumnDef="partnership">
+              <th *matHeaderCellDef mat-header-cell>Partnership</th>
+              <td *matCellDef="let row" mat-cell>{{ row.partnershipName }}</td>
+            </ng-container>
+            <ng-container matColumnDef="amount">
+              <th *matHeaderCellDef mat-header-cell>Amount</th>
+              <td *matCellDef="let row" mat-cell>{{ row.amount | number: '1.0-0' }}</td>
+            </ng-container>
+            <ng-container matColumnDef="date">
+              <th *matHeaderCellDef mat-header-cell>Date</th>
+              <td *matCellDef="let row" mat-cell>{{ row.date }}</td>
+            </ng-container>
+            <ng-container matColumnDef="type">
+              <th *matHeaderCellDef mat-header-cell>Type</th>
+              <td *matCellDef="let row" mat-cell>
+                <mat-chip>{{ row.type }}</mat-chip>
+              </td>
+            </ng-container>
+            <tr *matHeaderRowDef="distributionColumns" mat-header-row></tr>
+            <tr *matRowDef="let row; columns: distributionColumns" mat-row></tr>
+          </table>
+        } @else {
+          <p class="empty-state">No recent distributions</p>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <!-- K-1 Status -->
+    <mat-card class="fo-card k1-status">
+      <mat-card-header>
+        <mat-card-title>K-1 Filing Status ({{ dashboard.kDocumentStatus.taxYear }})</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="status-row">
+          <span>Total K-1 Documents</span>
+          <strong>{{ dashboard.kDocumentStatus.total }}</strong>
+        </div>
+        <div class="status-row">
+          <span>Draft</span>
+          <strong>{{ dashboard.kDocumentStatus.draft }}</strong>
+        </div>
+        <div class="status-row">
+          <span>Estimated</span>
+          <strong>{{ dashboard.kDocumentStatus.estimated }}</strong>
+        </div>
+        <div class="status-row">
+          <span>Final</span>
+          <strong>{{ dashboard.kDocumentStatus.final }}</strong>
+        </div>
+        @if (dashboard.kDocumentStatus.total > 0) {
+          <div class="progress-section">
+            <div class="progress-label">
+              {{ k1ProgressPercent | number: '1.0-0' }}% Complete (Final)
+            </div>
+            <mat-progress-bar
+              color="primary"
+              mode="determinate"
+              [value]="k1ProgressPercent"
+            ></mat-progress-bar>
+          </div>
+        }
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Data Management -->
+  <section class="mgmt-section">
+    <h2>
+      <mat-icon>settings</mat-icon>
+      Data Management
+    </h2>
+    <div class="mgmt-buttons">
+      <button
+        mat-stroked-button
+        color="primary"
+        [disabled]="isSeedingOrClearing"
+        (click)="onPopulateDummyData()"
+      >
+        <mat-icon>auto_awesome</mat-icon>
+        Populate Demo Data
+      </button>
+      <button
+        mat-stroked-button
+        color="warn"
+        [disabled]="isSeedingOrClearing"
+        (click)="onClearDatabase()"
+      >
+        <mat-icon>delete_sweep</mat-icon>
+        Clear All Data
+      </button>
+    </div>
+  </section>
+}

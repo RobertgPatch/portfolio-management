@@ -132,14 +132,14 @@
 
 ### Implementation for User Story 3
 
-- [ ] T052 [US3] Extract inline styles from `apps/client/src/app/pages/family-dashboard/dashboard-page.component.ts` (200+ lines of `styles:[]`) to new `apps/client/src/app/pages/family-dashboard/dashboard-page.component.scss`
-- [ ] T053 [US3] Redesign hero metrics card in `apps/client/src/app/pages/family-dashboard/` — large type using `var(--font-size-2xl)`, token-based colors `var(--color-primary)`, countup animation for numeric values
-- [ ] T054 [US3] Create consistent card wrapper pattern — shared `.fo-card` class using `var(--card-radius)`, `var(--card-padding)`, `var(--card-shadow)`, `var(--card-bg)` in dashboard component SCSS
-- [ ] T055 [P] [US3] Restyle allocation bars in dashboard with token colors (teal/blue palette) and `matTooltip` hover details
-- [ ] T056 [P] [US3] Update dashboard tables to use Material table styling with `var(--table-row-alt-bg)` alternating row backgrounds
-- [ ] T057 [US3] Add per-card skeleton loaders using `ngx-skeleton-loader` in `apps/client/src/app/pages/family-dashboard/dashboard-page.component.html` — each card shows loader independently while its data loads
-- [ ] T058 [US3] Implement responsive card grid in dashboard — CSS Grid `auto-fit minmax()`: 1-col below 768px, 2-col 768–1199px, 3-col ≥1200px
-- [ ] T059 [US3] Verify dark mode renders correctly for all dashboard elements — cards, charts, tables, hero metrics, skeleton loaders
+- [x] T052 [US3] Extract inline styles from `apps/client/src/app/pages/family-dashboard/dashboard-page.component.ts` (200+ lines of `styles:[]`) to new `apps/client/src/app/pages/family-dashboard/dashboard-page.component.scss`
+- [x] T053 [US3] Redesign hero metrics card in `apps/client/src/app/pages/family-dashboard/` — large type using `var(--font-size-2xl)`, token-based colors `var(--color-primary)`, countup animation for numeric values
+- [x] T054 [US3] Create consistent card wrapper pattern — shared `.fo-card` class using `var(--card-radius)`, `var(--card-padding)`, `var(--card-shadow)`, `var(--card-bg)` in dashboard component SCSS
+- [x] T055 [P] [US3] Restyle allocation bars in dashboard with token colors (teal/blue palette) and `matTooltip` hover details
+- [x] T056 [P] [US3] Update dashboard tables to use Material table styling with `var(--table-row-alt-bg)` alternating row backgrounds
+- [x] T057 [US3] Add per-card skeleton loaders using `ngx-skeleton-loader` in `apps/client/src/app/pages/family-dashboard/dashboard-page.component.html` — each card shows loader independently while its data loads
+- [x] T058 [US3] Implement responsive card grid in dashboard — CSS Grid `auto-fit minmax()`: 1-col below 768px, 2-col 768–1199px, 3-col ≥1200px
+- [x] T059 [US3] Verify dark mode renders correctly for all dashboard elements — cards, charts, tables, hero metrics, skeleton loaders
 
 **Checkpoint**: Dashboard is polished and responsive. US3 all 3 acceptance scenarios met. Skeleton loaders, card hierarchy, responsive stacking all verified.
 
