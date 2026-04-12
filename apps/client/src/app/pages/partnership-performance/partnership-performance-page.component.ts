@@ -158,7 +158,7 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
               <td
                 *matCellDef="let p"
                 mat-cell
-                [style.color]="p.returnPercent >= 0 ? '#2e7d32' : '#c62828'"
+                [style.color]="p.returnPercent >= 0 ? 'rgb(var(--color-success-dark))' : 'rgb(var(--color-error-dark))'"
               >
                 {{ p.returnPercent | percent: '1.2-2' }}
               </td>

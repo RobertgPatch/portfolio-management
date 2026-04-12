@@ -2,8 +2,8 @@
 // Utility Classes
 // ==========================================================================
 // Replacement utility classes for Bootstrap. Uses token scale for spacing
-// and typography values. These are designed to be a 1:1 replacement for
-// the Bootstrap utilities used throughout the codebase.
+// and typography values. Includes Bootstrap-compatible aliases so existing
+// templates work without renaming 5,600+ class references.
 // ==========================================================================
 
 @use 'breakpoints' as bp;
@@ -11,23 +11,28 @@
 // --------------------------------------------------------------------------
 // Display
 // --------------------------------------------------------------------------
-.flex {
+.flex,
+.d-flex {
   display: flex !important;
 }
 
-.inline-flex {
+.inline-flex,
+.d-inline-flex {
   display: inline-flex !important;
 }
 
-.block {
+.block,
+.d-block {
   display: block !important;
 }
 
-.inline-block {
+.inline-block,
+.d-inline-block {
   display: inline-block !important;
 }
 
-.hidden {
+.hidden,
+.d-none {
   display: none !important;
 }
 
@@ -35,22 +40,26 @@
   visibility: hidden !important;
 }
 
-// Responsive display utilities
+// Responsive display utilities (Bootstrap-compatible names)
 @each $name, $size in bp.$breakpoints {
   @media (min-width: $size) {
-    .#{$name}\:flex {
+    .d-#{$name}-flex {
       display: flex !important;
     }
 
-    .#{$name}\:block {
-      display: block !important;
-    }
-
-    .#{$name}\:inline-flex {
+    .d-#{$name}-inline-flex {
       display: inline-flex !important;
     }
 
-    .#{$name}\:hidden {
+    .d-#{$name}-block {
+      display: block !important;
+    }
+
+    .d-#{$name}-inline-block {
+      display: inline-block !important;
+    }
+
+    .d-#{$name}-none {
       display: none !important;
     }
   }
@@ -65,6 +74,14 @@
 
 .flex-column {
   flex-direction: column !important;
+}
+
+.flex-row-reverse {
+  flex-direction: row-reverse !important;
+}
+
+.flex-column-reverse {
+  flex-direction: column-reverse !important;
 }
 
 .flex-wrap {
@@ -100,63 +117,80 @@
   flex-shrink: 0 !important;
 }
 
+.flex-shrink-1 {
+  flex-shrink: 1 !important;
+}
+
 // --------------------------------------------------------------------------
-// Alignment (Flexbox)
+// Alignment (Flexbox) — both new and Bootstrap-compatible names
 // --------------------------------------------------------------------------
-.items-start {
+.items-start,
+.align-items-start {
   align-items: flex-start !important;
 }
 
-.items-center {
+.items-center,
+.align-items-center {
   align-items: center !important;
 }
 
-.items-end {
+.items-end,
+.align-items-end {
   align-items: flex-end !important;
 }
 
-.items-baseline {
+.items-baseline,
+.align-items-baseline {
   align-items: baseline !important;
 }
 
-.items-stretch {
+.items-stretch,
+.align-items-stretch {
   align-items: stretch !important;
 }
 
-.justify-start {
-  justify-content: flex-start !important;
-}
-
-.justify-center {
-  justify-content: center !important;
-}
-
-.justify-end {
-  justify-content: flex-end !important;
-}
-
-.justify-between {
-  justify-content: space-between !important;
-}
-
-.justify-around {
-  justify-content: space-around !important;
-}
-
-.self-start {
+.align-self-start {
   align-self: flex-start !important;
 }
 
+.align-self-center,
 .self-center {
   align-self: center !important;
 }
 
+.align-self-end,
 .self-end {
   align-self: flex-end !important;
 }
 
+.align-self-stretch,
 .self-stretch {
   align-self: stretch !important;
+}
+
+.justify-start,
+.justify-content-start {
+  justify-content: flex-start !important;
+}
+
+.justify-center,
+.justify-content-center {
+  justify-content: center !important;
+}
+
+.justify-end,
+.justify-content-end {
+  justify-content: flex-end !important;
+}
+
+.justify-between,
+.justify-content-between {
+  justify-content: space-between !important;
+}
+
+.justify-around,
+.justify-content-around {
+  justify-content: space-around !important;
 }
 
 // --------------------------------------------------------------------------
@@ -191,17 +225,16 @@
 }
 
 // --------------------------------------------------------------------------
-// Spacing — Margin (uses token scale)
+// Spacing — Margin (Bootstrap 4 compatible scale)
 // --------------------------------------------------------------------------
+// Bootstrap 4 scale: 0=0, 1=0.25rem, 2=0.5rem, 3=1rem, 4=1.5rem, 5=3rem
 $_spacing-map: (
-  '0': var(--space-0),
-  '1': var(--space-1),
-  '2': var(--space-2),
-  '3': var(--space-3),
-  '4': var(--space-4),
-  '5': var(--space-5),
-  '6': var(--space-6),
-  '8': var(--space-8),
+  '0': 0,
+  '1': 0.25rem,
+  '2': 0.5rem,
+  '3': 1rem,
+  '4': 1.5rem,
+  '5': 3rem,
 );
 
 @each $key, $val in $_spacing-map {
@@ -250,7 +283,7 @@ $_spacing-map: (
 }
 
 // --------------------------------------------------------------------------
-// Spacing — Padding (uses token scale)
+// Spacing — Padding (Bootstrap 4 compatible scale)
 // --------------------------------------------------------------------------
 @each $key, $val in $_spacing-map {
   .p-#{$key} {
@@ -364,20 +397,404 @@ $_spacing-map: (
 }
 
 // --------------------------------------------------------------------------
-// Position
+// Position (Bootstrap-compatible + new names)
 // --------------------------------------------------------------------------
-.relative {
+.relative,
+.position-relative {
   position: relative !important;
 }
 
-.absolute {
+.absolute,
+.position-absolute {
   position: absolute !important;
 }
 
-.fixed {
+.fixed,
+.position-fixed {
   position: fixed !important;
 }
 
-.sticky {
+.sticky,
+.position-sticky {
   position: sticky !important;
+}
+
+// --------------------------------------------------------------------------
+// Container
+// --------------------------------------------------------------------------
+.container {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--space-4);
+  padding-right: var(--space-4);
+
+  @media (min-width: 576px) {
+    max-width: 540px;
+  }
+
+  @media (min-width: 768px) {
+    max-width: 720px;
+  }
+
+  @media (min-width: 1024px) {
+    max-width: 960px;
+  }
+
+  @media (min-width: 1200px) {
+    max-width: 1140px;
+  }
+}
+
+.container-fluid {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--space-4);
+  padding-right: var(--space-4);
+}
+
+// --------------------------------------------------------------------------
+// Bootstrap Grid (row / col-*) — Minimal replacement
+// --------------------------------------------------------------------------
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-left: -0.75rem;
+  margin-right: -0.75rem;
+}
+
+// Column base
+[class*='col-'] {
+  position: relative;
+  width: 100%;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+}
+
+// Generate column widths for each breakpoint
+@mixin _make-col($i, $cols: 12) {
+  flex: 0 0 percentage($i / $cols);
+  max-width: percentage($i / $cols);
+}
+
+// Default (xs) columns
+@for $i from 1 through 12 {
+  .col-#{$i} {
+    @include _make-col($i);
+  }
+}
+
+.col {
+  flex-basis: 0;
+  flex-grow: 1;
+  max-width: 100%;
+}
+
+.col-auto {
+  flex: 0 0 auto;
+  width: auto;
+  max-width: 100%;
+}
+
+// Responsive columns
+@each $name, $size in bp.$breakpoints {
+  @media (min-width: $size) {
+    @for $i from 1 through 12 {
+      .col-#{$name}-#{$i} {
+        @include _make-col($i);
+      }
+    }
+
+    .col-#{$name} {
+      flex-basis: 0;
+      flex-grow: 1;
+      max-width: 100%;
+    }
+
+    .col-#{$name}-auto {
+      flex: 0 0 auto;
+      width: auto;
+      max-width: 100%;
+    }
+  }
+}
+
+// Offset utilities
+@for $i from 0 through 11 {
+  .offset-#{$i} {
+    margin-left: percentage($i / 12);
+  }
+}
+
+@each $name, $size in bp.$breakpoints {
+  @media (min-width: $size) {
+    @for $i from 0 through 11 {
+      .offset-#{$name}-#{$i} {
+        margin-left: percentage($i / 12);
+      }
+    }
+  }
+}
+
+// --------------------------------------------------------------------------
+// Border & Rounded
+// --------------------------------------------------------------------------
+.border {
+  border: 1px solid rgba(var(--color-border), var(--color-border-alpha)) !important;
+}
+
+.border-0 {
+  border: 0 !important;
+}
+
+.border-top {
+  border-top: 1px solid rgba(var(--color-border), var(--color-border-alpha)) !important;
+}
+
+.border-bottom {
+  border-bottom: 1px solid rgba(var(--color-border), var(--color-border-alpha)) !important;
+}
+
+.rounded {
+  border-radius: var(--radius-sm) !important;
+}
+
+.rounded-circle {
+  border-radius: 50% !important;
+}
+
+.rounded-pill {
+  border-radius: var(--radius-full) !important;
+}
+
+.rounded-0 {
+  border-radius: 0 !important;
+}
+
+// --------------------------------------------------------------------------
+// Badge (Bootstrap-compatible)
+// --------------------------------------------------------------------------
+.badge {
+  display: inline-block;
+  padding: 0.25em 0.4em;
+  font-size: 75%;
+  font-weight: var(--font-weight-bold);
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  border-radius: var(--radius-sm);
+}
+
+.badge-pill {
+  padding-left: 0.6em;
+  padding-right: 0.6em;
+  border-radius: var(--radius-full);
+}
+
+.badge-primary {
+  color: rgba(var(--white), 1);
+  background-color: rgba(var(--color-primary), 1);
+}
+
+.badge-secondary {
+  color: rgba(var(--white), 1);
+  background-color: rgba(var(--gray-600), 1);
+}
+
+.badge-success {
+  color: rgba(var(--white), 1);
+  background-color: rgba(var(--color-success), 1);
+}
+
+.badge-warning {
+  color: rgba(var(--black), 0.87);
+  background-color: rgba(var(--color-warning), 1);
+}
+
+.badge-danger {
+  color: rgba(var(--white), 1);
+  background-color: rgba(var(--color-error), 1);
+}
+
+.badge-light {
+  color: rgba(var(--black), 0.87);
+  background-color: rgba(var(--gray-200), 1);
+}
+
+.badge-dark {
+  color: rgba(var(--white), 1);
+  background-color: rgba(var(--gray-900), 1);
+}
+
+// --------------------------------------------------------------------------
+// List Utilities (Bootstrap-compatible)
+// --------------------------------------------------------------------------
+.list-unstyled {
+  padding-left: 0;
+  list-style: none;
+}
+
+.list-inline {
+  padding-left: 0;
+  list-style: none;
+}
+
+.list-inline-item {
+  display: inline-block;
+
+  &:not(:last-child) {
+    margin-right: 0.5rem;
+  }
+}
+
+// --------------------------------------------------------------------------
+// Alert (Bootstrap-compatible)
+// --------------------------------------------------------------------------
+.alert {
+  position: relative;
+  padding: 0.75rem 1.25rem;
+  margin-bottom: 1rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+}
+
+.alert-warning {
+  color: #856404;
+  background-color: #fff3cd;
+  border-color: #ffeeba;
+}
+
+.alert-danger {
+  color: #721c24;
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
+}
+
+.alert-info {
+  color: #0c5460;
+  background-color: #d1ecf1;
+  border-color: #bee5eb;
+}
+
+// --------------------------------------------------------------------------
+// Float
+// --------------------------------------------------------------------------
+.float-left {
+  float: left !important;
+}
+
+.float-right {
+  float: right !important;
+}
+
+.float-none {
+  float: none !important;
+}
+
+// --------------------------------------------------------------------------
+// Text Transform & Decoration
+// --------------------------------------------------------------------------
+.text-uppercase {
+  text-transform: uppercase !important;
+}
+
+.text-lowercase {
+  text-transform: lowercase !important;
+}
+
+.text-capitalize {
+  text-transform: capitalize !important;
+}
+
+.text-decoration-none {
+  text-decoration: none !important;
+}
+
+// --------------------------------------------------------------------------
+// Sizing (additional Bootstrap-compatible)
+// --------------------------------------------------------------------------
+.w-25 {
+  width: 25% !important;
+}
+
+.w-50 {
+  width: 50% !important;
+}
+
+.w-75 {
+  width: 75% !important;
+}
+
+.h-auto {
+  height: auto !important;
+}
+
+.w-auto {
+  width: auto !important;
+}
+
+.mw-100 {
+  max-width: 100% !important;
+}
+
+.mh-100 {
+  max-height: 100% !important;
+}
+
+// --------------------------------------------------------------------------
+// Visibility
+// --------------------------------------------------------------------------
+.visible {
+  visibility: visible !important;
+}
+
+// --------------------------------------------------------------------------
+// Shadow
+// --------------------------------------------------------------------------
+.shadow-sm {
+  box-shadow: var(--shadow-sm) !important;
+}
+
+.shadow {
+  box-shadow: var(--shadow-md) !important;
+}
+
+.shadow-lg {
+  box-shadow: var(--shadow-lg) !important;
+}
+
+.shadow-none {
+  box-shadow: none !important;
+}
+
+// --------------------------------------------------------------------------
+// Additional Spacing (Bootstrap 5 values mapped to token scale)
+// --------------------------------------------------------------------------
+// Bootstrap uses 0=0, 1=0.25rem, 2=0.5rem, 3=1rem, 4=1.5rem, 5=3rem
+// Our token scale: 0=0, 1=0.25rem, 2=0.5rem, 3=0.75rem, 4=1rem, 5=1.25rem, 6=1.5rem, 8=2rem
+
+// Bootstrap-4-compatible "auto" spacing
+.mt-auto {
+  margin-top: auto !important;
+}
+
+.mb-auto {
+  margin-bottom: auto !important;
+}
+
+// Negative margins (commonly used in Bootstrap for row gutters)
+.m-n1 {
+  margin: -0.25rem !important;
+}
+
+.mx-n1 {
+  margin-left: -0.25rem !important;
+  margin-right: -0.25rem !important;
+}
+
+.my-n1 {
+  margin-top: -0.25rem !important;
+  margin-bottom: -0.25rem !important;
 }

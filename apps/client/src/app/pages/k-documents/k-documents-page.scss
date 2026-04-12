@@ -20,18 +20,18 @@
 }
 
 .status-DRAFT {
-  background: #e0e0e0;
-  color: #616161;
+  background: rgb(var(--color-neutral-surface));
+  color: rgb(var(--color-neutral-text));
 }
 
 .status-ESTIMATED {
-  background: #fff3e0;
-  color: #e65100;
+  background: rgb(var(--color-warning-surface));
+  color: rgb(var(--color-warning-dark));
 }
 
 .status-FINAL {
-  background: #e8f5e9;
-  color: #2e7d32;
+  background: rgb(var(--color-success-surface));
+  color: rgb(var(--color-success-dark));
 }
 
 .cursor-pointer {

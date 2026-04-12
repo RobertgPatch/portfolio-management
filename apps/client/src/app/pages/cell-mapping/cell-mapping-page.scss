@@ -6,8 +6,8 @@
   margin-bottom: 1rem;
 
   .op-badge {
-    background: #e3f2fd;
-    color: #1565c0;
+    background: rgb(var(--color-info-surface));
+    color: rgb(var(--color-info-dark));
     border-radius: 4px;
     padding: 2px 8px;
     font-size: 12px;
@@ -21,8 +21,8 @@
   }
 
   .box-chip {
-    background: #f5f5f5;
-    border: 1px solid #e0e0e0;
+    background: rgb(var(--color-surface-variant));
+    border: 1px solid rgb(var(--color-neutral-surface));
     border-radius: 4px;
     padding: 1px 6px;
     font-size: 12px;
@@ -33,15 +33,15 @@
 
 .defs-table {
   .box-key {
-    background: #f5f5f5;
+    background: rgb(var(--color-surface-variant));
     padding: 2px 6px;
     border-radius: 3px;
     font-size: 13px;
   }
 
   .section-badge {
-    background: #e8f5e9;
-    color: #2e7d32;
+    background: rgb(var(--color-success-surface));
+    color: rgb(var(--color-success-dark));
     border-radius: 12px;
     padding: 2px 8px;
     font-size: 12px;
@@ -58,6 +58,6 @@
   background-color: rgba(244, 67, 54, 0.1);
   border: 1px solid rgba(244, 67, 54, 0.3);
   border-radius: 4px;
-  color: #f44336;
+  color: rgb(var(--color-error));
   padding: 12px 16px;
 }

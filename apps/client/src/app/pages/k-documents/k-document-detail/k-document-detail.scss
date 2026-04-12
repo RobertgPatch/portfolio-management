@@ -24,15 +24,15 @@
 // Filing status chips
 
 .chip-draft {
-  --mdc-chip-elevated-container-color: #e0e0e0;
+  --mdc-chip-elevated-container-color: rgb(var(--color-neutral-surface));
 }
 
 .chip-estimated {
-  --mdc-chip-elevated-container-color: #fff3e0;
+  --mdc-chip-elevated-container-color: rgb(var(--color-warning-surface));
 }
 
 .chip-final {
-  --mdc-chip-elevated-container-color: #e8f5e9;
+  --mdc-chip-elevated-container-color: rgb(var(--color-success-surface));
 }
 
 // Aggregation cards

@@ -58,22 +58,22 @@
 
 ### Implementation for User Story 1
 
-- [ ] T016 [US1] Audit all Bootstrap class usage across `apps/client/src/` — generate list grouped by class pattern and file count (reference research.md Bootstrap Class Audit table)
-- [ ] T017 [P] [US1] Replace `row`/`col-*` grid classes with CSS Grid or token Flexbox utilities across all component templates (~200 occurrences per research.md)
-- [ ] T018 [P] [US1] Replace `d-flex`/`d-inline-flex` display utilities with `.flex`/`.inline-flex` token utilities (~150 occurrences)
-- [ ] T019 [P] [US1] Replace `d-none`/`d-*-none`/`d-*-block`/`d-*-flex` responsive display classes with `@media` queries or `.hidden-*` token utilities (~80 occurrences)
-- [ ] T020 [P] [US1] Replace `text-muted`/`text-center`/`text-right`/`text-nowrap` typography classes with `color: var(--color-text-muted)` and token utility classes (~30 occurrences)
-- [ ] T021 [P] [US1] Replace `font-weight-bold`/`font-weight-normal` with `font-weight: var(--font-weight-bold)` token utilities (~25 occurrences)
-- [ ] T022 [P] [US1] Replace `mx-*`/`my-*`/`p-*`/`m-*`/`px-*`/`py-*` spacing classes with token-based spacing utilities (~100 occurrences)
-- [ ] T023 [P] [US1] Replace `align-items-center`/`justify-content-*` with `.items-center`/`.justify-*` token utilities (~100 occurrences)
-- [ ] T024 [P] [US1] Replace `badge`/`badge-*` with Material chip or custom badge component (~10 occurrences)
-- [ ] T025 [P] [US1] Replace `list-inline`/`list-inline-item`/`list-unstyled` with Flexbox (~5 occurrences)
-- [ ] T026 [US1] Replace all hardcoded hex colors in component templates and SCSS files with CSS custom property references (e.g., `#1976d2` → `var(--color-primary)`)
-- [ ] T027 [US1] Remove `@import 'styles/bootstrap'` from `apps/client/src/styles.scss`
-- [ ] T028 [US1] Delete `apps/client/src/styles/bootstrap.scss`
-- [ ] T029 [US1] Delete `apps/client/src/styles/variables.scss` (values merged into token files in Phase 1)
-- [ ] T030 [US1] Remove `bootstrap` from `package.json` and run `pnpm install`
-- [ ] T031 [US1] Full build verification: `pnpm nx run client:build` passes with zero Bootstrap classes and zero hardcoded hex colors
+- [x] T016 [US1] Audit all Bootstrap class usage across `apps/client/src/` — generate list grouped by class pattern and file count (reference research.md Bootstrap Class Audit table)
+- [x] T017 [P] [US1] Replace `row`/`col-*` grid classes with CSS Grid or token Flexbox utilities across all component templates (~200 occurrences per research.md)
+- [x] T018 [P] [US1] Replace `d-flex`/`d-inline-flex` display utilities with `.flex`/`.inline-flex` token utilities (~150 occurrences)
+- [x] T019 [P] [US1] Replace `d-none`/`d-*-none`/`d-*-block`/`d-*-flex` responsive display classes with `@media` queries or `.hidden-*` token utilities (~80 occurrences)
+- [x] T020 [P] [US1] Replace `text-muted`/`text-center`/`text-right`/`text-nowrap` typography classes with `color: var(--color-text-muted)` and token utility classes (~30 occurrences)
+- [x] T021 [P] [US1] Replace `font-weight-bold`/`font-weight-normal` with `font-weight: var(--font-weight-bold)` token utilities (~25 occurrences)
+- [x] T022 [P] [US1] Replace `mx-*`/`my-*`/`p-*`/`m-*`/`px-*`/`py-*` spacing classes with token-based spacing utilities (~100 occurrences)
+- [x] T023 [P] [US1] Replace `align-items-center`/`justify-content-*` with `.items-center`/`.justify-*` token utilities (~100 occurrences)
+- [x] T024 [P] [US1] Replace `badge`/`badge-*` with Material chip or custom badge component (~10 occurrences)
+- [x] T025 [P] [US1] Replace `list-inline`/`list-inline-item`/`list-unstyled` with Flexbox (~5 occurrences)
+- [x] T026 [US1] Replace all hardcoded hex colors in component templates and SCSS files with CSS custom property references (e.g., `#1976d2` → `var(--color-primary)`)
+- [x] T027 [US1] Remove `@import 'styles/bootstrap'` from `apps/client/src/styles.scss`
+- [x] T028 [US1] Delete `apps/client/src/styles/bootstrap.scss`
+- [x] T029 [US1] Delete `apps/client/src/styles/variables.scss` (values merged into token files in Phase 1)
+- [x] T030 [US1] Remove `bootstrap` from `package.json` and run `pnpm install`
+- [x] T031 [US1] Full build verification: `pnpm nx run client:build` passes with zero Bootstrap classes and zero hardcoded hex colors
 
 **Checkpoint**: Bootstrap fully removed. All components use token-based styling. US1 acceptance criteria met: consistent palette, dark mode contrast, no inline hex colors.
 

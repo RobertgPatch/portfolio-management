@@ -1,0 +1,199 @@
+// ==========================================================================
+// CSS Reset (replaces Bootstrap reboot + type + images)
+// ==========================================================================
+// Minimal reset covering what Bootstrap's reboot, type, and images modules
+// provided. Angular Material handles most component-level resets.
+// ==========================================================================
+
+// --------------------------------------------------------------------------
+// Box Sizing
+// --------------------------------------------------------------------------
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+// --------------------------------------------------------------------------
+// Root / Body
+// --------------------------------------------------------------------------
+html {
+  font-family: sans-serif;
+  line-height: 1.15;
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+
+// --------------------------------------------------------------------------
+// Typography (from Bootstrap type module)
+// --------------------------------------------------------------------------
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+p {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+.lead {
+  font-size: 1.25rem;
+  font-weight: unset;
+}
+
+.small,
+small {
+  font-size: 80%;
+  font-weight: 400;
+}
+
+mark,
+.mark {
+  padding: 0.2em;
+  background-color: #fcf8e3;
+}
+
+// --------------------------------------------------------------------------
+// Links
+// --------------------------------------------------------------------------
+a {
+  text-decoration: none;
+  background-color: transparent;
+}
+
+// --------------------------------------------------------------------------
+// Images (from Bootstrap images module)
+// --------------------------------------------------------------------------
+img {
+  vertical-align: middle;
+  border-style: none;
+}
+
+.img-fluid {
+  max-width: 100%;
+  height: auto;
+}
+
+.img-thumbnail {
+  padding: 0.25rem;
+  background-color: rgba(var(--color-surface), 1);
+  border: 1px solid rgba(var(--color-border), var(--color-border-alpha));
+  border-radius: var(--radius-sm);
+  max-width: 100%;
+  height: auto;
+}
+
+// --------------------------------------------------------------------------
+// Tables
+// --------------------------------------------------------------------------
+table {
+  border-collapse: collapse;
+}
+
+th {
+  text-align: inherit;
+}
+
+// --------------------------------------------------------------------------
+// Forms (minimal)
+// --------------------------------------------------------------------------
+label {
+  display: inline-block;
+  margin-bottom: 0.5rem;
+}
+
+button {
+  border-radius: 0;
+}
+
+button:focus {
+  outline: 1px dotted;
+  outline: 5px auto -webkit-focus-ring-color;
+}
+
+input,
+button,
+select,
+optgroup,
+textarea {
+  margin: 0;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+button,
+input {
+  overflow: visible;
+}
+
+textarea {
+  overflow: auto;
+  resize: vertical;
+}
+
+// --------------------------------------------------------------------------
+// Misc
+// --------------------------------------------------------------------------
+hr {
+  box-sizing: content-box;
+  height: 0;
+  overflow: visible;
+}
+
+// [hidden] is handled in styles.scss with custom display logic
+
+abbr[title] {
+  text-decoration: underline dotted;
+  cursor: help;
+  border-bottom: 0;
+}
+
+blockquote {
+  margin: 0 0 1rem;
+}
+
+ol,
+ul,
+dl {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+ol ol,
+ul ul,
+ol ul,
+ul ol {
+  margin-bottom: 0;
+}
+
+dt {
+  font-weight: 700;
+}
+
+dd {
+  margin-bottom: 0.5rem;
+  margin-left: 0;
+}
+
+figure {
+  margin: 0 0 1rem;
+}
+
+pre {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  overflow: auto;
+}
+
+code {
+  font-size: 87.5%;
+}

@@ -67,9 +67,30 @@
   // Status Colors (using primitives)
   // --------------------------------------------------------------------------
   --color-success: 76, 175, 80;
+  --color-success-dark: 46, 125, 50;
   --color-info: var(--blue-500);
+  --color-info-dark: 21, 101, 192;
   --color-warning: 255, 152, 0;
+  --color-warning-dark: 230, 81, 0;
   --color-error: var(--red-500);
+  --color-error-dark: 198, 40, 40;
+
+  // Status Surface Colors (light tinted backgrounds)
+  --color-success-surface: 232, 245, 233;
+  --color-warning-surface: 255, 243, 224;
+  --color-error-surface: 255, 235, 238;
+  --color-info-surface: 227, 242, 253;
+  --color-neutral-surface: 224, 224, 224;
+  --color-neutral-text: 97, 97, 97;
+
+  // Extended palette for data visualization / badges
+  --color-purple: 123, 31, 162;
+  --color-purple-surface: 243, 229, 245;
+  --color-indigo: 63, 81, 181;
+  --color-amber: 245, 127, 23;
+
+  // Surface variants
+  --color-surface-variant: 245, 245, 245;
 }
 
 // ==========================================================================
@@ -105,4 +126,14 @@
   --color-hover-alpha: 0.04;
   --color-focus: var(--white);
   --color-focus-alpha: 0.12;
+
+  // Status surfaces (darker tinted backgrounds for dark mode)
+  --color-success-surface: 27, 94, 32;
+  --color-warning-surface: 130, 65, 0;
+  --color-error-surface: 114, 20, 20;
+  --color-info-surface: 13, 71, 161;
+  --color-neutral-surface: 66, 66, 66;
+  --color-neutral-text: 189, 189, 189;
+  --color-purple-surface: 74, 20, 140;
+  --color-surface-variant: 55, 55, 55;
 }

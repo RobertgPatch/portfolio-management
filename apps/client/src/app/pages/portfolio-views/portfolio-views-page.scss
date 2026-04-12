@@ -85,7 +85,7 @@
 .comparison-panel {
   margin: 1rem 0;
   padding: 1rem;
-  background: #fafafa;
+  background: rgb(var(--color-surface-variant));
   border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 8px;
 }
@@ -115,13 +115,13 @@
 }
 
 .primary-badge {
-  background: rgba(63, 81, 181, 0.12);
-  color: #3f51b5;
+  background: rgba(var(--color-indigo), 0.12);
+  color: rgb(var(--color-indigo));
 }
 
 .comparison-badge {
-  background: rgba(156, 39, 176, 0.12);
-  color: #9c27b0;
+  background: rgba(var(--color-purple), 0.12);
+  color: rgb(var(--color-purple));
 }
 
 .delta-grid {
@@ -200,22 +200,22 @@
 .delta-positive {
   &.delta-change,
   & .delta-change {
-    color: #2e7d32;
+    color: rgb(var(--color-success-dark));
   }
 
   .delta-icon {
-    color: #2e7d32;
+    color: rgb(var(--color-success-dark));
   }
 }
 
 .delta-negative {
   &.delta-change,
   & .delta-change {
-    color: #c62828;
+    color: rgb(var(--color-error-dark));
   }
 
   .delta-icon {
-    color: #c62828;
+    color: rgb(var(--color-error-dark));
   }
 }
 
@@ -350,12 +350,12 @@
 }
 
 .negative-basis-flag {
-  color: #f44336;
+  color: rgb(var(--color-error));
   font-weight: 600;
 }
 
 .excess-distribution {
-  color: #e65100;
+  color: rgb(var(--color-warning-dark));
   font-weight: 600;
 }
 
