@@ -1,0 +1,68 @@
+// ==========================================================================
+// Component Design Tokens
+// ==========================================================================
+// Tokens scoped to specific UI components. These reference semantic tokens
+// to keep components consistent and themeable.
+// ==========================================================================
+
+:root {
+  // --------------------------------------------------------------------------
+  // Card
+  // --------------------------------------------------------------------------
+  --card-radius: var(--radius-lg);
+  --card-padding: var(--space-6);
+  --card-shadow: var(--shadow-md);
+  --card-bg: var(--color-surface);
+
+  // --------------------------------------------------------------------------
+  // Button
+  // --------------------------------------------------------------------------
+  --button-radius: var(--radius-full);
+  --button-height: 36px;
+  --button-height-sm: 28px;
+  --button-height-lg: 48px;
+
+  // --------------------------------------------------------------------------
+  // Input / Form Field
+  // --------------------------------------------------------------------------
+  --input-radius: var(--radius-sm);
+  --input-border: rgba(var(--color-border), var(--color-border-alpha));
+  --input-border-focus: rgba(var(--color-primary), 1);
+
+  // --------------------------------------------------------------------------
+  // Navigation — Top Bar
+  // --------------------------------------------------------------------------
+  --nav-height: 64px;
+  --nav-bg: var(--color-surface);
+  --nav-border: rgba(var(--color-border), var(--color-border-alpha));
+
+  // --------------------------------------------------------------------------
+  // Sidebar
+  // --------------------------------------------------------------------------
+  --sidebar-width-expanded: 260px;
+  --sidebar-width-collapsed: 64px;
+  --sidebar-bg: var(--color-surface);
+  --sidebar-border: rgba(var(--color-border), var(--color-border-alpha));
+  --sidebar-item-height: 48px;
+  --sidebar-item-active-bg: rgba(var(--color-primary), 0.12);
+  --sidebar-item-hover-bg: rgba(var(--color-hover), var(--color-hover-alpha));
+  --sidebar-transition: width 200ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  // --------------------------------------------------------------------------
+  // Table
+  // --------------------------------------------------------------------------
+  --table-row-alt-bg: var(--gray-50);
+  --table-row-hover-bg: var(--gray-200);
+  --table-border: rgba(var(--color-divider), var(--color-divider-alpha));
+}
+
+// ==========================================================================
+// Dark Mode Component Overrides
+// ==========================================================================
+.theme-dark {
+  --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3),
+    0 2px 4px -2px rgba(0, 0, 0, 0.3);
+
+  --table-row-alt-bg: 34, 34, 34;
+  --table-row-hover-bg: 48, 48, 48;
+}

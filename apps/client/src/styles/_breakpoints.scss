@@ -1,0 +1,65 @@
+// ==========================================================================
+// Breakpoints
+// ==========================================================================
+// Responsive breakpoint map and `respond-to()` mixin.
+// Aligned with the existing breakpoints used in the codebase (576px, 768px)
+// plus standard wider breakpoints.
+// ==========================================================================
+
+$breakpoints: (
+  'sm': 576px,
+  'md': 768px,
+  'lg': 1024px,
+  'xl': 1200px,
+  'xxl': 1400px,
+);
+
+/// Responds to a named breakpoint (min-width).
+/// @param {String} $bp - Breakpoint name from $breakpoints map
+/// @example
+///   @include respond-to('md') { ... }
+@mixin respond-to($bp) {
+  $value: map-get($breakpoints, $bp);
+
+  @if $value {
+    @media (min-width: $value) {
+      @content;
+    }
+  } @else {
+    @warn 'Unknown breakpoint: #{$bp}. Available: #{map-keys($breakpoints)}';
+  }
+}
+
+/// Responds below a named breakpoint (max-width: bp - 0.02px).
+/// @param {String} $bp - Breakpoint name from $breakpoints map
+/// @example
+///   @include respond-below('md') { ... }
+@mixin respond-below($bp) {
+  $value: map-get($breakpoints, $bp);
+
+  @if $value {
+    @media (max-width: $value - 0.02px) {
+      @content;
+    }
+  } @else {
+    @warn 'Unknown breakpoint: #{$bp}. Available: #{map-keys($breakpoints)}';
+  }
+}
+
+/// Responds between two named breakpoints.
+/// @param {String} $lower - Lower breakpoint name
+/// @param {String} $upper - Upper breakpoint name
+/// @example
+///   @include respond-between('md', 'xl') { ... }
+@mixin respond-between($lower, $upper) {
+  $lower-value: map-get($breakpoints, $lower);
+  $upper-value: map-get($breakpoints, $upper);
+
+  @if $lower-value and $upper-value {
+    @media (min-width: $lower-value) and (max-width: $upper-value - 0.02px) {
+      @content;
+    }
+  } @else {
+    @warn 'Unknown breakpoint(s). Available: #{map-keys($breakpoints)}';
+  }
+}

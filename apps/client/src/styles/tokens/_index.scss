@@ -1,0 +1,10 @@
+// ==========================================================================
+// Token System Barrel
+// ==========================================================================
+// Import order matters: primitive → semantic → component
+// Each layer can reference the previous layer's tokens.
+// ==========================================================================
+
+@forward 'primitive';
+@forward 'semantic';
+@forward 'component';

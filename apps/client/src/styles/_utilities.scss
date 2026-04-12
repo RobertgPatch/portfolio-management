@@ -1,0 +1,383 @@
+// ==========================================================================
+// Utility Classes
+// ==========================================================================
+// Replacement utility classes for Bootstrap. Uses token scale for spacing
+// and typography values. These are designed to be a 1:1 replacement for
+// the Bootstrap utilities used throughout the codebase.
+// ==========================================================================
+
+@use 'breakpoints' as bp;
+
+// --------------------------------------------------------------------------
+// Display
+// --------------------------------------------------------------------------
+.flex {
+  display: flex !important;
+}
+
+.inline-flex {
+  display: inline-flex !important;
+}
+
+.block {
+  display: block !important;
+}
+
+.inline-block {
+  display: inline-block !important;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.invisible {
+  visibility: hidden !important;
+}
+
+// Responsive display utilities
+@each $name, $size in bp.$breakpoints {
+  @media (min-width: $size) {
+    .#{$name}\:flex {
+      display: flex !important;
+    }
+
+    .#{$name}\:block {
+      display: block !important;
+    }
+
+    .#{$name}\:inline-flex {
+      display: inline-flex !important;
+    }
+
+    .#{$name}\:hidden {
+      display: none !important;
+    }
+  }
+}
+
+// --------------------------------------------------------------------------
+// Flexbox Direction & Wrap
+// --------------------------------------------------------------------------
+.flex-row {
+  flex-direction: row !important;
+}
+
+.flex-column {
+  flex-direction: column !important;
+}
+
+.flex-wrap {
+  flex-wrap: wrap !important;
+}
+
+.flex-nowrap {
+  flex-wrap: nowrap !important;
+}
+
+.flex-1 {
+  flex: 1 1 0% !important;
+}
+
+.flex-auto {
+  flex: 1 1 auto !important;
+}
+
+.flex-none {
+  flex: none !important;
+}
+
+.flex-grow-0 {
+  flex-grow: 0 !important;
+}
+
+.flex-grow-1,
+.flex-grow {
+  flex-grow: 1 !important;
+}
+
+.flex-shrink-0 {
+  flex-shrink: 0 !important;
+}
+
+// --------------------------------------------------------------------------
+// Alignment (Flexbox)
+// --------------------------------------------------------------------------
+.items-start {
+  align-items: flex-start !important;
+}
+
+.items-center {
+  align-items: center !important;
+}
+
+.items-end {
+  align-items: flex-end !important;
+}
+
+.items-baseline {
+  align-items: baseline !important;
+}
+
+.items-stretch {
+  align-items: stretch !important;
+}
+
+.justify-start {
+  justify-content: flex-start !important;
+}
+
+.justify-center {
+  justify-content: center !important;
+}
+
+.justify-end {
+  justify-content: flex-end !important;
+}
+
+.justify-between {
+  justify-content: space-between !important;
+}
+
+.justify-around {
+  justify-content: space-around !important;
+}
+
+.self-start {
+  align-self: flex-start !important;
+}
+
+.self-center {
+  align-self: center !important;
+}
+
+.self-end {
+  align-self: flex-end !important;
+}
+
+.self-stretch {
+  align-self: stretch !important;
+}
+
+// --------------------------------------------------------------------------
+// Gap
+// --------------------------------------------------------------------------
+.gap-0 {
+  gap: 0 !important;
+}
+
+.gap-1 {
+  gap: var(--space-1) !important;
+}
+
+.gap-2 {
+  gap: var(--space-2) !important;
+}
+
+.gap-3 {
+  gap: var(--space-3) !important;
+}
+
+.gap-4 {
+  gap: var(--space-4) !important;
+}
+
+.gap-6 {
+  gap: var(--space-6) !important;
+}
+
+.gap-8 {
+  gap: var(--space-8) !important;
+}
+
+// --------------------------------------------------------------------------
+// Spacing — Margin (uses token scale)
+// --------------------------------------------------------------------------
+$_spacing-map: (
+  '0': var(--space-0),
+  '1': var(--space-1),
+  '2': var(--space-2),
+  '3': var(--space-3),
+  '4': var(--space-4),
+  '5': var(--space-5),
+  '6': var(--space-6),
+  '8': var(--space-8),
+);
+
+@each $key, $val in $_spacing-map {
+  .m-#{$key} {
+    margin: #{$val} !important;
+  }
+
+  .mx-#{$key} {
+    margin-left: #{$val} !important;
+    margin-right: #{$val} !important;
+  }
+
+  .my-#{$key} {
+    margin-top: #{$val} !important;
+    margin-bottom: #{$val} !important;
+  }
+
+  .mt-#{$key} {
+    margin-top: #{$val} !important;
+  }
+
+  .mr-#{$key} {
+    margin-right: #{$val} !important;
+  }
+
+  .mb-#{$key} {
+    margin-bottom: #{$val} !important;
+  }
+
+  .ml-#{$key} {
+    margin-left: #{$val} !important;
+  }
+}
+
+.mx-auto {
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.ml-auto {
+  margin-left: auto !important;
+}
+
+.mr-auto {
+  margin-right: auto !important;
+}
+
+// --------------------------------------------------------------------------
+// Spacing — Padding (uses token scale)
+// --------------------------------------------------------------------------
+@each $key, $val in $_spacing-map {
+  .p-#{$key} {
+    padding: #{$val} !important;
+  }
+
+  .px-#{$key} {
+    padding-left: #{$val} !important;
+    padding-right: #{$val} !important;
+  }
+
+  .py-#{$key} {
+    padding-top: #{$val} !important;
+    padding-bottom: #{$val} !important;
+  }
+
+  .pt-#{$key} {
+    padding-top: #{$val} !important;
+  }
+
+  .pr-#{$key} {
+    padding-right: #{$val} !important;
+  }
+
+  .pb-#{$key} {
+    padding-bottom: #{$val} !important;
+  }
+
+  .pl-#{$key} {
+    padding-left: #{$val} !important;
+  }
+}
+
+// --------------------------------------------------------------------------
+// Typography
+// --------------------------------------------------------------------------
+.text-center {
+  text-align: center !important;
+}
+
+.text-right {
+  text-align: right !important;
+}
+
+.text-left {
+  text-align: left !important;
+}
+
+.text-nowrap {
+  white-space: nowrap !important;
+}
+
+.text-truncate {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.text-muted {
+  color: rgba(var(--color-text-muted), var(--color-text-muted-alpha)) !important;
+}
+
+.font-weight-normal {
+  font-weight: var(--font-weight-normal) !important;
+}
+
+.font-weight-medium {
+  font-weight: var(--font-weight-medium) !important;
+}
+
+.font-weight-semibold {
+  font-weight: var(--font-weight-semibold) !important;
+}
+
+.font-weight-bold {
+  font-weight: var(--font-weight-bold) !important;
+}
+
+// --------------------------------------------------------------------------
+// Width & Height
+// --------------------------------------------------------------------------
+.w-100 {
+  width: 100% !important;
+}
+
+.h-100 {
+  height: 100% !important;
+}
+
+.min-w-0 {
+  min-width: 0 !important;
+}
+
+// --------------------------------------------------------------------------
+// Overflow
+// --------------------------------------------------------------------------
+.overflow-hidden {
+  overflow: hidden !important;
+}
+
+.overflow-auto {
+  overflow: auto !important;
+}
+
+.overflow-x-auto {
+  overflow-x: auto !important;
+}
+
+.overflow-y-auto {
+  overflow-y: auto !important;
+}
+
+// --------------------------------------------------------------------------
+// Position
+// --------------------------------------------------------------------------
+.relative {
+  position: relative !important;
+}
+
+.absolute {
+  position: absolute !important;
+}
+
+.fixed {
+  position: fixed !important;
+}
+
+.sticky {
+  position: sticky !important;
+}

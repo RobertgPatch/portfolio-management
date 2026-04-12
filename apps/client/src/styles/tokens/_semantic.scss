@@ -1,0 +1,108 @@
+// ==========================================================================
+// Semantic Design Tokens
+// ==========================================================================
+// Role-based tokens that map to primitive values. These define the "meaning"
+// of a color/value in context (e.g., "primary", "surface", "on-surface")
+// and support light/dark mode via the `.theme-dark` class.
+// ==========================================================================
+
+:root {
+  // --------------------------------------------------------------------------
+  // Brand Colors
+  // --------------------------------------------------------------------------
+  --color-primary: var(--teal-500);
+  --color-primary-rgb: var(--teal-500);
+  --color-primary-light: var(--teal-300);
+  --color-primary-dark: var(--teal-700);
+
+  --color-secondary: var(--blue-500);
+  --color-secondary-rgb: var(--blue-500);
+  --color-secondary-light: var(--blue-300);
+  --color-secondary-dark: var(--blue-700);
+
+  --color-warn: var(--red-500);
+  --color-warn-rgb: var(--red-500);
+  --color-warn-light: var(--red-300);
+  --color-warn-dark: var(--red-700);
+
+  // --------------------------------------------------------------------------
+  // Surface & Background
+  // --------------------------------------------------------------------------
+  --color-surface: var(--white);
+  --color-surface-raised: var(--white);
+  --color-surface-dim: var(--gray-50);
+  --color-background: var(--gray-50);
+
+  // --------------------------------------------------------------------------
+  // Text / On-Surface
+  // --------------------------------------------------------------------------
+  --color-on-surface: var(--black);
+  --color-on-surface-alpha: 0.87;
+  --color-text-primary: var(--black);
+  --color-text-primary-alpha: 0.87;
+  --color-text-secondary: var(--black);
+  --color-text-secondary-alpha: 0.54;
+  --color-text-muted: var(--black);
+  --color-text-muted-alpha: 0.38;
+  --color-text-disabled: var(--black);
+  --color-text-disabled-alpha: 0.38;
+
+  // --------------------------------------------------------------------------
+  // Borders & Dividers
+  // --------------------------------------------------------------------------
+  --color-border: var(--black);
+  --color-border-alpha: 0.12;
+  --color-divider: var(--black);
+  --color-divider-alpha: 0.12;
+
+  // --------------------------------------------------------------------------
+  // Interaction States
+  // --------------------------------------------------------------------------
+  --color-hover: var(--black);
+  --color-hover-alpha: 0.04;
+  --color-focus: var(--black);
+  --color-focus-alpha: 0.12;
+
+  // --------------------------------------------------------------------------
+  // Status Colors (using primitives)
+  // --------------------------------------------------------------------------
+  --color-success: 76, 175, 80;
+  --color-info: var(--blue-500);
+  --color-warning: 255, 152, 0;
+  --color-error: var(--red-500);
+}
+
+// ==========================================================================
+// Dark Mode Overrides
+// ==========================================================================
+.theme-dark {
+  // Surface & Background
+  --color-surface: var(--gray-800);
+  --color-surface-raised: var(--gray-800);
+  --color-surface-dim: var(--gray-900);
+  --color-background: 48, 48, 48;
+
+  // Text / On-Surface
+  --color-on-surface: var(--white);
+  --color-on-surface-alpha: 1;
+  --color-text-primary: var(--white);
+  --color-text-primary-alpha: 1;
+  --color-text-secondary: var(--white);
+  --color-text-secondary-alpha: 0.7;
+  --color-text-muted: var(--white);
+  --color-text-muted-alpha: 0.5;
+  --color-text-disabled: var(--white);
+  --color-text-disabled-alpha: 0.5;
+
+  // Borders & Dividers
+  --color-border: var(--white);
+  --color-border-alpha: 0.12;
+  --color-divider: var(--white);
+  --color-divider-alpha: 0.12;
+
+  // Interaction States
+  --color-hover: var(--white);
+  --color-hover-alpha: 0.04;
+  --color-focus: var(--white);
+  --color-focus-alpha: 0.12;
+}

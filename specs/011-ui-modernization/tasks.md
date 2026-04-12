@@ -19,12 +19,12 @@
 
 **Purpose**: Create the CSS custom property design-token foundation that all subsequent phases depend on.
 
-- [ ] T001 Create `apps/client/src/styles/tokens/_primitive.scss` with color ramps (teal-50..900, blue-50..900, red-50..900, gray-50..900), spacing scale (4px base: space-1 through space-16), border radii (sm/md/lg/xl/full), shadows (sm/md/lg), font sizes (xs through 3xl), font weights, line heights
-- [ ] T002 [P] Create `apps/client/src/styles/tokens/_semantic.scss` with role-based tokens for light and dark modes: --color-primary, --color-primary-rgb, --color-secondary, --color-secondary-rgb, --color-warn, --color-surface, --color-surface-raised, --color-on-surface, --color-text-primary, --color-text-secondary, --color-text-muted, --color-border, --color-divider
-- [ ] T003 [P] Create `apps/client/src/styles/tokens/_component.scss` with card tokens (radius, padding, shadow, bg), button tokens (radius, height), input tokens (radius, border), nav tokens (height, bg), sidebar tokens (width-expanded: 260px, width-collapsed: 64px, bg, border, item-height, item-active-bg, item-hover-bg, transition), table tokens (row-alt-bg, border)
-- [ ] T004 Create `apps/client/src/styles/tokens/_index.scss` barrel file that forwards _primitive, _semantic, _component
-- [ ] T005 [P] Create `apps/client/src/styles/_utilities.scss` with utility classes: flex/inline-flex, display (hidden responsive variants), spacing (m-*/p-* using token scale), typography (text-muted, text-center, text-right, text-nowrap, font-weight-bold/normal), alignment (items-center, justify-center/between/end)
-- [ ] T006 [P] Create `apps/client/src/styles/_breakpoints.scss` with breakpoint map ($breakpoints: sm 576px, md 768px, lg 1024px, xl 1200px, xxl 1400px) and `respond-to($bp)` mixin
+- [x] T001 Create `apps/client/src/styles/tokens/_primitive.scss` with color ramps (teal-50..900, blue-50..900, red-50..900, gray-50..900), spacing scale (4px base: space-1 through space-16), border radii (sm/md/lg/xl/full), shadows (sm/md/lg), font sizes (xs through 3xl), font weights, line heights
+- [x] T002 [P] Create `apps/client/src/styles/tokens/_semantic.scss` with role-based tokens for light and dark modes: --color-primary, --color-primary-rgb, --color-secondary, --color-secondary-rgb, --color-warn, --color-surface, --color-surface-raised, --color-on-surface, --color-text-primary, --color-text-secondary, --color-text-muted, --color-border, --color-divider
+- [x] T003 [P] Create `apps/client/src/styles/tokens/_component.scss` with card tokens (radius, padding, shadow, bg), button tokens (radius, height), input tokens (radius, border), nav tokens (height, bg), sidebar tokens (width-expanded: 260px, width-collapsed: 64px, bg, border, item-height, item-active-bg, item-hover-bg, transition), table tokens (row-alt-bg, border)
+- [x] T004 Create `apps/client/src/styles/tokens/_index.scss` barrel file that forwards _primitive, _semantic, _component
+- [x] T005 [P] Create `apps/client/src/styles/_utilities.scss` with utility classes: flex/inline-flex, display (hidden responsive variants), spacing (m-*/p-* using token scale), typography (text-muted, text-center, text-right, text-nowrap, font-weight-bold/normal), alignment (items-center, justify-center/between/end)
+- [x] T006 [P] Create `apps/client/src/styles/_breakpoints.scss` with breakpoint map ($breakpoints: sm 576px, md 768px, lg 1024px, xl 1200px, xxl 1400px) and `respond-to($bp)` mixin
 
 **Checkpoint**: Token files exist. No visual changes yet — build must still pass.
 
@@ -36,15 +36,15 @@
 
 **⚠️ CRITICAL**: US1, US2, and US3 cannot begin until this phase is complete.
 
-- [ ] T007 [US4] Replace `mat.m2-define-light-theme()` with `mat.define-theme()` in `apps/client/src/styles/theme.scss`
-- [ ] T008 [US4] Define M3 color scheme using `#36CFCC` as primary seed and `#3686CF` as tertiary in `apps/client/src/styles/theme.scss`
-- [ ] T009 [US4] Update density from `-3` to M3-compatible scale (`-1` or `0`) in `apps/client/src/styles/theme.scss`
-- [ ] T010 [US4] Replace `mat.all-component-themes($theme)` and `mat.all-component-typographies()` with `@include mat.theme($theme)` in `apps/client/src/styles/theme.scss`
-- [ ] T011 [US4] Update dark mode theme to use `mat.define-theme()` with `theme-type: dark` in `apps/client/src/styles/theme.scss`
-- [ ] T012 [US4] Audit and fix M2-specific CSS overrides in `apps/client/src/styles.scss` — remove `!important` hacks targeting `.mat-mdc-*` classes that conflict with M3 defaults
-- [ ] T013 [US4] Fix typography scale changes from M2→M3 — verify headings, body text, button labels, form labels render correctly across all pages
-- [ ] T014 Integrate token imports into `apps/client/src/styles.scss` — add `@use 'styles/tokens'` and map existing `:root` custom properties to token values
-- [ ] T015 [US4] Verify build succeeds with zero `mat.m2-*` references in any SCSS file
+- [x] T007 [US4] Replace `mat.m2-define-light-theme()` with `mat.define-theme()` in `apps/client/src/styles/theme.scss`
+- [x] T008 [US4] Define M3 color scheme using `#36CFCC` as primary seed and `#3686CF` as tertiary in `apps/client/src/styles/theme.scss`
+- [x] T009 [US4] Update density from `-3` to M3-compatible scale (`-1` or `0`) in `apps/client/src/styles/theme.scss`
+- [x] T010 [US4] Replace `mat.all-component-themes($theme)` and `mat.all-component-typographies()` with `@include mat.theme($theme)` in `apps/client/src/styles/theme.scss`
+- [x] T011 [US4] Update dark mode theme to use `mat.define-theme()` with `theme-type: dark` in `apps/client/src/styles/theme.scss`
+- [x] T012 [US4] Audit and fix M2-specific CSS overrides in `apps/client/src/styles.scss` — remove `!important` hacks targeting `.mat-mdc-*` classes that conflict with M3 defaults
+- [x] T013 [US4] Fix typography scale changes from M2→M3 — verify headings, body text, button labels, form labels render correctly across all pages
+- [x] T014 Integrate token imports into `apps/client/src/styles.scss` — add `@use 'styles/tokens'` and map existing `:root` custom properties to token values
+- [x] T015 [US4] Verify build succeeds with zero `mat.m2-*` references in any SCSS file
 
 **Checkpoint**: M3 theme active. Token system integrated. All Material components render with M3 styling. US4 acceptance criteria met: zero M2 references, M3 visual style, correct dark mode.
 
