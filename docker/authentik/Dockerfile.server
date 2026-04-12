@@ -1,0 +1,7 @@
+FROM ghcr.io/goauthentik/server:2024.12
+
+COPY docker/authentik/custom.css /web/dist/custom.css
+COPY docker/authentik/logo.svg /web/dist/assets/icons/ghostfolio-logo.svg
+COPY docker/authentik/flow_background.jpg /web/dist/assets/images/flow_background.jpg
+
+CMD ["server"]

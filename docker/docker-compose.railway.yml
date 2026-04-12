@@ -76,8 +76,9 @@ services:
       - "${REDIS_PORT:-6379}:6379"
 
   authentik-server:
-    image: ghcr.io/goauthentik/server:2024.12
-    command: server
+    build:
+      context: ../
+      dockerfile: docker/authentik/Dockerfile.server
     container_name: gf-authentik-server-railway
     restart: unless-stopped
     env_file:
@@ -95,10 +96,6 @@ services:
       AUTHENTIK_REDIS__DB: 1
       AUTHENTIK_BOOTSTRAP_PASSWORD: ${AUTHENTIK_BOOTSTRAP_PASSWORD}
       AUTHENTIK_BOOTSTRAP_EMAIL: ${AUTHENTIK_BOOTSTRAP_EMAIL}
-    volumes:
-      - ./authentik/custom.css:/web/dist/custom.css:ro
-      - ./authentik/logo.svg:/web/dist/assets/icons/ghostfolio-logo.svg:ro
-      - ./authentik/flow_background.jpg:/web/dist/assets/images/flow_background.jpg:ro
     ports:
       - "${AUTHENTIK_PORT:-9000}:9000"
     depends_on:
@@ -108,8 +105,9 @@ services:
         condition: service_healthy
 
   authentik-worker:
-    image: ghcr.io/goauthentik/server:2024.12
-    command: worker
+    build:
+      context: ../
+      dockerfile: docker/authentik/Dockerfile.worker
     container_name: gf-authentik-worker-railway
     restart: unless-stopped
     env_file:
