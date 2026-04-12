@@ -1,4 +1,4 @@
-<nav class="sidenav" [class.collapsed]="state === 'collapsed'">
+<nav class="sidenav" aria-label="Section navigation" [class.collapsed]="state === 'collapsed'">
   <mat-nav-list>
     @for (item of items; track item.route) {
       <a
@@ -16,7 +16,9 @@
   </mat-nav-list>
 
   <div class="toggle-area">
-    <button class="toggle-button" (click)="toggle.emit()">
+    <button class="toggle-button"
+            [attr.aria-label]="state === 'expanded' ? 'Collapse sidebar' : 'Expand sidebar'"
+            (click)="toggle.emit()">
       <mat-icon>{{
         state === 'expanded' ? 'chevron_left' : 'chevron_right'
       }}</mat-icon>

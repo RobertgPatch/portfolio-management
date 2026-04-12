@@ -318,17 +318,46 @@ table.mat-mdc-table {
     }
   }
 
+  .aum-label,
+  .count-label,
+  .progress-label {
+    color: rgba(var(--palette-foreground-base-dark), 0.7);
+  }
+
+  .count-value,
+  .section-header {
+    color: rgba(var(--palette-foreground-base-dark), 0.87);
+  }
+
   .onboarding-card .step-number {
     color: rgb(var(--color-on-surface));
   }
 
-  table.mat-mdc-table .mat-mdc-row {
-    &:nth-child(even) {
-      background-color: var(--table-row-alt-bg, rgba(var(--palette-foreground-base-dark), 0.03));
+  .empty-state {
+    color: rgba(var(--palette-foreground-base-dark), 0.5);
+  }
+
+  .mgmt-section {
+    border-top-color: rgba(var(--palette-foreground-base-dark), 0.12);
+
+    h2 {
+      color: rgba(var(--palette-foreground-base-dark), 0.7);
+    }
+  }
+
+  table.mat-mdc-table {
+    .mat-mdc-header-cell {
+      color: rgba(var(--palette-foreground-base-dark), 0.7);
     }
 
-    &:hover {
-      background-color: rgba(var(--palette-primary-500), 0.08);
+    .mat-mdc-row {
+      &:nth-child(even) {
+        background-color: var(--table-row-alt-bg, rgba(var(--palette-foreground-base-dark), 0.03));
+      }
+
+      &:hover {
+        background-color: rgba(var(--palette-primary-500), 0.08);
+      }
     }
   }
 }

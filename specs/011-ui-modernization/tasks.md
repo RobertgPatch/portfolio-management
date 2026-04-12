@@ -170,19 +170,19 @@
 
 ## Final Validation
 
-- [ ] T076 Full build: `pnpm nx run client:build` succeeds
-- [ ] T077 Lint: `pnpm nx run client:lint` passes
-- [ ] T078 Verify zero `mat.m2-*` references in any SCSS file
-- [ ] T079 Verify zero Bootstrap classes in any template or SCSS file (`bootstrap` not in `package.json`)
-- [ ] T080 All 6 top-bar section links highlight correctly with active route
-- [ ] T081 Sidebar shows correct contextual items for each section per contracts/navigation.md §2
-- [ ] T082 Sidebar expand/collapse works at all breakpoints per contracts/navigation.md §3
-- [ ] T083 Mobile hamburger opens overlay sidebar with backdrop
-- [ ] T084 Dashboard at `/family-office` has no sidebar
-- [ ] T085 All pages verified in light mode
-- [ ] T086 All pages verified in dark mode
-- [ ] T087 Mobile navigation tested at 375px, 768px, and 1200px widths
-- [ ] T088 Lighthouse accessibility score ≥ 90 on dashboard page
+- [x] T076 Full build: `pnpm nx run client:build` succeeds
+- [x] T077 Lint: `pnpm nx run client:lint` passes
+- [x] T078 Verify zero `mat.m2-*` references in any SCSS file
+- [x] T079 Verify zero Bootstrap classes in any template or SCSS file (`bootstrap` not in `package.json`)
+- [x] T080 All 6 top-bar section links highlight correctly with active route
+- [x] T081 Sidebar shows correct contextual items for each section per contracts/navigation.md §2
+- [x] T082 Sidebar expand/collapse works at all breakpoints per contracts/navigation.md §3
+- [x] T083 Mobile hamburger opens overlay sidebar with backdrop
+- [x] T084 Dashboard at `/family-office` has no sidebar
+- [x] T085 All pages verified in light mode
+- [x] T086 All pages verified in dark mode
+- [x] T087 Mobile navigation tested at 375px, 768px, and 1200px widths
+- [x] T088 Lighthouse accessibility score ≥ 90 on dashboard page
 
 ---
 

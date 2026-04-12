@@ -1,3 +1,4 @@
+<a class="skip-link" href="#main-content" i18n>Skip to main content</a>
 <header>
   @if (canCreateAccount || user?.systemMessage) {
     <div class="info-message-container">
@@ -42,7 +43,7 @@
   />
 </header>
 
-<main role="main">
+<main id="main-content" role="main">
   <mat-sidenav-container class="sidenav-container">
     @if (sidebarItems().length > 0) {
       <mat-sidenav

@@ -15,6 +15,7 @@
     <button
       class="hamburger-btn d-block d-md-none"
       mat-icon-button
+      aria-label="Open navigation menu"
       (click)="onHamburgerClick()"
     >
       <mat-icon>menu</mat-icon>
@@ -23,7 +24,7 @@
     <span class="gf-spacer"></span>
 
     <!-- Flat section links -->
-    <nav class="section-links d-none d-md-flex align-items-center">
+    <nav class="section-links d-none d-md-flex align-items-center" aria-label="Main sections">
       @for (section of sections; track section.id) {
         <a
           class="section-link"
@@ -45,6 +46,7 @@
             #assistantTrigger="matMenuTrigger"
             class="h-100 no-min-width px-2"
             mat-button
+            aria-label="Open assistant and filters"
             matBadge="✓"
             matBadgeSize="small"
             [mat-menu-trigger-for]="assistantMenu"
@@ -81,6 +83,7 @@
         <button
           class="no-min-width px-1"
           mat-flat-button
+          aria-label="Account menu"
           [matMenuTriggerFor]="accountMenu"
           (menuClosed)="onMenuClosed()"
           (menuOpened)="onMenuOpened()"

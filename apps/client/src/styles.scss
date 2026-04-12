@@ -6,6 +6,24 @@
 
 @import 'svgmap/style.min';
 
+/* Skip navigation link for keyboard accessibility */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 1rem;
+  z-index: 10000;
+  padding: 0.5rem 1rem;
+  background: rgb(var(--palette-primary-500));
+  color: #fff;
+  border-radius: 0 0 4px 4px;
+  text-decoration: none;
+  font-weight: 500;
+
+  &:focus {
+    top: 0;
+  }
+}
+
 :root {
   --dark-background: rgb(25, 25, 25);
   --font-family-sans-serif: 'Inter', Roboto, 'Helvetica Neue', sans-serif;
@@ -292,8 +310,13 @@ body {
   }
 }
 
-button:focus {
+button:focus:not(:focus-visible) {
   outline: 0;
+}
+
+:focus-visible {
+  outline: 2px solid rgba(var(--palette-primary-500), 1);
+  outline-offset: 2px;
 }
 
 hr {
