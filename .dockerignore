@@ -19,6 +19,7 @@ coverage
 !README.md
 docker
 !docker/entrypoint.sh
+!docker/authentik/
 specs
 test
 uploads
