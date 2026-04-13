@@ -14,7 +14,7 @@ import {
 import { OidcStateStore } from './oidc-state.store';
 
 @Injectable()
-export class OidcStrategy extends PassportStrategy(Strategy, 'oidc') {
+export class OidcStrategy extends PassportStrategy(Strategy, 'oidc', true) {
   private static readonly stateStore = new OidcStateStore();
 
   public constructor(
@@ -38,6 +38,12 @@ export class OidcStrategy extends PassportStrategy(Strategy, 'oidc') {
     _refreshToken: string,
     params: OidcParams
   ) {
+    Logger.log(
+      `validate() called: issuer=${issuer} profile.id=${profile?.id} ` +
+        `context=${typeof context} idToken=${typeof idToken === 'string' ? String(idToken).substring(0, 20) + '...' : typeof idToken} ` +
+        `params=${typeof params}`,
+      'OidcStrategy'
+    );
     try {
       const thirdPartyId =
         profile?.id ??

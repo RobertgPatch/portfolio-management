@@ -22,6 +22,7 @@ import { OAuth2 } from 'oauth';
 import * as https from 'https';
 import * as http from 'http';
 import * as zlib from 'zlib';
+import { Strategy as OidcStrategy } from 'passport-openidconnect';
 
 let patched = false;
 
@@ -67,6 +68,43 @@ export function patchOAuth2GzipHandling(config?: {
   patched = true;
 
   const TAG = '[oauth2-gzip-patch]';
+
+  // ----- Patch Strategy.prototype.authenticate for diagnostic logging -----
+  const origAuthenticate = (OidcStrategy.prototype as any).authenticate;
+  (OidcStrategy.prototype as any).authenticate = function (
+    req: any,
+    options: any
+  ) {
+    const origFail = this.fail;
+    const origError = this.error;
+    const origSuccess = this.success;
+
+    this.fail = function (info: any, status: any) {
+      console.log(
+        `${TAG} [strategy] FAIL: ${JSON.stringify(info)} status=${status}`
+      );
+      return origFail.call(this, info, status);
+    };
+
+    this.error = function (err: any) {
+      console.log(
+        `${TAG} [strategy] ERROR: ${err?.message || err}`
+      );
+      if (err?.stack) {
+        console.log(`${TAG} [strategy] Stack: ${err.stack}`);
+      }
+      return origError.call(this, err);
+    };
+
+    this.success = function (user: any, info: any) {
+      console.log(
+        `${TAG} [strategy] SUCCESS: user keys=${user ? Object.keys(user).join(',') : 'null'}`
+      );
+      return origSuccess.call(this, user, info);
+    };
+
+    return origAuthenticate.call(this, req, options);
+  };
 
   /**
    * Fetch JSON from a URL with Bearer token auth.
