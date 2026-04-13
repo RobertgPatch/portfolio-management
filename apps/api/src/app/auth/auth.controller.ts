@@ -12,12 +12,14 @@ import {
   VERSION_NEUTRAL
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { JwtService } from '@nestjs/jwt';
 import { Request, Response } from 'express';
 
 @Controller('auth')
 export class AuthController {
   public constructor(
-    private readonly configurationService: ConfigurationService
+    private readonly configurationService: ConfigurationService,
+    private readonly jwtService: JwtService
   ) {}
 
   @Get('oidc')
@@ -45,7 +47,9 @@ export class AuthController {
     }
 
     if (jwt) {
-      const redirectUrl = `${this.configurationService.get('ROOT_URL')}/auth/${jwt}`;
+      // Include locale prefix so Angular's <base href="/en/"> matches the URL.
+      // Without the prefix, Angular may fail to bootstrap or route correctly.
+      const redirectUrl = `${this.configurationService.get('ROOT_URL')}/${DEFAULT_LANGUAGE_CODE}/auth/${jwt}`;
       Logger.log(
         `OIDC callback: redirecting to ${redirectUrl.substring(0, 80)}... (jwt length=${jwt.length})`,
         'AuthController'
@@ -53,8 +57,38 @@ export class AuthController {
       response.redirect(redirectUrl);
     } else {
       response.redirect(
-        `${this.configurationService.get('ROOT_URL')}/auth`
+        `${this.configurationService.get('ROOT_URL')}/${DEFAULT_LANGUAGE_CODE}/auth`
       );
+    }
+  }
+
+  @Get('jwt-test')
+  @Version(VERSION_NEUTRAL)
+  public jwtTest() {
+    // Diagnostic endpoint: sign a test JWT and verify it to confirm
+    // the signing/verification chain works on this deployment.
+    try {
+      const signSecret = process.env.JWT_SECRET_KEY;
+      const verifySecret = this.configurationService.get('JWT_SECRET_KEY');
+      const secretsMatch = signSecret === verifySecret;
+
+      const token = this.jwtService.sign({ test: true, ts: Date.now() });
+      const decoded = this.jwtService.verify(token);
+
+      return {
+        success: true,
+        secretsMatch,
+        signSecretLength: signSecret?.length ?? 0,
+        verifySecretLength: verifySecret?.length ?? 0,
+        tokenLength: token.length,
+        tokenPrefix: token.substring(0, 30),
+        decoded: { test: decoded.test, iat: decoded.iat, exp: decoded.exp }
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error?.message || String(error)
+      };
     }
   }
 

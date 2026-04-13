@@ -201,22 +201,7 @@ export class UserService {
   public async user(
     userWhereUniqueInput: Prisma.UserWhereUniqueInput
   ): Promise<UserWithSettings | null> {
-    const {
-      _count,
-      accessesGet,
-      accessToken,
-      accounts,
-      analytics,
-      authChallenge,
-      createdAt,
-      id,
-      provider,
-      role,
-      settings,
-      subscriptions,
-      thirdPartyId,
-      updatedAt
-    } = await this.prismaService.user.findUnique({
+    const result = await this.prismaService.user.findUnique({
       include: {
         _count: {
           select: {
@@ -233,6 +218,27 @@ export class UserService {
       },
       where: userWhereUniqueInput
     });
+
+    if (!result) {
+      return null;
+    }
+
+    const {
+      _count,
+      accessesGet,
+      accessToken,
+      accounts,
+      analytics,
+      authChallenge,
+      createdAt,
+      id,
+      provider,
+      role,
+      settings,
+      subscriptions,
+      thirdPartyId,
+      updatedAt
+    } = result;
 
     const activitiesCount = _count?.activities ?? 0;
 

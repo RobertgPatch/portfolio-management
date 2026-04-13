@@ -35,6 +35,19 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
 
   public async validate(request: Request, { id }: { id: string }) {
     Logger.log(`validate() called with id=${id}`, 'JwtStrategy');
+
+    if (!id) {
+      Logger.error(
+        `JWT payload missing 'id' field — token may be malformed`,
+        undefined,
+        'JwtStrategy'
+      );
+      throw new HttpException(
+        getReasonPhrase(StatusCodes.UNAUTHORIZED),
+        StatusCodes.UNAUTHORIZED
+      );
+    }
+
     try {
       const timezone = request.headers[HEADER_KEY_TIMEZONE.toLowerCase()];
       const user = await this.userService.user({ id });
@@ -72,6 +85,10 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
 
         return user;
       } else {
+        Logger.warn(
+          `User not found in database for id=${id}`,
+          'JwtStrategy'
+        );
         throw new HttpException(
           getReasonPhrase(StatusCodes.NOT_FOUND),
           StatusCodes.NOT_FOUND
