@@ -1,5 +1,7 @@
 import ms from 'ms';
 
+import { setPendingNonce } from './patch-oauth2-gzip';
+
 /**
  * Custom state store for OIDC authentication that doesn't rely on express-session.
  * This store manages OAuth2 state parameters in memory with automatic cleanup.
@@ -76,6 +78,12 @@ export class OidcStateStore {
 
       // Remove state after verification (one-time use)
       this.stateMap.delete(handle);
+
+      // Capture the nonce so the oauth2-gzip-patch can inject it into
+      // synthetic JWTs built from userinfo (for encrypted JWE id_tokens).
+      if (data.ctx?.nonce) {
+        setPendingNonce(data.ctx.nonce);
+      }
 
       callback(null, data.ctx, data.appState);
     } catch (error) {

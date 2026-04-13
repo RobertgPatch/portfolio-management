@@ -31,6 +31,19 @@ let patched = false;
  */
 let oidcConfig: { userInfoURL?: string; issuer?: string; clientID?: string } = {};
 
+/**
+ * Nonce captured from the OIDC state store during the verify step.
+ * The state store calls setPendingNonce() before the token exchange,
+ * so by the time normalizeIdTokenIfNeeded() runs, the nonce is available
+ * to inject into the synthetic JWT — satisfying passport-openidconnect's
+ * nonce validation.
+ */
+let pendingNonce: string | undefined;
+
+export function setPendingNonce(nonce: string | undefined): void {
+  pendingNonce = nonce;
+}
+
 export function patchOAuth2GzipHandling(config?: {
   userInfoURL?: string;
   issuer?: string;
@@ -242,6 +255,14 @@ export function patchOAuth2GzipHandling(config?: {
           exp: claims.exp || now + 3600,
           iat: claims.iat || now
         };
+
+        // Inject nonce from the OIDC state store so passport-openidconnect's
+        // nonce validation (claims.nonce === ctx.nonce) passes.
+        if (pendingNonce) {
+          syntheticClaims.nonce = pendingNonce;
+          console.log(`${TAG} Injected nonce into synthetic JWT`);
+          pendingNonce = undefined;
+        }
 
         console.log(
           `${TAG} Synthetic claims: iss=${syntheticClaims.iss} ` +
