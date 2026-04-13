@@ -15,6 +15,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
 import { OidcStrategy } from './oidc.strategy';
+import { patchOAuth2GzipHandling } from './patch-oauth2-gzip';
 
 @Module({
   controllers: [AuthController],
@@ -111,6 +112,10 @@ import { OidcStrategy } from './oidc.strategy';
           clientID: configurationService.get('OIDC_CLIENT_ID'),
           clientSecret: configurationService.get('OIDC_CLIENT_SECRET')
         };
+
+        // Patch the oauth library to handle gzip-compressed responses
+        // from Railway's reverse proxy before creating the strategy
+        patchOAuth2GzipHandling();
 
         return new OidcStrategy(authService, options);
       }
