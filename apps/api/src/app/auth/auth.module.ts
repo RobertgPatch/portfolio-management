@@ -114,8 +114,13 @@ import { patchOAuth2GzipHandling } from './patch-oauth2-gzip';
         };
 
         // Patch the oauth library to handle gzip-compressed responses
-        // from Railway's reverse proxy before creating the strategy
-        patchOAuth2GzipHandling();
+        // from Railway's reverse proxy before creating the strategy.
+        // Also pass OIDC config so the patch can fetch userinfo as a
+        // fallback when the id_token is encrypted (JWE).
+        patchOAuth2GzipHandling({
+          userInfoURL,
+          issuer
+        });
 
         return new OidcStrategy(authService, options);
       }

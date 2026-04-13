@@ -19,12 +19,26 @@
  * where `close` fired while async decompression was still pending.
  */
 import { OAuth2 } from 'oauth';
-import { compactDecrypt, decodeProtectedHeader } from 'jose';
+import * as https from 'https';
+import * as http from 'http';
 import * as zlib from 'zlib';
 
 let patched = false;
 
-export function patchOAuth2GzipHandling(): void {
+/**
+ * Stored OIDC configuration used to fetch userinfo as a fallback
+ * when the id_token is encrypted (JWE) and we cannot decrypt it.
+ */
+let oidcConfig: { userInfoURL?: string; issuer?: string } = {};
+
+export function patchOAuth2GzipHandling(config?: {
+  userInfoURL?: string;
+  issuer?: string;
+}): void {
+  if (config) {
+    oidcConfig = config;
+  }
+
   if (patched) {
     return;
   }
@@ -32,6 +46,84 @@ export function patchOAuth2GzipHandling(): void {
   patched = true;
 
   const TAG = '[oauth2-gzip-patch]';
+
+  /**
+   * Fetch JSON from a URL with Bearer token auth.
+   * Handles possible gzip compression from Railway proxy.
+   */
+  function fetchJson(
+    url: string,
+    accessToken: string
+  ): Promise<Record<string, any>> {
+    return new Promise((resolve, reject) => {
+      const parsedUrl = new URL(url);
+      const lib = parsedUrl.protocol === 'https:' ? https : http;
+
+      const req = lib.request(
+        url,
+        {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            Accept: 'application/json',
+            'Accept-Encoding': 'identity'
+          }
+        },
+        (res) => {
+          const chunks: Buffer[] = [];
+
+          res.on('data', (chunk: any) => {
+            chunks.push(
+              Buffer.isBuffer(chunk)
+                ? chunk
+                : Buffer.from(chunk, typeof chunk === 'string' ? 'binary' : undefined)
+            );
+          });
+
+          res.on('end', () => {
+            const raw = Buffer.concat(chunks);
+
+            // Try to decompress in case Railway proxy compressed the response
+            const tryParse = (buf: Buffer) => {
+              try {
+                return JSON.parse(buf.toString('utf8'));
+              } catch {
+                return null;
+              }
+            };
+
+            const direct = tryParse(raw);
+            if (direct) {
+              resolve(direct);
+              return;
+            }
+
+            // Try gunzip
+            zlib.unzip(raw, (err, decoded) => {
+              if (!err) {
+                const result = tryParse(decoded);
+                if (result) {
+                  resolve(result);
+                  return;
+                }
+              }
+              reject(
+                new Error(
+                  `Failed to parse userinfo response (${raw.length} bytes, ` +
+                    `status=${res.statusCode})`
+                )
+              );
+            });
+          });
+
+          res.on('error', reject);
+        }
+      );
+
+      req.on('error', reject);
+      req.end();
+    });
+  }
 
   (OAuth2.prototype as any)._executeRequest = function (
     httpLibrary: any,
@@ -67,6 +159,12 @@ export function patchOAuth2GzipHandling(): void {
         .replace(/=+$/g, '');
     }
 
+    /**
+     * If the token response contains an encrypted id_token (5-part JWE)
+     * that we cannot decrypt (e.g. RSA-OAEP-256), fetch the userinfo
+     * endpoint with the access_token and build a synthetic unsigned JWT
+     * so passport-openidconnect can parse it.
+     */
     async function normalizeIdTokenIfNeeded(result: string): Promise<string> {
       // Only token endpoint responses may contain id_token payloads.
       if (!String(options.path || '').includes('/token')) {
@@ -94,64 +192,70 @@ export function patchOAuth2GzipHandling(): void {
         return result;
       }
 
-      console.log(`${TAG} Detected 5-part encrypted id_token (JWE), trying decryption`);
-
-      const candidateKeys: Buffer[] = [];
-      const clientSecret = String((self as any)._clientSecret || '');
-
-      if (clientSecret) {
-        candidateKeys.push(Buffer.from(clientSecret, 'utf8'));
-
-        try {
-          candidateKeys.push(Buffer.from(clientSecret, 'base64'));
-        } catch {
-          // Ignore invalid base64 variant
-        }
+      // Decode the JWE protected header to log the algorithm
+      try {
+        const headerJson = Buffer.from(parts[0], 'base64url').toString('utf8');
+        const header = JSON.parse(headerJson);
+        console.log(
+          `${TAG} Detected encrypted id_token (JWE): alg=${header.alg} enc=${header.enc}`
+        );
+      } catch {
+        console.log(`${TAG} Detected 5-part id_token (JWE), cannot read header`);
       }
 
-      for (const key of candidateKeys) {
-        try {
-          const protectedHeader = decodeProtectedHeader(idToken);
-          console.log(
-            `${TAG} JWE header alg=${protectedHeader.alg || '(none)'} enc=${protectedHeader.enc || '(none)'}`
-          );
+      // We cannot decrypt RSA-OAEP / RSA-OAEP-256 without the provider's
+      // private key.  Instead, fetch the userinfo endpoint to get claims.
+      const accessToken = parsed?.access_token;
+      const userInfoURL = oidcConfig.userInfoURL;
 
-          const { plaintext } = await compactDecrypt(idToken, key);
-          const decrypted = Buffer.from(plaintext).toString('utf8');
-
-          // If decrypted payload is already a JWT, pass it through directly.
-          if (decrypted.split('.').length === 3) {
-            parsed.id_token = decrypted;
-            console.log(`${TAG} Decrypted JWE id_token into nested JWT`);
-            return JSON.stringify(parsed);
-          }
-
-          // If decrypted payload is raw claims JSON, wrap into a JWT-like token.
-          try {
-            JSON.parse(decrypted);
-
-            const header = toBase64Url(
-              Buffer.from(JSON.stringify({ alg: 'none', typ: 'JWT' }), 'utf8')
-            );
-            const payload = toBase64Url(Buffer.from(decrypted, 'utf8'));
-            parsed.id_token = `${header}.${payload}.`;
-
-            console.log(`${TAG} Decrypted JWE id_token into JSON claims`);
-            return JSON.stringify(parsed);
-          } catch {
-            // Continue with next key candidate
-          }
-        } catch {
-          // Continue with next key candidate
-        }
+      if (!accessToken || !userInfoURL) {
+        console.log(
+          `${TAG} Cannot resolve JWE id_token: ` +
+            `accessToken=${accessToken ? 'present' : 'missing'} ` +
+            `userInfoURL=${userInfoURL || 'missing'}`
+        );
+        return result;
       }
 
-      console.log(
-        `${TAG} Failed to decrypt encrypted id_token (JWE). ` +
-          `Likely provider-side ID token encryption mismatch.`
-      );
+      console.log(`${TAG} Fetching userinfo from ${userInfoURL} to build synthetic JWT`);
 
-      return result;
+      try {
+        const claims = await fetchJson(userInfoURL, accessToken);
+        console.log(
+          `${TAG} Userinfo fetched: sub=${claims.sub} keys=${Object.keys(claims).join(',')}`
+        );
+
+        // Ensure required OIDC claims are present
+        const now = Math.floor(Date.now() / 1000);
+        const syntheticClaims: Record<string, any> = {
+          ...claims,
+          iss: claims.iss || oidcConfig.issuer || '',
+          sub: claims.sub || '',
+          aud: claims.aud || (self as any)._clientId || '',
+          exp: claims.exp || now + 3600,
+          iat: claims.iat || now
+        };
+
+        const headerB64 = toBase64Url(
+          Buffer.from(JSON.stringify({ alg: 'none', typ: 'JWT' }), 'utf8')
+        );
+        const payloadB64 = toBase64Url(
+          Buffer.from(JSON.stringify(syntheticClaims), 'utf8')
+        );
+
+        parsed.id_token = `${headerB64}.${payloadB64}.`;
+        console.log(
+          `${TAG} Replaced encrypted id_token with synthetic JWT (sub=${syntheticClaims.sub})`
+        );
+
+        return JSON.stringify(parsed);
+      } catch (err: any) {
+        console.log(
+          `${TAG} Userinfo fetch failed: ${err?.message || err}. ` +
+            `Cannot resolve encrypted id_token.`
+        );
+        return result;
+      }
     }
 
     function finalizeResult(response: any, result: string) {
