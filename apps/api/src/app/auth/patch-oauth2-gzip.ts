@@ -33,15 +33,22 @@ let oidcConfig: { userInfoURL?: string; issuer?: string; clientID?: string } = {
 
 /**
  * Nonce captured from the OIDC state store during the verify step.
- * The state store calls setPendingNonce() before the token exchange,
- * so by the time normalizeIdTokenIfNeeded() runs, the nonce is available
- * to inject into the synthetic JWT — satisfying passport-openidconnect's
- * nonce validation.
+ * Uses globalThis to avoid webpack module-scope isolation issues
+ * (the state store and this patch may end up in different module instances).
  */
-let pendingNonce: string | undefined;
+const NONCE_KEY = '__oidc_pending_nonce';
 
 export function setPendingNonce(nonce: string | undefined): void {
-  pendingNonce = nonce;
+  (globalThis as any)[NONCE_KEY] = nonce;
+  console.log(`[oauth2-gzip-patch] setPendingNonce called: ${nonce ? nonce.substring(0, 8) + '...' : 'undefined'}`);
+}
+
+function consumePendingNonce(): string | undefined {
+  const nonce = (globalThis as any)[NONCE_KEY];
+  if (nonce) {
+    delete (globalThis as any)[NONCE_KEY];
+  }
+  return nonce;
 }
 
 export function patchOAuth2GzipHandling(config?: {
@@ -258,10 +265,11 @@ export function patchOAuth2GzipHandling(config?: {
 
         // Inject nonce from the OIDC state store so passport-openidconnect's
         // nonce validation (claims.nonce === ctx.nonce) passes.
-        if (pendingNonce) {
-          syntheticClaims.nonce = pendingNonce;
+        const nonce = consumePendingNonce();
+        console.log(`${TAG} consumePendingNonce returned: ${nonce ? nonce.substring(0, 8) + '...' : 'undefined'}`);
+        if (nonce) {
+          syntheticClaims.nonce = nonce;
           console.log(`${TAG} Injected nonce into synthetic JWT`);
-          pendingNonce = undefined;
         }
 
         console.log(

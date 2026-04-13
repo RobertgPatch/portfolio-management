@@ -1,7 +1,5 @@
 import ms from 'ms';
 
-import { setPendingNonce } from './patch-oauth2-gzip';
-
 /**
  * Custom state store for OIDC authentication that doesn't rely on express-session.
  * This store manages OAuth2 state parameters in memory with automatic cleanup.
@@ -81,8 +79,15 @@ export class OidcStateStore {
 
       // Capture the nonce so the oauth2-gzip-patch can inject it into
       // synthetic JWTs built from userinfo (for encrypted JWE id_tokens).
+      // Uses globalThis to bypass webpack module-scope isolation.
+      const NONCE_KEY = '__oidc_pending_nonce';
       if (data.ctx?.nonce) {
-        setPendingNonce(data.ctx.nonce);
+        (globalThis as any)[NONCE_KEY] = data.ctx.nonce;
+        console.log(
+          `[oidc-state] Stored pending nonce on globalThis: ${data.ctx.nonce.substring(0, 8)}...`
+        );
+      } else {
+        console.log(`[oidc-state] No nonce in ctx (keys: ${Object.keys(data.ctx || {}).join(',')})`);
       }
 
       callback(null, data.ctx, data.appState);
