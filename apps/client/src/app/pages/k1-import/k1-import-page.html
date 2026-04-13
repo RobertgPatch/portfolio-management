@@ -43,6 +43,9 @@
                   <mat-option [value]="y">{{ y }}</mat-option>
                 }
               </mat-select>
+              @if (isDetectingTaxYear) {
+                <mat-hint>Detecting tax year from PDF...</mat-hint>
+              }
             </mat-form-field>
           </div>
 
@@ -70,7 +73,7 @@
           </div>
 
           <button
-            [disabled]="!selectedFile || !selectedEntityId || !taxYear || isUploading"
+            [disabled]="!selectedFile || !selectedEntityId || !taxYear || isUploading || isDetectingTaxYear"
             class="w-100"
             color="primary"
             mat-flat-button

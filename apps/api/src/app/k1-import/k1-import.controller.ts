@@ -36,6 +36,20 @@ export class K1ImportController {
   ) {}
 
   /**
+   * POST /api/v1/k1-import/detect-tax-year
+   * Lightweight endpoint: extract just the tax year from a K-1 PDF.
+   * Called client-side when the user selects a file, before upload.
+   */
+  @HasPermission(permissions.readKDocument)
+  @Post('detect-tax-year')
+  @HttpCode(StatusCodes.OK)
+  @UseGuards(AuthGuard('jwt'), HasPermissionGuard)
+  @UseInterceptors(FileInterceptor('file'))
+  public async detectTaxYear(@UploadedFile() file: any) {
+    return this.k1ImportService.detectTaxYear(file);
+  }
+
+  /**
    * POST /api/v1/k1-import/upload
    * Upload a K-1 PDF and initiate extraction.
    */

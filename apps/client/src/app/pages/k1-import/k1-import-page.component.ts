@@ -51,6 +51,7 @@ export class K1ImportPageComponent implements OnDestroy, OnInit {
   public extractionStatus: string | null = null;
   public historyColumns = ['createdAt', 'fileName', 'taxYear', 'status', 'kDocument', 'actions'];
   public importHistory: any[] = [];
+  public isDetectingTaxYear = false;
   public isUploading = false;
   public partnerships: Array<{ id: string; name: string }> = [];
   public selectedEntityId = '';
@@ -166,6 +167,31 @@ export class K1ImportPageComponent implements OnDestroy, OnInit {
     this.error = null;
     this.selectedFile = file;
     this.changeDetectorRef.markForCheck();
+
+    // Auto-detect tax year from the PDF
+    this.isDetectingTaxYear = true;
+    this.changeDetectorRef.markForCheck();
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    this.k1ImportDataService
+      .detectTaxYear(formData)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (result) => {
+          if (result.taxYear && this.taxYearOptions.includes(result.taxYear)) {
+            this.taxYear = result.taxYear;
+          }
+          this.isDetectingTaxYear = false;
+          this.changeDetectorRef.markForCheck();
+        },
+        error: () => {
+          // Silent failure — keep the default tax year
+          this.isDetectingTaxYear = false;
+          this.changeDetectorRef.markForCheck();
+        }
+      });
   }
 
   public uploadK1(): void {
