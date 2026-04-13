@@ -22,8 +22,6 @@ export function patchOAuth2GzipHandling(): void {
 
   patched = true;
 
-  const originalExecuteRequest = (OAuth2.prototype as any)._executeRequest;
-
   (OAuth2.prototype as any)._executeRequest = function (
     httpLibrary: any,
     options: any,
