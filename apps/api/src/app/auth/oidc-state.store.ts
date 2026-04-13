@@ -11,7 +11,7 @@ export class OidcStateStore {
     string,
     {
       appState?: unknown;
-      ctx: { issued?: Date; maxAge?: number; nonce?: string };
+      ctx: { issued?: Date | string; maxAge?: number; nonce?: string };
       meta?: unknown;
       timestamp: number;
     }
@@ -23,9 +23,9 @@ export class OidcStateStore {
    */
   public store(
     _req: unknown,
-    _meta: unknown,
+    ctx: { maxAge?: number; nonce?: string; issued?: Date | string },
     appState: unknown,
-    ctx: { maxAge?: number; nonce?: string; issued?: Date },
+    meta: unknown,
     callback: (err: Error | null, handle?: string) => void
   ) {
     try {
@@ -35,7 +35,7 @@ export class OidcStateStore {
       this.stateMap.set(handle, {
         appState,
         ctx,
-        meta: _meta,
+        meta,
         timestamp: Date.now()
       });
 
@@ -58,7 +58,7 @@ export class OidcStateStore {
     callback: (
       err: Error | null,
       appState?: unknown,
-      ctx?: { maxAge?: number; nonce?: string; issued?: Date }
+      ctx?: { maxAge?: number; nonce?: string; issued?: Date | string }
     ) => void
   ) {
     try {
@@ -90,7 +90,15 @@ export class OidcStateStore {
         console.log(`[oidc-state] No nonce in ctx (keys: ${Object.keys(data.ctx || {}).join(',')})`);
       }
 
-      callback(null, data.ctx, data.appState);
+      const normalizedCtx = {
+        ...data.ctx,
+        issued:
+          typeof data.ctx?.issued === 'string'
+            ? new Date(data.ctx.issued)
+            : data.ctx?.issued
+      };
+
+      callback(null, normalizedCtx, data.appState);
     } catch (error) {
       callback(error as Error);
     }
