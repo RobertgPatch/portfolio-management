@@ -19,6 +19,7 @@
  * where `close` fired while async decompression was still pending.
  */
 import { OAuth2 } from 'oauth';
+import { compactDecrypt, decodeProtectedHeader } from 'jose';
 import * as zlib from 'zlib';
 
 let patched = false;
@@ -56,6 +57,107 @@ export function patchOAuth2GzipHandling(): void {
       } else {
         callback(null, result, response);
       }
+    }
+
+    function toBase64Url(input: Buffer): string {
+      return input
+        .toString('base64')
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_')
+        .replace(/=+$/g, '');
+    }
+
+    async function normalizeIdTokenIfNeeded(result: string): Promise<string> {
+      // Only token endpoint responses may contain id_token payloads.
+      if (!String(options.path || '').includes('/token')) {
+        return result;
+      }
+
+      let parsed: any;
+
+      try {
+        parsed = JSON.parse(result);
+      } catch {
+        return result;
+      }
+
+      const idToken = parsed?.id_token;
+
+      if (typeof idToken !== 'string') {
+        return result;
+      }
+
+      const parts = idToken.split('.');
+
+      // passport-openidconnect handles normal 3-part JWTs already.
+      if (parts.length !== 5) {
+        return result;
+      }
+
+      console.log(`${TAG} Detected 5-part encrypted id_token (JWE), trying decryption`);
+
+      const candidateKeys: Buffer[] = [];
+      const clientSecret = String((self as any)._clientSecret || '');
+
+      if (clientSecret) {
+        candidateKeys.push(Buffer.from(clientSecret, 'utf8'));
+
+        try {
+          candidateKeys.push(Buffer.from(clientSecret, 'base64'));
+        } catch {
+          // Ignore invalid base64 variant
+        }
+      }
+
+      for (const key of candidateKeys) {
+        try {
+          const protectedHeader = decodeProtectedHeader(idToken);
+          console.log(
+            `${TAG} JWE header alg=${protectedHeader.alg || '(none)'} enc=${protectedHeader.enc || '(none)'}`
+          );
+
+          const { plaintext } = await compactDecrypt(idToken, key);
+          const decrypted = Buffer.from(plaintext).toString('utf8');
+
+          // If decrypted payload is already a JWT, pass it through directly.
+          if (decrypted.split('.').length === 3) {
+            parsed.id_token = decrypted;
+            console.log(`${TAG} Decrypted JWE id_token into nested JWT`);
+            return JSON.stringify(parsed);
+          }
+
+          // If decrypted payload is raw claims JSON, wrap into a JWT-like token.
+          try {
+            JSON.parse(decrypted);
+
+            const header = toBase64Url(
+              Buffer.from(JSON.stringify({ alg: 'none', typ: 'JWT' }), 'utf8')
+            );
+            const payload = toBase64Url(Buffer.from(decrypted, 'utf8'));
+            parsed.id_token = `${header}.${payload}.`;
+
+            console.log(`${TAG} Decrypted JWE id_token into JSON claims`);
+            return JSON.stringify(parsed);
+          } catch {
+            // Continue with next key candidate
+          }
+        } catch {
+          // Continue with next key candidate
+        }
+      }
+
+      console.log(
+        `${TAG} Failed to decrypt encrypted id_token (JWE). ` +
+          `Likely provider-side ID token encryption mismatch.`
+      );
+
+      return result;
+    }
+
+    function finalizeResult(response: any, result: string) {
+      normalizeIdTokenIfNeeded(result)
+        .then((normalized) => passBackControl(response, normalized))
+        .catch(() => passBackControl(response, result));
     }
 
     // Force identity encoding on outgoing request so the upstream OIDC
@@ -104,7 +206,7 @@ export function patchOAuth2GzipHandling(): void {
 
         // Empty response
         if (raw.length === 0) {
-          passBackControl(response, '');
+          finalizeResult(response, '');
           return;
         }
 
@@ -131,7 +233,7 @@ export function patchOAuth2GzipHandling(): void {
           first === 0x6e    // 'n' (null)
         ) {
           console.log(`${TAG} First byte 0x${first.toString(16)} looks like text, skipping decompression`);
-          passBackControl(response, raw.toString('utf8'));
+          finalizeResult(response, raw.toString('utf8'));
           return;
         }
 
@@ -165,7 +267,7 @@ export function patchOAuth2GzipHandling(): void {
                 firstOut === 0x6e;
 
               if (isTextOut || depth >= 1) {
-                passBackControl(response, dec1.toString('utf8'));
+                finalizeResult(response, dec1.toString('utf8'));
                 return;
               }
 
@@ -178,7 +280,7 @@ export function patchOAuth2GzipHandling(): void {
             zlib.inflateRaw(input, function (err2: Error | null, dec2: Buffer) {
               if (!err2) {
                 console.log(`${TAG} zlib.inflateRaw succeeded (${dec2.length} bytes)`);
-                passBackControl(response, dec2.toString('utf8'));
+                finalizeResult(response, dec2.toString('utf8'));
                 return;
               }
 
@@ -189,7 +291,7 @@ export function patchOAuth2GzipHandling(): void {
                 function (err3: Error | null, dec3: Buffer) {
                   if (!err3) {
                     console.log(`${TAG} zlib.brotliDecompress succeeded (${dec3.length} bytes)`);
-                    passBackControl(response, dec3.toString('utf8'));
+                    finalizeResult(response, dec3.toString('utf8'));
                     return;
                   }
 
@@ -197,7 +299,7 @@ export function patchOAuth2GzipHandling(): void {
                     `${TAG} zlib.brotliDecompress failed: ${(err3 as any).code || err3.message}`
                   );
                   console.log(`${TAG} All decompression failed — returning raw UTF-8`);
-                  passBackControl(response, input.toString('utf8'));
+                  finalizeResult(response, input.toString('utf8'));
                 }
               );
             });
