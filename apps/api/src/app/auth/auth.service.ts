@@ -1,12 +1,12 @@
 import { UserService } from '@ghostfolio/api/app/user/user.service';
 
 import {
-  ForbiddenException,
   Injectable,
-  InternalServerErrorException
+  InternalServerErrorException,
+  Logger
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { Role } from '@prisma/client';
+import { Provider, Role } from '@prisma/client';
 
 import { ValidateOAuthLoginParams } from './interfaces/interfaces';
 
@@ -35,18 +35,28 @@ export class AuthService {
     groups
   }: ValidateOAuthLoginParams): Promise<string> {
     try {
-      const [user] = await this.userService.users({
+      let [user] = await this.userService.users({
         where: { provider, thirdPartyId }
       });
 
+      const role = groups?.length ? this.mapGroupsToRole(groups) : Role.USER;
+
       if (!user) {
-        throw new ForbiddenException('User not provisioned');
-      }
+        // JIT provisioning: auto-create user on first OIDC login
+        Logger.log(
+          `Provisioning new OIDC user (thirdPartyId=${thirdPartyId.substring(0, 8)}…)`,
+          'AuthService'
+        );
 
-      // Update role from groups claim on each login
-      if (groups?.length) {
-        const role = this.mapGroupsToRole(groups);
-
+        user = await this.userService.createUser({
+          data: {
+            provider: Provider.OIDC,
+            thirdPartyId,
+            role
+          }
+        });
+      } else if (groups?.length) {
+        // Update role from groups claim on each login
         await this.userService.updateUser({
           data: { role },
           where: { id: user.id }
@@ -57,10 +67,6 @@ export class AuthService {
         id: user.id
       });
     } catch (error) {
-      if (error instanceof ForbiddenException) {
-        throw error;
-      }
-
       throw new InternalServerErrorException(
         'validateOAuthLogin',
         error instanceof Error ? error.message : 'Unknown error'
