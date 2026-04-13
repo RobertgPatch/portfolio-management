@@ -8,8 +8,17 @@
  * `Content-Encoding`, causing `JSON.parse` to fail on binary compressed data.
  *
  * This patch collects response data as raw Buffers instead of strings, then
- * auto-detects compression by checking magic bytes (gzip: 0x1f 0x8b) since
- * some proxies strip the Content-Encoding header while still compressing.
+ * tries gunzip → inflate → brotli decompression sequentially, falling back to
+ * raw UTF-8 if none succeed.  This brute-force approach is reliable because:
+ *   - Token exchange happens once per login, so ~1ms overhead is negligible
+ *   - zlib.gunzip fails fast on non-gzip data (checks magic bytes internally)
+ *   - We avoid depending on Content-Encoding headers (Railway strips them)
+ *   - We avoid depending on our own magic-byte detection (can be unreliable)
+ *
+ * Previous versions had a race condition: the `close` event handler fired
+ * while async decompression was still pending, sending back raw compressed
+ * data.  The `close` handler has been removed entirely (matches the original
+ * oauth2.js behaviour).
  */
 import { OAuth2 } from 'oauth';
 import * as zlib from 'zlib';
@@ -48,6 +57,48 @@ export function patchOAuth2GzipHandling(): void {
       }
     }
 
+    /**
+     * Try gunzip → inflate → brotli → raw.
+     * Each decompressor fails fast on wrong format so the total overhead for
+     * already-uncompressed data is negligible.
+     */
+    function decompressAndReturn(response: any, raw: Buffer) {
+      // Fast path: if data already looks like JSON, skip decompression
+      if (
+        raw.length > 0 &&
+        (raw[0] === 0x7b || // '{'
+          raw[0] === 0x5b || // '['
+          raw[0] === 0x22)   // '"'
+      ) {
+        passBackControl(response, raw.toString('utf8'));
+        return;
+      }
+
+      zlib.gunzip(raw, function (errGz: Error | null, decoded: Buffer) {
+        if (!errGz) {
+          passBackControl(response, decoded.toString('utf8'));
+          return;
+        }
+        zlib.inflate(raw, function (errDf: Error | null, decoded2: Buffer) {
+          if (!errDf) {
+            passBackControl(response, decoded2.toString('utf8'));
+            return;
+          }
+          zlib.brotliDecompress(
+            raw,
+            function (errBr: Error | null, decoded3: Buffer) {
+              if (!errBr) {
+                passBackControl(response, decoded3.toString('utf8'));
+                return;
+              }
+              // Nothing worked — return raw bytes as UTF-8
+              passBackControl(response, raw.toString('utf8'));
+            }
+          );
+        });
+      });
+    }
+
     if (self._agent) {
       options.agent = self._agent;
     }
@@ -63,67 +114,12 @@ export function patchOAuth2GzipHandling(): void {
       });
 
       response.on('end', function () {
-        const raw = Buffer.concat(chunks);
-
-        // Auto-detect compression by magic bytes, since proxies may strip
-        // the Content-Encoding header while still compressing the body
-        const encoding = (
-          response.headers['content-encoding'] || ''
-        ).toLowerCase();
-
-        const isGzip =
-          encoding === 'gzip' ||
-          encoding === 'x-gzip' ||
-          (raw.length >= 2 && raw[0] === 0x1f && raw[1] === 0x8b);
-
-        const isDeflate =
-          encoding === 'deflate' ||
-          (raw.length >= 2 &&
-            (raw[0] & 0x0f) === 0x08 &&
-            !isGzip);
-
-        const isBrotli = encoding === 'br';
-
-        if (isGzip) {
-          zlib.gunzip(raw, function (err: Error | null, decoded: Buffer) {
-            if (err) {
-              // Decompression failed — return raw data as-is
-              passBackControl(response, raw.toString('utf8'));
-            } else {
-              passBackControl(response, decoded.toString('utf8'));
-            }
-          });
-        } else if (isDeflate) {
-          zlib.inflate(raw, function (err: Error | null, decoded: Buffer) {
-            if (err) {
-              passBackControl(response, raw.toString('utf8'));
-            } else {
-              passBackControl(response, decoded.toString('utf8'));
-            }
-          });
-        } else if (isBrotli) {
-          zlib.brotliDecompress(
-            raw,
-            function (err: Error | null, decoded: Buffer) {
-              if (err) {
-                passBackControl(response, raw.toString('utf8'));
-              } else {
-                passBackControl(response, decoded.toString('utf8'));
-              }
-            }
-          );
-        } else {
-          passBackControl(response, raw.toString('utf8'));
-        }
+        decompressAndReturn(response, Buffer.concat(chunks));
       });
 
-      response.on('close', function () {
-        // Handle early close for hosts that don't send content-length
-        if (!callbackCalled) {
-          const raw = Buffer.concat(chunks);
-          passBackControl(response, raw.toString('utf8'));
-        }
-      });
+      // NOTE: no 'close' handler — the previous version had a race condition
+      // where `close` fired while async decompression from `end` was still
+      // pending, causing it to send back raw compressed data.
 
       response.on('error', function (err: Error) {
         if (!callbackCalled) {
