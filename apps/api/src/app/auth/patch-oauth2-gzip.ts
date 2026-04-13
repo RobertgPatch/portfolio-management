@@ -29,11 +29,12 @@ let patched = false;
  * Stored OIDC configuration used to fetch userinfo as a fallback
  * when the id_token is encrypted (JWE) and we cannot decrypt it.
  */
-let oidcConfig: { userInfoURL?: string; issuer?: string } = {};
+let oidcConfig: { userInfoURL?: string; issuer?: string; clientID?: string } = {};
 
 export function patchOAuth2GzipHandling(config?: {
   userInfoURL?: string;
   issuer?: string;
+  clientID?: string;
 }): void {
   if (config) {
     oidcConfig = config;
@@ -225,16 +226,33 @@ export function patchOAuth2GzipHandling(config?: {
           `${TAG} Userinfo fetched: sub=${claims.sub} keys=${Object.keys(claims).join(',')}`
         );
 
-        // Ensure required OIDC claims are present
+        // Ensure required OIDC claims are present.
+        // passport-openidconnect validates:
+        //   claims.iss  === self._issuer          (the issuer option)
+        //   claims.aud  === self._oauth2._clientId (the clientID option)
+        //   claims.exp  >   Date.now()/1000
+        //   claims.iat  exists
+        //   claims.sub  exists
         const now = Math.floor(Date.now() / 1000);
         const syntheticClaims: Record<string, any> = {
           ...claims,
           iss: claims.iss || oidcConfig.issuer || '',
           sub: claims.sub || '',
-          aud: claims.aud || (self as any)._clientId || '',
+          aud: claims.aud || oidcConfig.clientID || (self as any)._clientId || '',
           exp: claims.exp || now + 3600,
           iat: claims.iat || now
         };
+
+        console.log(
+          `${TAG} Synthetic claims: iss=${syntheticClaims.iss} ` +
+            `aud=${syntheticClaims.aud} sub=${syntheticClaims.sub} ` +
+            `exp=${syntheticClaims.exp} iat=${syntheticClaims.iat}`
+        );
+        console.log(
+          `${TAG} OAuth2 clientId=${(self as any)._clientId} ` +
+            `oidcConfig.issuer=${oidcConfig.issuer} ` +
+            `oidcConfig.clientID=${oidcConfig.clientID}`
+        );
 
         const headerB64 = toBase64Url(
           Buffer.from(JSON.stringify({ alg: 'none', typ: 'JWT' }), 'utf8')

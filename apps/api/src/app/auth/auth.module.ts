@@ -119,7 +119,8 @@ import { patchOAuth2GzipHandling } from './patch-oauth2-gzip';
         // fallback when the id_token is encrypted (JWE).
         patchOAuth2GzipHandling({
           userInfoURL,
-          issuer
+          issuer,
+          clientID: configurationService.get('OIDC_CLIENT_ID')
         });
 
         return new OidcStrategy(authService, options);
