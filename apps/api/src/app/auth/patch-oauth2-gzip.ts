@@ -7,8 +7,9 @@
  * The `oauth` library concatenates response chunks as strings without checking
  * `Content-Encoding`, causing `JSON.parse` to fail on binary compressed data.
  *
- * This patch replaces `_executeRequest` on the prototype so ALL OAuth2
- * instances automatically decompress responses before returning them.
+ * This patch collects response data as raw Buffers instead of strings, then
+ * auto-detects compression by checking magic bytes (gzip: 0x1f 0x8b) since
+ * some proxies strip the Content-Encoding header while still compressing.
  */
 import { OAuth2 } from 'oauth';
 import * as zlib from 'zlib';
@@ -28,11 +29,7 @@ export function patchOAuth2GzipHandling(): void {
     postBody: any,
     callback: any
   ) {
-    // Wrap the callback to intercept the raw response and decompress if needed
     const self = this;
-
-    // We need to replace _executeRequest entirely because the original
-    // concatenates binary chunks as strings, destroying gzip data.
     let callbackCalled = false;
 
     function passBackControl(response: any, result: string) {
@@ -58,44 +55,80 @@ export function patchOAuth2GzipHandling(): void {
     const request = httpLibrary.request(options);
 
     request.on('response', function (response: any) {
-      const encoding = (
-        response.headers['content-encoding'] || ''
-      ).toLowerCase();
-
-      let stream: NodeJS.ReadableStream = response;
-
-      if (encoding === 'gzip' || encoding === 'x-gzip') {
-        stream = response.pipe(zlib.createGunzip());
-      } else if (encoding === 'deflate') {
-        stream = response.pipe(zlib.createInflate());
-      } else if (encoding === 'br') {
-        stream = response.pipe(zlib.createBrotliDecompress());
-      }
-
       const chunks: Buffer[] = [];
 
-      stream.on('data', function (chunk: any) {
+      // Always collect raw binary data — never concatenate as strings
+      response.on('data', function (chunk: any) {
         chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
       });
 
-      stream.on('end', function () {
-        const result = Buffer.concat(chunks).toString('utf8');
-        passBackControl(response, result);
-      });
+      response.on('end', function () {
+        const raw = Buffer.concat(chunks);
 
-      // If the decompression stream or response closes prematurely, still forward
-      stream.on('error', function (err: Error) {
-        if (!callbackCalled) {
-          callbackCalled = true;
-          callback(err);
+        // Auto-detect compression by magic bytes, since proxies may strip
+        // the Content-Encoding header while still compressing the body
+        const encoding = (
+          response.headers['content-encoding'] || ''
+        ).toLowerCase();
+
+        const isGzip =
+          encoding === 'gzip' ||
+          encoding === 'x-gzip' ||
+          (raw.length >= 2 && raw[0] === 0x1f && raw[1] === 0x8b);
+
+        const isDeflate =
+          encoding === 'deflate' ||
+          (raw.length >= 2 &&
+            (raw[0] & 0x0f) === 0x08 &&
+            !isGzip);
+
+        const isBrotli = encoding === 'br';
+
+        if (isGzip) {
+          zlib.gunzip(raw, function (err: Error | null, decoded: Buffer) {
+            if (err) {
+              // Decompression failed — return raw data as-is
+              passBackControl(response, raw.toString('utf8'));
+            } else {
+              passBackControl(response, decoded.toString('utf8'));
+            }
+          });
+        } else if (isDeflate) {
+          zlib.inflate(raw, function (err: Error | null, decoded: Buffer) {
+            if (err) {
+              passBackControl(response, raw.toString('utf8'));
+            } else {
+              passBackControl(response, decoded.toString('utf8'));
+            }
+          });
+        } else if (isBrotli) {
+          zlib.brotliDecompress(
+            raw,
+            function (err: Error | null, decoded: Buffer) {
+              if (err) {
+                passBackControl(response, raw.toString('utf8'));
+              } else {
+                passBackControl(response, decoded.toString('utf8'));
+              }
+            }
+          );
+        } else {
+          passBackControl(response, raw.toString('utf8'));
         }
       });
 
       response.on('close', function () {
         // Handle early close for hosts that don't send content-length
-        if (!callbackCalled && stream === response) {
-          const result = Buffer.concat(chunks).toString('utf8');
-          passBackControl(response, result);
+        if (!callbackCalled) {
+          const raw = Buffer.concat(chunks);
+          passBackControl(response, raw.toString('utf8'));
+        }
+      });
+
+      response.on('error', function (err: Error) {
+        if (!callbackCalled) {
+          callbackCalled = true;
+          callback(err);
         }
       });
     });
