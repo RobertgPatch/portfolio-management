@@ -8,7 +8,7 @@ import {
 } from '@ghostfolio/common/config';
 import { hasRole } from '@ghostfolio/common/permissions';
 
-import { HttpException, Injectable } from '@nestjs/common';
+import { HttpException, Injectable, Logger } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import * as countriesAndTimezones from 'countries-and-timezones';
 import { StatusCodes, getReasonPhrase } from 'http-status-codes';
@@ -26,9 +26,15 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       passReqToCallback: true,
       secretOrKey: configurationService.get('JWT_SECRET_KEY')
     });
+
+    Logger.log(
+      `JwtStrategy initialized with secretOrKey length=${String(configurationService.get('JWT_SECRET_KEY') || '').length}`,
+      'JwtStrategy'
+    );
   }
 
   public async validate(request: Request, { id }: { id: string }) {
+    Logger.log(`validate() called with id=${id}`, 'JwtStrategy');
     try {
       const timezone = request.headers[HEADER_KEY_TIMEZONE.toLowerCase()];
       const user = await this.userService.user({ id });
@@ -72,6 +78,11 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
         );
       }
     } catch (error) {
+      Logger.error(
+        `validate() error for id=${id}: ${error?.message || error}`,
+        error?.stack,
+        'JwtStrategy'
+      );
       if (error?.getStatus?.() === StatusCodes.TOO_MANY_REQUESTS) {
         throw error;
       } else {

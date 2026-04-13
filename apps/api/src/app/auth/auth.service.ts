@@ -63,9 +63,16 @@ export class AuthService {
         });
       }
 
-      return this.jwtService.sign({
+      const jwt = this.jwtService.sign({
         id: user.id
       });
+
+      Logger.log(
+        `JWT signed for user.id=${user.id} jwt=${jwt.substring(0, 20)}... length=${jwt.length}`,
+        'AuthService'
+      );
+
+      return jwt;
     } catch (error) {
       throw new InternalServerErrorException(
         'validateOAuthLogin',

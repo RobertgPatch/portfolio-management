@@ -4,6 +4,7 @@ import { DEFAULT_LANGUAGE_CODE } from '@ghostfolio/common/config';
 import {
   Controller,
   Get,
+  Logger,
   Req,
   Res,
   UseGuards,
@@ -44,9 +45,12 @@ export class AuthController {
     }
 
     if (jwt) {
-      response.redirect(
-        `${this.configurationService.get('ROOT_URL')}/auth/${jwt}`
+      const redirectUrl = `${this.configurationService.get('ROOT_URL')}/auth/${jwt}`;
+      Logger.log(
+        `OIDC callback: redirecting to ${redirectUrl.substring(0, 80)}... (jwt length=${jwt.length})`,
+        'AuthController'
       );
+      response.redirect(redirectUrl);
     } else {
       response.redirect(
         `${this.configurationService.get('ROOT_URL')}/auth`
