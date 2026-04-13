@@ -32,7 +32,15 @@
 <div class="container">
   <div class="button-container mb-5 row">
     <div class="align-items-center col d-flex justify-content-center">
-      @if (hasPermissionToCreateUser) {
+      @if (hasPermissionForAuthOidc) {
+        <a
+          color="primary"
+          i18n
+          mat-flat-button
+          href="/api/auth/oidc"
+          >Sign in</a
+        >
+      } @else if (hasPermissionToCreateUser) {
         <a
           color="primary"
           i18n
@@ -42,7 +50,7 @@
         >
       }
       @if (hasPermissionForDemo) {
-        @if (hasPermissionToCreateUser) {
+        @if (hasPermissionForAuthOidc || hasPermissionToCreateUser) {
           <div class="mx-3 text-muted" i18n>or</div>
         }
         <a i18n mat-stroked-button [routerLink]="routerLinkDemo">Live Demo</a>
@@ -336,13 +344,23 @@
           }
         </p>
         <div class="align-items-center d-flex justify-content-center py-2">
-          <a
-            color="primary"
-            i18n
-            mat-flat-button
-            [routerLink]="routerLinkRegister"
-            >Get Started</a
-          >
+          @if (hasPermissionForAuthOidc) {
+            <a
+              color="primary"
+              i18n
+              mat-flat-button
+              href="/api/auth/oidc"
+              >Sign in</a
+            >
+          } @else {
+            <a
+              color="primary"
+              i18n
+              mat-flat-button
+              [routerLink]="routerLinkRegister"
+              >Get Started</a
+            >
+          }
           @if (hasPermissionForDemo) {
             <div class="mx-3 text-muted" i18n>or</div>
             <a i18n mat-stroked-button [routerLink]="routerLinkDemo"

@@ -46,6 +46,7 @@ export class GfLandingPageComponent implements OnDestroy, OnInit {
   } = {};
   public currentYear = format(new Date(), 'yyyy');
   public deviceType: string;
+  public hasPermissionForAuthOidc: boolean;
   public hasPermissionForDemo: boolean;
   public hasPermissionForStatistics: boolean;
   public hasPermissionForSubscription: boolean;
@@ -125,6 +126,11 @@ export class GfLandingPageComponent implements OnDestroy, OnInit {
         value: 1
       };
     }
+
+    this.hasPermissionForAuthOidc = hasPermission(
+      globalPermissions,
+      permissions.enableAuthOidc
+    );
 
     this.hasPermissionForDemo = !!demoAuthToken;
 

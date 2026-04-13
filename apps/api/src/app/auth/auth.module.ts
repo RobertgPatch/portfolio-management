@@ -102,6 +102,7 @@ import { OidcStrategy } from './oidc.strategy';
 
         const options: StrategyOptions = {
           authorizationURL,
+          customHeaders: { 'Accept-Encoding': 'identity' },
           issuer,
           scope,
           tokenURL,
