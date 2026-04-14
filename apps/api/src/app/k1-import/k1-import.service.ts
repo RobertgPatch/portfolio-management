@@ -35,83 +35,19 @@ export class K1ImportService {
   ) {}
 
   /**
-   * Lightweight tax-year detection from a K-1 PDF buffer.
-   * Uses pdf-parse for fast text extraction + regex, no full field extraction.
-   */
-  public async detectTaxYear(file: any): Promise<{ taxYear: number | null }> {
-    if (!file?.buffer && !file?.path) {
-      return { taxYear: null };
-    }
-
-    let buffer: Buffer;
-    if (file.buffer) {
-      buffer = file.buffer;
-    } else {
-      buffer = await readFile(file.path);
-    }
-
-    try {
-      // 1. Quick text extraction via pdf-parse
-      const pdfParseModule = await import('pdf-parse');
-      const pdfParse = (pdfParseModule as any).default || pdfParseModule;
-      const parsed = await pdfParse(buffer, { max: 1 }); // first page only
-      const text: string = parsed.text ?? '';
-
-      // 2. Try regex patterns to find the tax year
-      const patterns = [
-        // IRS K-1 header: "For calendar year 2025" or "calendar year 20 25"
-        /(?:for\s+)?calendar\s+year\s*(\d{4})/i,
-        /(?:for\s+)?calendar\s+year\s*(\d{2})\s+(\d{2})/i,
-        // "tax year beginning ... ending ..."
-        /tax\s+year\s+(?:beginning|ending)\s*[^\d]*(\d{4})/i,
-        // "Tax year 2025"
-        /tax\s+year\s*(\d{4})/i,
-        // IRS form header: "20 25" standalone at the top (two-digit fragments)
-        /^[\s\S]{0,300}?\b(20\d{2})\b/,
-        // Two consecutive 2-digit numbers that form a year (common in scanned K-1s)
-        /^[\s\S]{0,300}?(20)\s+(\d{2})\b/
-      ];
-
-      for (const pattern of patterns) {
-        const match = text.match(pattern);
-        if (match) {
-          let year: number;
-          if (match[2] !== undefined) {
-            // Two-part match: e.g., "20" + "25"
-            year = parseInt(match[1] + match[2], 10);
-          } else {
-            year = parseInt(match[1], 10);
-          }
-          if (year >= 1990 && year <= 2100) {
-            this.logger.log(`Detected tax year ${year} from PDF text`);
-            return { taxYear: year };
-          }
-        }
-      }
-
-      this.logger.log('Could not detect tax year from PDF text');
-      return { taxYear: null };
-    } catch (error) {
-      this.logger.warn(`Tax year detection failed: ${error.message}`);
-      return { taxYear: null };
-    }
-  }
-
-  /**
    * Upload a K-1 PDF and initiate extraction.
    * FR-001, FR-003, FR-005, FR-028
+   * Tax year is auto-detected from the PDF during extraction.
    */
   public async uploadAndExtract({
     file,
     entityId,
     partnershipId,
-    taxYear,
     userId
   }: {
     file: any;
     entityId: string;
     partnershipId: string | null;
-    taxYear: number;
     userId: string;
   }) {
     // Validate PDF MIME type (FR-003)
@@ -170,35 +106,23 @@ export class K1ImportService {
           StatusCodes.BAD_REQUEST
         );
       }
-
-      // Validate tax year >= partnership inception year
-      if (partnership.inceptionDate) {
-        const inceptionYear = new Date(partnership.inceptionDate).getFullYear();
-        if (taxYear < inceptionYear) {
-          throw new HttpException(
-            `Tax year must be >= partnership inception year (${inceptionYear})`,
-            StatusCodes.BAD_REQUEST
-          );
-        }
-      }
     }
 
-    // Create Document record for the uploaded PDF
+    // Create Document record for the uploaded PDF (taxYear set to 0 — updated after extraction)
     const document = await this.uploadService.createDocument({
       file,
       partnershipId: partnershipId || undefined,
-      taxYear,
       type: 'K1',
       name: file.originalname
     });
 
-    // Create import session in PROCESSING status
+    // Create import session in PROCESSING status (taxYear set to 0 — updated after extraction)
     const session = await this.prismaService.k1ImportSession.create({
       data: {
         partnershipId: partnershipId || undefined,
         userId,
         status: K1ImportStatus.PROCESSING,
-        taxYear,
+        taxYear: 0,
         fileName: file.originalname,
         fileSize: file.size,
         extractionMethod: 'pending',
@@ -371,6 +295,15 @@ export class K1ImportService {
         } as any
       };
 
+      // Auto-set taxYear from extracted metadata
+      const extractedTaxYear = completeResult.metadata?.taxYear;
+      if (extractedTaxYear && extractedTaxYear >= 1990 && extractedTaxYear <= 2100) {
+        updateData.taxYear = extractedTaxYear;
+        this.logger.log(`Session ${sessionId}: Auto-detected tax year ${extractedTaxYear} from PDF`);
+      } else {
+        this.logger.warn(`Session ${sessionId}: Could not detect tax year from PDF metadata`);
+      }
+
       // Link the resolved partnership to the session (and its document)
       if (resolvedPartnershipId && resolvedPartnershipId !== partnershipId) {
         updateData.partnershipId = resolvedPartnershipId;
@@ -382,6 +315,14 @@ export class K1ImportService {
             data: { partnershipId: resolvedPartnershipId }
           });
         }
+      }
+
+      // Also update the Document's taxYear if detected
+      if (extractedTaxYear && doc?.documentId) {
+        await this.prismaService.document.update({
+          where: { id: doc.documentId },
+          data: { taxYear: extractedTaxYear }
+        });
       }
 
       await this.prismaService.k1ImportSession.update({

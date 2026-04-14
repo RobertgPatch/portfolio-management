@@ -19,17 +19,6 @@ export class K1ImportDataService {
   // ── K1 Import Endpoints ──────────────────────────────────────────
 
   /**
-   * Detect the tax year from a K-1 PDF without full extraction.
-   * POST /api/v1/k1-import/detect-tax-year
-   */
-  public detectTaxYear(formData: FormData): Observable<{ taxYear: number | null }> {
-    return this.http.post<{ taxYear: number | null }>(
-      '/api/v1/k1-import/detect-tax-year',
-      formData
-    );
-  }
-
-  /**
    * Upload a K-1 PDF and initiate extraction.
    * POST /api/v1/k1-import/upload
    */

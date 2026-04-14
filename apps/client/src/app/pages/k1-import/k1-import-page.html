@@ -36,20 +36,6 @@
           </div>
 
           <div class="mb-3">
-            <mat-form-field class="w-100">
-              <mat-label>Tax Year</mat-label>
-              <mat-select [(ngModel)]="taxYear">
-                @for (y of taxYearOptions; track y) {
-                  <mat-option [value]="y">{{ y }}</mat-option>
-                }
-              </mat-select>
-              @if (isDetectingTaxYear) {
-                <mat-hint>Detecting tax year from PDF...</mat-hint>
-              }
-            </mat-form-field>
-          </div>
-
-          <div class="mb-3">
             <div class="upload-dropzone text-center p-4"
                  (click)="fileInput.click()"
                  (dragover)="$event.preventDefault()"
@@ -73,7 +59,7 @@
           </div>
 
           <button
-            [disabled]="!selectedFile || !selectedEntityId || !taxYear || isUploading || isDetectingTaxYear"
+            [disabled]="!selectedFile || !selectedEntityId || isUploading"
             class="w-100"
             color="primary"
             mat-flat-button

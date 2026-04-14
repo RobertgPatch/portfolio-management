@@ -51,15 +51,12 @@ export class K1ImportPageComponent implements OnDestroy, OnInit {
   public extractionStatus: string | null = null;
   public historyColumns = ['createdAt', 'fileName', 'taxYear', 'status', 'kDocument', 'actions'];
   public importHistory: any[] = [];
-  public isDetectingTaxYear = false;
   public isUploading = false;
   public partnerships: Array<{ id: string; name: string }> = [];
   public selectedEntityId = '';
   public selectedFile: File | null = null;
   public selectedPartnershipId = '';
   public sessionId: string | null = null;
-  public taxYear: number;
-  public taxYearOptions: number[] = [];
   public uploadProgress = 0;
 
   private pollingInterval: any = null;
@@ -72,11 +69,6 @@ export class K1ImportPageComponent implements OnDestroy, OnInit {
     private readonly router: Router
   ) {
     addIcons({ cloudUploadOutline, documentTextOutline });
-    const currentYear = new Date().getFullYear();
-    this.taxYear = currentYear - 1;
-    for (let y = currentYear; y >= currentYear - 10; y--) {
-      this.taxYearOptions.push(y);
-    }
   }
 
   public ngOnDestroy(): void {
@@ -167,36 +159,11 @@ export class K1ImportPageComponent implements OnDestroy, OnInit {
     this.error = null;
     this.selectedFile = file;
     this.changeDetectorRef.markForCheck();
-
-    // Auto-detect tax year from the PDF
-    this.isDetectingTaxYear = true;
-    this.changeDetectorRef.markForCheck();
-
-    const formData = new FormData();
-    formData.append('file', file);
-
-    this.k1ImportDataService
-      .detectTaxYear(formData)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (result) => {
-          if (result.taxYear && this.taxYearOptions.includes(result.taxYear)) {
-            this.taxYear = result.taxYear;
-          }
-          this.isDetectingTaxYear = false;
-          this.changeDetectorRef.markForCheck();
-        },
-        error: () => {
-          // Silent failure — keep the default tax year
-          this.isDetectingTaxYear = false;
-          this.changeDetectorRef.markForCheck();
-        }
-      });
   }
 
   public uploadK1(): void {
-    if (!this.selectedFile || !this.selectedEntityId || !this.taxYear) {
-      this.error = 'Please select an entity, tax year, and PDF file.';
+    if (!this.selectedFile || !this.selectedEntityId) {
+      this.error = 'Please select an entity and a PDF file.';
       this.changeDetectorRef.markForCheck();
       return;
     }
@@ -208,7 +175,6 @@ export class K1ImportPageComponent implements OnDestroy, OnInit {
 
     const formData = new FormData();
     formData.append('file', this.selectedFile);
-    formData.append('taxYear', this.taxYear.toString());
     formData.append('entityId', this.selectedEntityId);
 
     if (this.selectedPartnershipId) {
