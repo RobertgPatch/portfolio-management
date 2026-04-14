@@ -43,6 +43,16 @@ export const routes: Routes = [
     title: internalRoutes.auth.title
   },
   {
+    // Dev mode: OIDC callback redirects to /en/auth/{jwt} but the dev server
+    // uses base href="/", so Angular sees the full path including the locale
+    // prefix. In production this route is never matched because base href="/en/"
+    // strips the prefix before routing.
+    path: `en/${internalRoutes.auth.path}`,
+    loadChildren: () =>
+      import('./pages/auth/auth-page.routes').then((m) => m.routes),
+    title: internalRoutes.auth.title
+  },
+  {
     path: publicRoutes.blog.path,
     loadChildren: () =>
       import('./pages/blog/blog-page.routes').then((m) => m.routes)
