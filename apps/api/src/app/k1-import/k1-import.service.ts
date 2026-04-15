@@ -827,8 +827,14 @@ export class K1ImportService {
     >();
 
     for (const field of verifiedData.fields) {
-      // For subtype fields (e.g., box 11 "ZZ*", box 20 "A"), create unique key
-      const boxKey = field.subtype
+      // For subtype fields (e.g., box 11 "ZZ*", box 14 "C"), create unique key.
+      // Guard: if boxNumber already encodes the subtype (e.g., '20A' with subtype 'A'),
+      // don't double-encode to '20A-A'.
+      const subtypeAlreadyEncoded = field.subtype && (
+        field.boxNumber.endsWith(field.subtype) ||
+        (field.subtype === '*' && field.boxNumber.includes('WILDCARD'))
+      );
+      const boxKey = field.subtype && !subtypeAlreadyEncoded
         ? `${field.boxNumber}-${field.subtype}`
         : field.boxNumber;
 

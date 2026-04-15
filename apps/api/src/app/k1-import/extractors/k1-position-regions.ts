@@ -1166,9 +1166,9 @@ const PART_III_RIGHT_REGIONS: K1PositionRegion[] = [
     xMax: 600,
     yMin: 356,
     yMax: 396,
-    hasSubtype: true,
-    subtypeXMin: 445,
-    subtypeXMax: 510
+    hasSubtype: false,
+    subtypeXMin: null,
+    subtypeXMax: null
   },
   {
     fieldId: 'BOX_20B',
@@ -1180,9 +1180,9 @@ const PART_III_RIGHT_REGIONS: K1PositionRegion[] = [
     xMax: 600,
     yMin: 332,
     yMax: 356,
-    hasSubtype: true,
-    subtypeXMin: 445,
-    subtypeXMax: 510
+    hasSubtype: false,
+    subtypeXMin: null,
+    subtypeXMax: null
   },
   {
     fieldId: 'BOX_20V',
@@ -1194,9 +1194,9 @@ const PART_III_RIGHT_REGIONS: K1PositionRegion[] = [
     xMax: 600,
     yMin: 308,
     yMax: 332,
-    hasSubtype: true,
-    subtypeXMin: 445,
-    subtypeXMax: 510
+    hasSubtype: false,
+    subtypeXMin: null,
+    subtypeXMax: null
   },
   {
     fieldId: 'BOX_20_WILDCARD',
@@ -1208,9 +1208,9 @@ const PART_III_RIGHT_REGIONS: K1PositionRegion[] = [
     xMax: 600,
     yMin: 284,
     yMax: 308,
-    hasSubtype: true,
-    subtypeXMin: 445,
-    subtypeXMax: 510
+    hasSubtype: false,
+    subtypeXMin: null,
+    subtypeXMax: null
   },
   {
     fieldId: 'BOX_21',
