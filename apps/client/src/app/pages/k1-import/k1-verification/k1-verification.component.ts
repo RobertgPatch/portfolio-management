@@ -298,7 +298,18 @@ export class K1VerificationComponent implements OnInit {
 
           const extraction = session.rawExtraction;
           if (extraction) {
-            this.fields = (extraction.fields || []).map(
+            // Dedup: filter out subtype-encoded duplicates (e.g., '20A-A' when '20A' exists)
+            const rawFields: K1ExtractedField[] = extraction.fields || [];
+            const boxNumbers = new Set(rawFields.map((f: any) => f.boxNumber));
+            const dedupedFields = rawFields.filter((f: any) => {
+              const dashIdx = f.boxNumber.indexOf('-');
+              if (dashIdx < 0) return true; // no dash → keep
+              const base = f.boxNumber.substring(0, dashIdx);
+              // If the base box (e.g., '20A') also exists, drop this duplicate ('20A-A')
+              return !boxNumbers.has(base);
+            });
+
+            this.fields = dedupedFields.map(
               (f: K1ExtractedField) => ({
                 ...f,
                 editValue: f.rawValue,

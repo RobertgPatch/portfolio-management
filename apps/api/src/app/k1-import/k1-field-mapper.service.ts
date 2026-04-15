@@ -105,6 +105,19 @@ export class K1FieldMapperService {
 
     for (const def of definitions) {
       if (!existingBoxes.has(def.boxKey)) {
+        // Skip subtype-encoded duplicates: if def.boxKey contains a dash
+        // and the base portion already exists (e.g., '20A-A' when '20A' exists)
+        const dashIdx = def.boxKey.indexOf('-');
+        if (dashIdx >= 0) {
+          const base = def.boxKey.substring(0, dashIdx);
+          if (existingBoxes.has(base)) {
+            this.logger.debug(
+              `Skipping duplicate box definition ${def.boxKey} — base box ${base} already extracted`
+            );
+            continue;
+          }
+        }
+
         missingFields.push({
           boxNumber: def.boxKey,
           label: def.label,
