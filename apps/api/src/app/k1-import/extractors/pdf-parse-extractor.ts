@@ -659,11 +659,20 @@ export class PdfParseExtractor implements K1Extractor {
         region
       );
 
+      // For name/address regions (B_NAME, F_NAME_ADDR), emit only the
+      // first line (the name) as the rawValue — the address lines are not
+      // needed in the fields grid.
+      const isNameRegion =
+        regionFieldId === 'B_NAME' || regionFieldId === 'F_NAME_ADDR';
+      const displayValue = isNameRegion
+        ? matches[0].text.trim()
+        : combinedText;
+
       fields.push({
         boxNumber: region.boxNumber,
         label: region.label,
         customLabel: null,
-        rawValue: combinedText,
+        rawValue: displayValue,
         numericValue: null,
         confidence,
         confidenceLevel,
