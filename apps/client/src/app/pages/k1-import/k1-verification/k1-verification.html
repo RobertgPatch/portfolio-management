@@ -130,57 +130,6 @@
       </div>
     </section>
 
-    <!-- Unmapped Items -->
-    @if (unmappedItems.length > 0) {
-      <section class="unmapped-section">
-        <div class="section-header">
-          <h2>Unmapped Items</h2>
-          <span class="field-count">{{ unmappedItems.length }} items need attention</span>
-        </div>
-
-        <div class="unmapped-grid">
-          @for (item of unmappedItems; track item.rawLabel) {
-            <div class="unmapped-card" [class.resolved]="item.resolution !== null">
-              <div class="unmapped-info">
-                <span class="unmapped-label">{{ item.rawLabel }}</span>
-                <span class="unmapped-value">{{ item.rawValue }}</span>
-                @if (item.numericValue !== null) {
-                  <span class="unmapped-parsed">({{ item.numericValue | number:'1.2-2' }})</span>
-                }
-                <span class="unmapped-page">p.{{ item.pageNumber }}</span>
-              </div>
-              <div class="unmapped-actions">
-                @if (item.resolution === null) {
-                  <mat-form-field class="assign-field" appearance="outline" subscriptSizing="dynamic">
-                    <mat-label>Assign to box</mat-label>
-                    <mat-select (selectionChange)="assignUnmappedItem(item, $event.value)">
-                      @for (def of availableBoxDefinitions; track def.boxKey) {
-                        <mat-option [value]="def.boxKey">{{ def.boxKey }} — {{ def.label }}</mat-option>
-                      }
-                    </mat-select>
-                  </mat-form-field>
-                  <button mat-icon-button class="discard-btn" matTooltip="Discard" (click)="discardUnmappedItem(item)">
-                    <mat-icon>delete_outline</mat-icon>
-                  </button>
-                } @else {
-                  <span class="resolution-chip" [class.assigned]="item.resolution === 'assigned'">
-                    @if (item.resolution === 'assigned') {
-                      → Box {{ item.assignedBoxNumber }}
-                    } @else {
-                      Discarded
-                    }
-                  </span>
-                  <button mat-icon-button class="undo-btn" matTooltip="Undo" (click)="undoUnmappedResolution(item)">
-                    <mat-icon>undo</mat-icon>
-                  </button>
-                }
-              </div>
-            </div>
-          }
-        </div>
-      </section>
-    }
-
     <!-- Aggregation Summary -->
     @if (aggregations.length > 0) {
       <section class="aggregation-section">

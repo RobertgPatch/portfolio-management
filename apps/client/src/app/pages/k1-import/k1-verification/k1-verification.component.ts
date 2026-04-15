@@ -1,8 +1,7 @@
 import { K1ImportDataService } from '@ghostfolio/client/services/k1-import-data.service';
 import type {
   K1AggregationResult,
-  K1ExtractedField,
-  K1UnmappedItem
+  K1ExtractedField
 } from '@ghostfolio/common/interfaces';
 
 import { CommonModule } from '@angular/common';
@@ -17,11 +16,9 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -35,11 +32,6 @@ interface EditableField extends K1ExtractedField {
   _snapshotLabel: string;
 }
 
-interface EditableUnmappedItem extends K1UnmappedItem {
-  resolution: 'assigned' | 'discarded' | null;
-  assignedBoxNumber: string | null;
-}
-
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'page' },
@@ -48,11 +40,9 @@ interface EditableUnmappedItem extends K1UnmappedItem {
     FormsModule,
     MatButtonModule,
     MatCheckboxModule,
-    MatFormFieldModule,
     MatIconModule,
     MatInputModule,
     MatProgressBarModule,
-    MatSelectModule,
     MatTooltipModule
   ],
   selector: 'gf-k1-verification',
@@ -68,20 +58,12 @@ export class K1VerificationComponent implements OnInit {
   public isSaving = false;
   public sessionId: string;
   public taxYear: number;
-  public unmappedItems: EditableUnmappedItem[] = [];
-
   public cellTypeOptions = [
     { value: 'number', label: 'Number ($)' },
     { value: 'string', label: 'String' },
     { value: 'percentage', label: 'Percentage (%)' },
     { value: 'boolean', label: 'Boolean' }
   ];
-
-  // All box definitions from the API (for assigning unmapped items)
-  public allBoxDefinitions: Array<{ boxKey: string; label: string; section?: string }> = [];
-
-  // Available box definitions for the dropdown (excludes already-mapped boxes)
-  public availableBoxDefinitions: Array<{ boxKey: string; label: string; section?: string }> = [];
 
   public constructor(
     private readonly activatedRoute: ActivatedRoute,
@@ -201,41 +183,6 @@ export class K1VerificationComponent implements OnInit {
     this.changeDetectorRef.markForCheck();
   }
 
-  // ── Unmapped Items ──────────────────────────────────────────────────
-
-  /**
-   * Assign an unmapped item to an existing box number.
-   */
-  public assignUnmappedItem(
-    item: EditableUnmappedItem,
-    boxNumber: string
-  ): void {
-    item.resolution = 'assigned';
-    item.assignedBoxNumber = boxNumber;
-    this.checkConfirmability();
-    this.changeDetectorRef.markForCheck();
-  }
-
-  /**
-   * Discard an unmapped item.
-   */
-  public discardUnmappedItem(item: EditableUnmappedItem): void {
-    item.resolution = 'discarded';
-    item.assignedBoxNumber = null;
-    this.checkConfirmability();
-    this.changeDetectorRef.markForCheck();
-  }
-
-  /**
-   * Undo a previous assign/discard on an unmapped item.
-   */
-  public undoUnmappedResolution(item: EditableUnmappedItem): void {
-    item.resolution = null;
-    item.assignedBoxNumber = null;
-    this.checkConfirmability();
-    this.changeDetectorRef.markForCheck();
-  }
-
   // ── Actions ─────────────────────────────────────────────────────────
 
   /**
@@ -264,15 +211,7 @@ export class K1VerificationComponent implements OnInit {
         isUserEdited: f.isUserEdited,
         isReviewed: f.isReviewed
       })),
-      unmappedItems: this.unmappedItems.map((item) => ({
-        rawLabel: item.rawLabel,
-        rawValue: item.rawValue,
-        numericValue: item.numericValue,
-        confidence: item.confidence,
-        pageNumber: item.pageNumber,
-        resolution: item.resolution,
-        assignedBoxNumber: item.assignedBoxNumber
-      }))
+      unmappedItems: []
     };
 
     this.k1ImportDataService
@@ -371,16 +310,7 @@ export class K1VerificationComponent implements OnInit {
               })
             );
 
-            this.unmappedItems = (extraction.unmappedItems || []).map(
-              (item: K1UnmappedItem) => ({
-                ...item,
-                resolution: item.resolution || null,
-                assignedBoxNumber: item.assignedBoxNumber || null
-              })
-            );
-
-            // Load all box definitions from API for the unmapped dropdown
-            this.loadBoxDefinitions();
+            // Unmapped items are not displayed — all cells are mapped
           }
 
           this.recalculateAggregations();
@@ -449,73 +379,13 @@ export class K1VerificationComponent implements OnInit {
   }
 
   /**
-   * FR-035: Check if all medium/low-confidence fields are reviewed
-   * AND all unmapped items are resolved.
+   * FR-035: Check if all medium/low-confidence fields are reviewed.
    */
   private checkConfirmability(): void {
-    // All medium/low fields must be reviewed
-    const allFieldsReviewed = this.fields.every(
+    this.canConfirm = this.fields.every(
       (f) =>
         f.confidenceLevel === 'HIGH' ||
         f.isReviewed
     );
-
-    // All unmapped items must be resolved
-    const allUnmappedResolved =
-      this.unmappedItems.length === 0 ||
-      this.unmappedItems.every(
-        (item) =>
-          item.resolution === 'assigned' || item.resolution === 'discarded'
-      );
-
-    this.canConfirm = allFieldsReviewed && allUnmappedResolved;
-  }
-
-  /**
-   * Load all IRS box definitions from the API for the unmapped items dropdown.
-   * Filters out boxes that are already mapped to existing fields.
-   */
-  private loadBoxDefinitions(): void {
-    this.k1ImportDataService
-      .fetchBoxDefinitions()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (definitions: any[]) => {
-          this.allBoxDefinitions = definitions.map((d) => ({
-            boxKey: d.boxKey,
-            label: d.label,
-            section: d.section
-          }));
-
-          this.updateAvailableBoxDefinitions();
-          this.changeDetectorRef.markForCheck();
-        },
-        error: (err) => {
-          this.logger('Failed to load box definitions:', err);
-          // Fallback: use currently mapped field box numbers
-          this.allBoxDefinitions = this.fields.map((f) => ({
-            boxKey: f.boxNumber,
-            label: f.label,
-            section: undefined
-          }));
-          this.updateAvailableBoxDefinitions();
-          this.changeDetectorRef.markForCheck();
-        }
-      });
-  }
-
-  /**
-   * Update the available box definitions for the dropdown.
-   * Excludes boxes that already have mapped fields.
-   */
-  private updateAvailableBoxDefinitions(): void {
-    const mappedBoxes = new Set(this.fields.map((f) => f.boxNumber));
-    this.availableBoxDefinitions = this.allBoxDefinitions.filter(
-      (d) => !mappedBoxes.has(d.boxKey)
-    );
-  }
-
-  private logger(message: string, ...args: any[]): void {
-    console.warn(`[K1Verification] ${message}`, ...args);
   }
 }
