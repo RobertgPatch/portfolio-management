@@ -65,14 +65,18 @@ import type {
 } from './k1-box-definition.interface';
 import type {
   K1AggregationResult,
+  K1AuditAction,
+  K1AuditLogEntry,
   K1ConfirmationRequest,
   K1ExtractionResult,
   K1ExtractedField,
+  K1FormType,
   K1ImportSessionSummary,
   K1UnmappedItem
 } from './k1-import.interface';
 import type {
   CreateK1LineItemDto,
+  K1FieldSource,
   K1LineItem,
   K1LineItemAggregationResult,
   K1LineItemWithDefinition,
@@ -219,6 +223,8 @@ export {
   IKDocumentAllocation,
   IOwnership,
   K1AggregationResult,
+  K1AuditAction,
+  K1AuditLogEntry,
   K1BoxDataType,
   K1BoxDefinition,
   K1BoxDefinitionResolved,
@@ -227,6 +233,8 @@ export {
   K1ConfirmationRequest,
   K1ExtractionResult,
   K1ExtractedField,
+  K1FieldSource,
+  K1FormType,
   K1ImportSessionSummary,
   K1LineItem,
   K1LineItemAggregationResult,

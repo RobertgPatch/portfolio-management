@@ -20,6 +20,8 @@ export interface K1SourceCoordinates {
 /**
  * Core K1LineItem entity.
  */
+export type K1FieldSource = 'EXTRACTED' | 'USER_ENTERED' | 'COMPUTED' | 'IMPORTED';
+
 export interface K1LineItem {
   id: string;
   kDocumentId: string;
@@ -32,6 +34,7 @@ export interface K1LineItem {
   sourceCoords: K1SourceCoordinates | null;
   isUserEdited: boolean;
   isSuperseded: boolean;
+  source: K1FieldSource;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -64,6 +67,7 @@ export interface CreateK1LineItemDto {
   sourcePage?: number;
   sourceCoords?: K1SourceCoordinates;
   isUserEdited?: boolean;
+  source?: K1FieldSource;
 }
 
 /**

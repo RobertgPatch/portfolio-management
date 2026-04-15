@@ -113,6 +113,30 @@ export interface K1ConfirmationRequest {
   existingKDocumentAction: 'UPDATE' | 'CREATE_NEW' | null;
 }
 
+export type K1AuditAction =
+  | 'UPLOADED'
+  | 'EXTRACTION_STARTED'
+  | 'EXTRACTION_COMPLETED'
+  | 'EXTRACTION_FAILED'
+  | 'FIELD_EDITED'
+  | 'FIELD_REVIEWED'
+  | 'VERIFIED'
+  | 'CONFIRMED'
+  | 'REPROCESSED'
+  | 'CANCELLED';
+
+export type K1FormType = 'F1065' | 'F1120S' | 'F1041';
+
+export interface K1AuditLogEntry {
+  id: string;
+  importSessionId: string | null;
+  kDocumentId: string | null;
+  userId: string | null;
+  action: K1AuditAction;
+  details: Record<string, any> | null;
+  createdAt: Date;
+}
+
 export interface K1ImportSessionSummary {
   id: string;
   partnershipId: string;
@@ -120,6 +144,9 @@ export interface K1ImportSessionSummary {
   taxYear: number;
   fileName: string;
   extractionMethod: string;
+  extractionDurationMs: number | null;
+  verifiedAt: string | null;
+  verifiedBy: string | null;
   kDocumentId: string | null;
   createdAt: string;
 }

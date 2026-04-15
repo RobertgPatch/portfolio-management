@@ -3,7 +3,7 @@ import type { K1ExtractionResult } from '@ghostfolio/common/interfaces';
 
 import { HttpException, Injectable, Logger } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { K1ImportStatus, KDocumentStatus } from '@prisma/client';
+import { K1AuditAction, K1FieldSource, K1ImportStatus, KDocumentStatus } from '@prisma/client';
 import { StatusCodes, getReasonPhrase } from 'http-status-codes';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
@@ -33,6 +33,31 @@ export class K1ImportService {
     private readonly azureExtractor: AzureExtractor,
     private readonly tesseractExtractor: TesseractExtractor
   ) {}
+
+  /**
+   * Create an audit log entry for a K1 pipeline action.
+   */
+  private async createAuditLog(params: {
+    importSessionId?: string;
+    kDocumentId?: string;
+    userId?: string;
+    action: K1AuditAction;
+    details?: Record<string, any>;
+  }) {
+    try {
+      await this.prismaService.k1AuditLog.create({
+        data: {
+          importSessionId: params.importSessionId ?? undefined,
+          kDocumentId: params.kDocumentId ?? undefined,
+          userId: params.userId ?? undefined,
+          action: params.action,
+          details: params.details ?? undefined
+        }
+      });
+    } catch (error) {
+      this.logger.warn(`Failed to create audit log: ${error.message}`);
+    }
+  }
 
   /**
    * Upload a K-1 PDF and initiate extraction.
@@ -130,6 +155,18 @@ export class K1ImportService {
       }
     });
 
+    // Audit: UPLOADED
+    await this.createAuditLog({
+      importSessionId: session.id,
+      userId,
+      action: K1AuditAction.UPLOADED,
+      details: {
+        fileName: file.originalname,
+        fileSize: file.size,
+        partnershipId: partnershipId || null
+      }
+    });
+
     // Run extraction asynchronously (don't block the response)
     this.runExtraction(session.id, file, partnershipId, entityId, userId).catch((err) => {
       this.logger.error(
@@ -190,6 +227,16 @@ export class K1ImportService {
     entityId?: string,
     userId?: string
   ) {
+    const extractionStartTime = Date.now();
+
+    // Audit: EXTRACTION_STARTED
+    await this.createAuditLog({
+      importSessionId: sessionId,
+      userId,
+      action: K1AuditAction.EXTRACTION_STARTED,
+      details: { method: 'pending' }
+    });
+
     try {
       // Read the file buffer
       const uploadDir = this.uploadService.getUploadDir();
@@ -286,9 +333,11 @@ export class K1ImportService {
       }
 
       // Update session with extraction results, warnings, and resolved partnership
+      const extractionDurationMs = Date.now() - extractionStartTime;
       const updateData: any = {
         status: K1ImportStatus.EXTRACTED,
         extractionMethod: method,
+        extractionDurationMs,
         rawExtraction: {
           ...completeResult,
           warnings
@@ -333,6 +382,20 @@ export class K1ImportService {
       this.logger.log(
         `Session ${sessionId}: Extraction complete (${method}), ${completeResult.fields.length} fields, confidence ${completeResult.overallConfidence}`
       );
+
+      // Audit: EXTRACTION_COMPLETED
+      await this.createAuditLog({
+        importSessionId: sessionId,
+        userId,
+        action: K1AuditAction.EXTRACTION_COMPLETED,
+        details: {
+          method,
+          fieldCount: completeResult.fields.length,
+          overallConfidence: completeResult.overallConfidence,
+          extractionDurationMs: Date.now() - extractionStartTime,
+          taxYear: completeResult.metadata?.taxYear ?? null
+        }
+      });
     } catch (error) {
       this.logger.error(
         `Session ${sessionId}: Extraction failed: ${error.message}`,
@@ -343,7 +406,19 @@ export class K1ImportService {
         where: { id: sessionId },
         data: {
           status: K1ImportStatus.FAILED,
+          extractionDurationMs: Date.now() - extractionStartTime,
           errorMessage: error.message || 'Extraction failed'
+        }
+      });
+
+      // Audit: EXTRACTION_FAILED
+      await this.createAuditLog({
+        importSessionId: sessionId,
+        userId,
+        action: K1AuditAction.EXTRACTION_FAILED,
+        details: {
+          error: error.message,
+          extractionDurationMs: Date.now() - extractionStartTime
         }
       });
     }
@@ -414,6 +489,8 @@ export class K1ImportService {
       data: {
         status: K1ImportStatus.VERIFIED,
         taxYear: data.taxYear,
+        verifiedAt: new Date(),
+        verifiedBy: userId,
         rawExtraction: {
           ...currentRaw,
           verified: {
@@ -427,6 +504,18 @@ export class K1ImportService {
     this.logger.log(
       `Session ${sessionId}: Verified with ${data.fields.length} fields`
     );
+
+    // Audit: VERIFIED
+    await this.createAuditLog({
+      importSessionId: sessionId,
+      userId,
+      action: K1AuditAction.VERIFIED,
+      details: {
+        fieldCount: data.fields.length,
+        taxYear: data.taxYear,
+        editedFieldCount: data.fields.filter((f: any) => f.isUserEdited).length
+      }
+    });
 
     return updated;
   }
@@ -454,6 +543,14 @@ export class K1ImportService {
       data: {
         status: K1ImportStatus.CANCELLED
       }
+    });
+
+    // Audit: CANCELLED
+    await this.createAuditLog({
+      importSessionId: sessionId,
+      userId,
+      action: K1AuditAction.CANCELLED,
+      details: { previousStatus: session.status }
     });
 
     this.logger.log(`Session ${sessionId}: Cancelled`);
@@ -565,6 +662,14 @@ export class K1ImportService {
         `Reprocess extraction failed for session ${newSession.id}: ${err.message}`,
         err.stack
       );
+    });
+
+    // Audit: REPROCESSED
+    await this.createAuditLog({
+      importSessionId: newSession.id,
+      userId,
+      action: K1AuditAction.REPROCESSED,
+      details: { originalSessionId: sessionId }
     });
 
     this.logger.log(
@@ -717,6 +822,7 @@ export class K1ImportService {
         sourcePage: number | null;
         sourceCoords: any;
         isUserEdited: boolean;
+        source: K1FieldSource;
       }
     >();
 
@@ -749,7 +855,10 @@ export class K1ImportService {
         confidence: field.confidence ?? null,
         sourcePage: field.page ?? null,
         sourceCoords: field.boundingBox ?? null,
-        isUserEdited: field.isReviewed === true || field.isEdited === true
+        isUserEdited: field.isReviewed === true || field.isEdited === true,
+        source: (field.isUserEdited || field.isEdited)
+          ? K1FieldSource.USER_ENTERED
+          : K1FieldSource.EXTRACTED
       };
 
       if (existing) {
@@ -816,6 +925,11 @@ export class K1ImportService {
 
     // FR-012: Create or update KDocument with K1LineItems in a single transaction
     // to ensure consistent state (no superseded-but-unreplaced line items).
+    // Extract document-level metadata from the raw extraction
+    const extractionMetadata = rawExtraction?.metadata || {};
+    const isAmended = extractionMetadata.isAmended === true;
+    const isFinal = extractionMetadata.isFinal === true;
+
     let kDocument;
     await this.prismaService.$transaction(async (tx) => {
       if (existingKDocument && data.existingKDocumentAction === 'UPDATE') {
@@ -824,7 +938,12 @@ export class K1ImportService {
           data: {
             filingStatus: data.filingStatus,
             data: finalDocumentData as any,
-            documentFileId: session.documentId
+            documentFileId: session.documentId,
+            isAmended,
+            isFinal,
+            version: (existingKDocument as any).version
+              ? (existingKDocument as any).version + 1
+              : 1
           }
         });
 
@@ -852,7 +971,9 @@ export class K1ImportService {
             taxYear: session.taxYear,
             filingStatus: data.filingStatus,
             data: finalDocumentData as any,
-            documentFileId: session.documentId
+            documentFileId: session.documentId,
+            isAmended,
+            isFinal
           }
         });
       }
@@ -870,7 +991,8 @@ export class K1ImportService {
             sourcePage: item.sourcePage,
             sourceCoords: item.sourceCoords,
             isUserEdited: item.isUserEdited,
-            isSuperseded: false
+            isSuperseded: false,
+            source: item.source
           }))
         });
 
@@ -1036,6 +1158,23 @@ export class K1ImportService {
       data: {
         status: K1ImportStatus.CONFIRMED,
         kDocumentId: kDocument.id
+      }
+    });
+
+    // Audit: CONFIRMED
+    await this.createAuditLog({
+      importSessionId: sessionId,
+      kDocumentId: kDocument.id,
+      userId,
+      action: K1AuditAction.CONFIRMED,
+      details: {
+        kDocumentId: kDocument.id,
+        filingStatus: data.filingStatus,
+        lineItemCount: lineItemsToCreate.length,
+        distributionCount: distributions.length,
+        allocationCount: allocations.length,
+        isAmended,
+        isFinal
       }
     });
 

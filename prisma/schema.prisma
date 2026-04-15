@@ -573,6 +573,10 @@ model KDocument {
   type                  KDocumentType
   taxYear               Int
   filingStatus          KDocumentStatus @default(DRAFT)
+  formType              K1FormType      @default(F1065)
+  isAmended             Boolean         @default(false)
+  isFinal               Boolean         @default(false)
+  version               Int             @default(1)
   data                  Json?
   documentFileId        String?
   documentFile          Document?       @relation(fields: [documentFileId], references: [id])
@@ -581,10 +585,12 @@ model KDocument {
 
   importSession K1ImportSession?
   lineItems     K1LineItem[]
+  auditLogs     K1AuditLog[]
 
   @@unique([partnershipId, type, taxYear])
   @@index([partnershipId])
   @@index([taxYear])
+  @@index([formType])
 }
 
 model PartnershipAsset {
@@ -669,25 +675,56 @@ enum K1ImportStatus {
   FAILED
 }
 
+enum K1FormType {
+  F1065
+  F1120S
+  F1041
+}
+
+enum K1FieldSource {
+  EXTRACTED
+  USER_ENTERED
+  COMPUTED
+  IMPORTED
+}
+
+enum K1AuditAction {
+  UPLOADED
+  EXTRACTION_STARTED
+  EXTRACTION_COMPLETED
+  EXTRACTION_FAILED
+  FIELD_EDITED
+  FIELD_REVIEWED
+  VERIFIED
+  CONFIRMED
+  REPROCESSED
+  CANCELLED
+}
+
 model K1ImportSession {
-  id               String         @id @default(uuid())
-  partnershipId    String?
-  partnership      Partnership?   @relation(fields: [partnershipId], onDelete: Cascade, references: [id])
-  userId           String
-  user             User           @relation(fields: [userId], onDelete: Cascade, references: [id])
-  status           K1ImportStatus @default(PROCESSING)
-  taxYear          Int
-  fileName         String
-  fileSize         Int
-  extractionMethod String
-  rawExtraction    Json?
-  documentId       String?
-  document         Document?      @relation(fields: [documentId], references: [id])
-  kDocumentId      String?        @unique
-  kDocument        KDocument?     @relation(fields: [kDocumentId], references: [id])
-  errorMessage     String?
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
+  id                   String         @id @default(uuid())
+  partnershipId        String?
+  partnership          Partnership?   @relation(fields: [partnershipId], onDelete: Cascade, references: [id])
+  userId               String
+  user                 User           @relation(fields: [userId], onDelete: Cascade, references: [id])
+  status               K1ImportStatus @default(PROCESSING)
+  taxYear              Int
+  fileName             String
+  fileSize             Int
+  extractionMethod     String
+  extractionDurationMs Int?
+  rawExtraction        Json?
+  documentId           String?
+  document             Document?      @relation(fields: [documentId], references: [id])
+  kDocumentId          String?        @unique
+  kDocument            KDocument?     @relation(fields: [kDocumentId], references: [id])
+  errorMessage         String?
+  verifiedAt           DateTime?
+  verifiedBy           String?
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @updatedAt
+
+  auditLogs            K1AuditLog[]
 
   @@index([partnershipId, taxYear])
   @@index([userId])
@@ -751,14 +788,54 @@ model K1LineItem {
   confidence    Decimal?        @db.Decimal(3, 2)
   sourcePage    Int?            @map("source_page")
   sourceCoords  Json?           @map("source_coords")
+  source        K1FieldSource   @default(EXTRACTED)
   isUserEdited  Boolean         @default(false) @map("is_user_edited")
   isSuperseded  Boolean         @default(false) @map("is_superseded")
   createdAt     DateTime        @default(now()) @map("created_at")
   updatedAt     DateTime        @updatedAt @map("updated_at")
+
+  edits         K1FieldEdit[]
 
   @@map("k1_line_item")
   @@index([kDocumentId, boxKey])
   @@index([kDocumentId])
   @@index([boxKey])
   @@index([isSuperseded])
+}
+
+/// Edit history for K1 field values. Tracks every user edit with before/after.
+model K1FieldEdit {
+  id         String   @id @default(uuid())
+  lineItemId String   @map("line_item_id")
+  lineItem   K1LineItem @relation(fields: [lineItemId], references: [id], onDelete: Cascade)
+  userId     String   @map("user_id")
+  oldValue   String?  @map("old_value")
+  newValue   String?  @map("new_value")
+  oldType    String?  @map("old_type")
+  newType    String?  @map("new_type")
+  reason     String?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@map("k1_field_edit")
+  @@index([lineItemId])
+  @@index([userId])
+}
+
+/// Audit log for K1 import lifecycle events.
+model K1AuditLog {
+  id              String         @id @default(uuid())
+  importSessionId String?        @map("import_session_id")
+  importSession   K1ImportSession? @relation(fields: [importSessionId], references: [id], onDelete: Cascade)
+  kDocumentId     String?        @map("k_document_id")
+  kDocument       KDocument?     @relation(fields: [kDocumentId], references: [id], onDelete: Cascade)
+  userId          String?        @map("user_id")
+  action          K1AuditAction
+  details         Json?
+  createdAt       DateTime       @default(now()) @map("created_at")
+
+  @@map("k1_audit_log")
+  @@index([importSessionId])
+  @@index([kDocumentId])
+  @@index([action])
+  @@index([userId])
 }
