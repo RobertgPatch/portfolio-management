@@ -22,23 +22,17 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
-import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
-import { addIcons } from 'ionicons';
-import {
-  checkmarkCircleOutline,
-  alertCircleOutline,
-  closeCircleOutline,
-  trashOutline
-} from 'ionicons/icons';
 
 interface EditableField extends K1ExtractedField {
-  isEditing: boolean;
   editValue: string;
   editLabel: string;
   cellType: string;
   editCellType: string;
+  /** Snapshot value before inline-edit focus (for Escape revert) */
+  _snapshotValue: string;
+  _snapshotLabel: string;
 }
 
 interface EditableUnmappedItem extends K1UnmappedItem {
@@ -59,7 +53,6 @@ interface EditableUnmappedItem extends K1UnmappedItem {
     MatInputModule,
     MatProgressBarModule,
     MatSelectModule,
-    MatTableModule,
     MatTooltipModule
   ],
   selector: 'gf-k1-verification',
@@ -84,18 +77,6 @@ export class K1VerificationComponent implements OnInit {
     { value: 'boolean', label: 'Boolean' }
   ];
 
-  // Column definitions for the fields table
-  public displayedColumns = [
-    'boxNumber',
-    'label',
-    'rawValue',
-    'numericValue',
-    'cellType',
-    'confidence',
-    'reviewed',
-    'actions'
-  ];
-
   // All box definitions from the API (for assigning unmapped items)
   public allBoxDefinitions: Array<{ boxKey: string; label: string; section?: string }> = [];
 
@@ -108,14 +89,7 @@ export class K1VerificationComponent implements OnInit {
     private readonly destroyRef: DestroyRef,
     private readonly k1ImportDataService: K1ImportDataService,
     private readonly router: Router
-  ) {
-    addIcons({
-      checkmarkCircleOutline,
-      alertCircleOutline,
-      closeCircleOutline,
-      trashOutline
-    });
-  }
+  ) {}
 
   public ngOnInit(): void {
     this.sessionId = this.activatedRoute.snapshot.params['id'];
@@ -138,56 +112,83 @@ export class K1VerificationComponent implements OnInit {
     }
   }
 
+  // ── Inline Editing ──────────────────────────────────────────────────
+
   /**
-   * Toggle inline editing for a field.
+   * Snapshot the current value when the user focuses an inline input.
    */
-  public startEditing(field: EditableField): void {
-    field.isEditing = true;
-    field.editValue = field.rawValue;
-    field.editLabel = field.customLabel || field.label;
-    field.editCellType = field.cellType;
-    this.changeDetectorRef.markForCheck();
+  public onFieldFocus(field: EditableField, column: 'label' | 'value'): void {
+    if (column === 'value') {
+      field._snapshotValue = field.rawValue;
+    } else {
+      field._snapshotLabel = field.customLabel || field.label;
+    }
   }
 
   /**
-   * Save edits to a field.
+   * Commit the inline edit when the input loses focus.
    */
-  public saveEdit(field: EditableField): void {
-    field.rawValue = field.editValue;
-    field.customLabel =
-      field.editLabel !== field.label ? field.editLabel : null;
-    field.cellType = field.editCellType;
-    field.isUserEdited = true;
-    field.isReviewed = true;
-    field.isEditing = false;
+  public onFieldBlur(
+    field: EditableField,
+    column: 'label' | 'value',
+    event: FocusEvent
+  ): void {
+    const input = event.target as HTMLInputElement;
+    const newVal = input.value.trim();
 
-    // Parse value based on cell type
-    if (field.cellType === 'boolean') {
-      const lower = field.editValue.toLowerCase().trim();
-      field.numericValue = null;
-      field.rawValue = (lower === 'true' || lower === 'yes' || lower === '1' || lower === 'x') ? 'true' : 'false';
-    } else if (field.cellType === 'string') {
-      field.numericValue = null;
+    if (column === 'value') {
+      if (newVal !== field._snapshotValue) {
+        field.rawValue = newVal;
+        field.isUserEdited = true;
+        field.isReviewed = true;
+        this.reparse(field);
+        this.recalculateAggregations();
+      }
     } else {
-      // number or percentage
-      const cleaned = field.editValue
-        .replace(/[$,%]/g, '')
-        .replace(/\(([^)]+)\)/, '-$1')
-        .trim();
-      const parsed = parseFloat(cleaned);
-      field.numericValue = isNaN(parsed) ? null : parsed;
+      const original = field.label;
+      if (newVal && newVal !== original) {
+        field.customLabel = newVal;
+      } else {
+        field.customLabel = null;
+        input.value = field.label;
+      }
+      if (newVal !== field._snapshotLabel) {
+        field.isUserEdited = true;
+        field.isReviewed = true;
+      }
     }
 
-    this.recalculateAggregations();
     this.checkConfirmability();
     this.changeDetectorRef.markForCheck();
   }
 
   /**
-   * Cancel editing.
+   * Revert to snapshot on Escape key.
    */
-  public cancelEdit(field: EditableField): void {
-    field.isEditing = false;
+  public onFieldEscape(
+    field: EditableField,
+    column: 'label' | 'value',
+    event: KeyboardEvent
+  ): void {
+    const input = event.target as HTMLInputElement;
+    if (column === 'value') {
+      input.value = field._snapshotValue;
+    } else {
+      input.value = field._snapshotLabel;
+    }
+    input.blur();
+  }
+
+  /**
+   * Handle cell type change via inline <select>.
+   */
+  public onTypeChange(field: EditableField, newType: string): void {
+    field.cellType = newType;
+    field.isUserEdited = true;
+    field.isReviewed = true;
+    this.reparse(field);
+    this.recalculateAggregations();
+    this.checkConfirmability();
     this.changeDetectorRef.markForCheck();
   }
 
@@ -199,6 +200,8 @@ export class K1VerificationComponent implements OnInit {
     this.checkConfirmability();
     this.changeDetectorRef.markForCheck();
   }
+
+  // ── Unmapped Items ──────────────────────────────────────────────────
 
   /**
    * Assign an unmapped item to an existing box number.
@@ -222,6 +225,18 @@ export class K1VerificationComponent implements OnInit {
     this.checkConfirmability();
     this.changeDetectorRef.markForCheck();
   }
+
+  /**
+   * Undo a previous assign/discard on an unmapped item.
+   */
+  public undoUnmappedResolution(item: EditableUnmappedItem): void {
+    item.resolution = null;
+    item.assignedBoxNumber = null;
+    this.checkConfirmability();
+    this.changeDetectorRef.markForCheck();
+  }
+
+  // ── Actions ─────────────────────────────────────────────────────────
 
   /**
    * Submit verified data.
@@ -266,7 +281,6 @@ export class K1VerificationComponent implements OnInit {
       .subscribe({
         next: () => {
           this.isSaving = false;
-          // Navigate to confirmation step (Phase 5)
           this.router.navigate(['/k1-import', this.sessionId, 'confirm']);
         },
         error: (err) => {
@@ -297,6 +311,31 @@ export class K1VerificationComponent implements OnInit {
       });
   }
 
+  // ── Private ─────────────────────────────────────────────────────────
+
+  /**
+   * Re-parse the numeric value from rawValue based on cellType.
+   */
+  private reparse(field: EditableField): void {
+    if (field.cellType === 'boolean') {
+      const lower = field.rawValue.toLowerCase().trim();
+      field.numericValue = null;
+      field.rawValue =
+        lower === 'true' || lower === 'yes' || lower === '1' || lower === 'x'
+          ? 'true'
+          : 'false';
+    } else if (field.cellType === 'string') {
+      field.numericValue = null;
+    } else {
+      const cleaned = field.rawValue
+        .replace(/[$,%]/g, '')
+        .replace(/\(([^)]+)\)/, '-$1')
+        .trim();
+      const parsed = parseFloat(cleaned);
+      field.numericValue = isNaN(parsed) ? null : parsed;
+    }
+  }
+
   /**
    * Load session data and populate fields.
    */
@@ -323,11 +362,12 @@ export class K1VerificationComponent implements OnInit {
             this.fields = (extraction.fields || []).map(
               (f: K1ExtractedField) => ({
                 ...f,
-                isEditing: false,
                 editValue: f.rawValue,
                 editLabel: f.customLabel || f.label,
                 cellType: (f as any).cellType || 'number',
-                editCellType: (f as any).cellType || 'number'
+                editCellType: (f as any).cellType || 'number',
+                _snapshotValue: f.rawValue,
+                _snapshotLabel: f.customLabel || f.label
               })
             );
 
