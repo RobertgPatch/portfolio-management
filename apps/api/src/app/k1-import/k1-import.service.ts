@@ -136,15 +136,17 @@ export class K1ImportService {
     // Create Document record for the uploaded PDF (taxYear set to 0 — updated after extraction)
     const document = await this.uploadService.createDocument({
       file,
-      partnershipId: partnershipId || undefined,
+      partnershipId: partnershipId ?? undefined,
       type: 'K1',
       name: file.originalname
     });
 
     // Create import session in PROCESSING status (taxYear set to 0 — updated after extraction)
+    // partnershipId may be null when no partnership was pre-selected;
+    // it will be resolved from PDF metadata during extraction.
     const session = await this.prismaService.k1ImportSession.create({
       data: {
-        partnershipId: partnershipId || undefined,
+        partnershipId: partnershipId ?? null,
         userId,
         status: K1ImportStatus.PROCESSING,
         taxYear: 0,
